@@ -4,7 +4,7 @@ Healthcare Agent Orchestrator is a multi-agent accelerator that coordinates modu
 This repository contains comprehensive information to help you get started.
 
 > [!IMPORTANT]
-The Healthcare Agent Orchestrator code sample is intended for research and development use. The Healthcare Agent Orchestrator code sample is not designed or intended to be deployed in clinical settings as-is nor is it intended for use in the diagnosis or treatment of any health or medical condition, and its performance for such purposes has not been established. You bear sole responsibility and liability for any use of the Healthcare Agent Orchestrator code sample, including verification of outputs and incorporation into any product or service intended for a medical purpose or to inform clinical decision-making, compliance with applicable healthcare laws and regulations, and obtaining any necessary clearances or approvals.
+Healthcare Agent Orchestrator is a code sample to help you build an agent intended for research and development use only. Healthcare Agent Orchestrator is not designed or intended to be deployed in clinical settings as-is nor is it intended for use in the diagnosis or treatment of any health or medical condition, and its performance for such purposes has not been established. By using the Healthcare Agent Orchestrator sample, you are acknowledging that you bear sole responsibility and liability for any use of Healthcare Agent Orchestrator, including verification of outputs and incorporation into any product or service intended for a medical purpose or to inform clinical decision-making, compliance with applicable healthcare laws and regulations, and obtaining any necessary clearances or approvals.
 
 ## Features
 
