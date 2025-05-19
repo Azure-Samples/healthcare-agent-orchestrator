@@ -275,7 +275,7 @@ For questions or inquiries into our products, please contact us at hlsfrontierte
 
 ### Issues and Support
 
-If you encounter any issues or bugs, please create a [GitHub issue](https://github.com/Azure-Samples/healthcare-multi-agent/issues) with details about the problem and steps to reproduce it.
+If you encounter any issues or bugs, please create a [GitHub issue](https://github.com/Azure-Samples/healthcare-agent-orchestrator/issues) with details about the problem and steps to reproduce it.
 For security issues, see [Reporting Security Issues](./SECURITY.md)
 
 ### How to Contribute

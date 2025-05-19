@@ -3,12 +3,9 @@
 This code sample uses Azure Blob Storage to store patient data used by agents. Patient data contains clinical notes and images. Clinical notes are stored in JSON. Images are stored in PNG.
 
 > [!CAUTION]
-> The Healthcare Multi-Agent Orchestration framework is not meant for processing identifiable health records. Ensure that you follow all PHI/PII regulations when configuring or using the system.
+> The Healthcare Agent Orchestration framework is not meant for processing identifiable health records. Ensure that you follow all PHI/PII regulations when configuring or using the system.
 
 ## Add Your Own Data
-
-> [!CRITICAL]
-> The Healthcare Multi-Agent Orchestration framework is not meant for processing identifiable health records. Ensure that you follow all PHI/PII regulations when configuring or using the system.
 
 > [!WARNING]
 > Data will be publicly available unless you configure authentication as mentioned in [Infrastructure](./infra.md#security)

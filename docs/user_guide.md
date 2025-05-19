@@ -74,7 +74,7 @@ The research agent leverages [GraphRAG](https://github.com/microsoft/graphrag), 
 
 The research agent's performance depends on the quality of the indexed data and the configuration of the GraphRAG system. Ensure proper indexing and validation to achieve optimal results.
 
-The Healthcare Multi-Agent Orchestration framework is not intended for direct clinical use, including diagnosis, treatment, or disease prevention. It should not replace professional medical advice or judgment. Clinical performance depends on several factors as noted below.
+The Healthcare Agent Orchestration framework is not intended for direct clinical use, including diagnosis, treatment, or disease prevention. It should not replace professional medical advice or judgment. Clinical performance depends on several factors as noted below.
 
 ### Performance is Dependent on Underlying LLM Capabilities
 
@@ -94,7 +94,7 @@ Evaluation of individual agents, as well as the overall tumor board scenario, is
 
 ### PHI Considerations
 
-The Healthcare Multi-Agent Orchestration framework is not meant for processing identifiable health records. Ensure that you follow all PHI/PII regulations when configuring or using the system.
+The Healthcare Agent Orchestration framework is not meant for processing identifiable health records. Ensure that you follow all PHI/PII regulations when configuring or using the system.
 
 ## Performance Assessments and Evaluations
 
@@ -127,7 +127,7 @@ Limited evaluations were made on a subset of patients that met the following inc
 
 In the case that a patient met the inclusion criteria, ground truth patient summaries were generated from the transcripts and used to measure performance. Specifically, patient case summaries were extracted from the tumor board transcripts using rule-based approaches, and converted to a standard template composed of a patient summary paragraph, followed by a timeline of relevant clinical events / diagnostics / treatments.
 
-Performance measurements used to compare Healthcare Multi-Agent Orchestration to ground truth patient summaries leveraged the following metrics:
+Performance measurements used to compare Healthcare Agent Orchestration to ground truth patient summaries leveraged the following metrics:
 
 - **Lexical**: We use the collection of ROUGE metrics to assess similarities between text documents, as prior work has found these best correlate to human judgement among currently available lexical metrics [1].
 - **Factual**: We developed a metric we term "TBFact", which is a modified form of RadFact [2]. A first text document is converted to a summarized list of facts using an LLM agent. Then a second agent is used to determine entailment of each fact from the second document.
