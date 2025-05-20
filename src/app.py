@@ -3,7 +3,7 @@
 
 import os
 
-from azure.identity import DefaultAzureCredential
+from azure.identity import ManagedIdentityCredential
 from azure.storage.blob.aio import BlobServiceClient
 from botbuilder.integration.aiohttp import CloudAdapter, ConfigurationBotFrameworkAuthentication
 from dotenv import load_dotenv
@@ -42,8 +42,8 @@ def create_app(
 
 
 # Set up service authentication
-credential = DefaultAzureCredential(
-    managed_identity_client_id=os.getenv("AZURE_CLIENT_ID")
+credential = ManagedIdentityCredential(
+    client_id=os.getenv("AZURE_CLIENT_ID")
 )
 
 # Set up blob service client

@@ -6,7 +6,7 @@ import os
 from autogen_agentchat.agents import AssistantAgent, UserProxyAgent
 from autogen_agentchat.teams import MagenticOneGroupChat
 from autogen_ext.models.openai import AzureOpenAIChatCompletionClient
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from azure.identity import ManagedIdentityCredential, get_bearer_token_provider
 from semantic_kernel.agents import Agent, AgentGroupChat
 
 
@@ -20,13 +20,16 @@ def convert_tools(agent: Agent):
 
 
 def create_magentic_chat(chat: AgentGroupChat, agent_config: list, input_func) -> MagenticOneGroupChat:
+    credential = ManagedIdentityCredential(
+        client_id=os.getenv("AZURE_CLIENT_ID")
+    )
     az_model_client = AzureOpenAIChatCompletionClient(
         azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
         model="gpt-4o",
         api_version="2024-10-21",
         azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
         azure_ad_token_provider=get_bearer_token_provider(
-            DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"),
+            credential, "https://cognitiveservices.azure.com/.default"),
     )
 
     assistants = [
