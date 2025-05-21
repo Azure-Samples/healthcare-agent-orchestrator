@@ -3,7 +3,7 @@
 
 import os
 
-from azure.identity import ManagedIdentityCredential
+from azure.identity import AzureCliCredential, ManagedIdentityCredential
 from azure.storage.blob.aio import BlobServiceClient
 from botbuilder.integration.aiohttp import CloudAdapter, ConfigurationBotFrameworkAuthentication
 from dotenv import load_dotenv
@@ -35,7 +35,9 @@ def create_app_context():
     agent_config = load_agent_config(scenario)
 
     # Load Azure Credential
-    credential = ManagedIdentityCredential(client_id=os.getenv("AZURE_CLIENT_ID"))
+    credential = ManagedIdentityCredential(client_id=os.getenv("AZURE_CLIENT_ID")) \
+        if os.getenv("WEBSITE_SITE_NAME") is not None \
+        else AzureCliCredential()   # used for local development
 
     # Setup data access
     blob_service_client = BlobServiceClient(
