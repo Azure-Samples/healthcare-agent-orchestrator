@@ -10,8 +10,8 @@ from botbuilder.integration.aiohttp import CloudAdapter
 from botbuilder.schema import Activity, ActivityTypes
 from semantic_kernel.agents import AgentGroupChat
 
+from data_models.app_context import AppContext
 from data_models.chat_context import ChatContext
-from data_models.data_access import DataAccess
 from group_chat import create_group_chat
 
 logger = logging.getLogger(__name__)
@@ -24,14 +24,14 @@ class AssistantBot(ActivityHandler):
         all_agents: list[dict],
         turn_contexts: dict[str, dict[str, TurnContext]],
         adapters: dict[str, CloudAdapter],
-        data_access: DataAccess,
+        app_context: AppContext
     ):
         self.all_agents = all_agents
         self.name = agent["name"]
         self.turn_contexts = turn_contexts
         self.adapters = adapters
         self.adapters[self.name].on_turn_error = self.on_error  # add error handling
-        self.data_access = data_access
+        self.data_access = app_context.data_access
         self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     async def get_bot_context(

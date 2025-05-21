@@ -13,8 +13,8 @@ from autogen_core import CancellationToken
 from botbuilder.core import ActivityHandler, MessageFactory, TurnContext
 from botbuilder.integration.aiohttp import CloudAdapter
 
+from data_models.app_context import AppContext
 from data_models.chat_context import ChatContext
-from data_models.data_access import DataAccess
 from group_chat import create_group_chat
 from magentic_chat import create_magentic_chat
 
@@ -36,14 +36,14 @@ class MagenticBot(ActivityHandler):
         adapters: dict[str, CloudAdapter],
         all_agents: list[dict],
         turn_contexts: dict[str, dict[str, TurnContext]],
-        data_access: DataAccess,
+        app_context: AppContext
     ):
         self.all_agents = all_agents
         self.adapters = adapters
         self.name = agent["name"]
         self.adapters[self.name].on_turn_error = self.on_error  # add error handling
         self.turn_contexts = turn_contexts
-        self.data_access = data_access
+        self.data_access = app_context.data_access
         self.container_client = self.data_access.chat_context_accessor.container_client
         self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.include_monologue = True
