@@ -21,12 +21,12 @@ class AssistantBot(ActivityHandler):
     def __init__(
         self,
         agent: dict,
-        all_agents: list[dict],
         turn_contexts: dict[str, dict[str, TurnContext]],
         adapters: dict[str, CloudAdapter],
         app_context: AppContext
     ):
-        self.all_agents = all_agents
+        self.app_context = app_context
+        self.all_agents = app_context.all_agent_configs
         self.name = agent["name"]
         self.turn_contexts = turn_contexts
         self.adapters = adapters

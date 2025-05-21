@@ -56,13 +56,13 @@ def create_app_context():
 
 def create_app(
     bots: dict,
-    app_ctx: AppContext,
+    app_context: AppContext,
 ) -> FastAPI:
     app = FastAPI()
     app.include_router(messages_routes(adapters, bots))
-    app.include_router(patient_data_routes(app_ctx.blob_service_client))
-    app.include_router(patient_data_answer_source_routes(app_ctx.data_access))
-    app.include_router(patient_timeline_entry_source_routes(app_ctx.data_access))
+    app.include_router(patient_data_routes(app_context.blob_service_client))
+    app.include_router(patient_data_answer_source_routes(app_context.data_access))
+    app.include_router(patient_timeline_entry_source_routes(app_context.data_access))
 
     return app
 
@@ -76,7 +76,6 @@ adapters = {
     for agent in app_context.all_agent_configs
 }
 bot_config = {
-    "all_agents": app_context.all_agent_configs,
     "adapters": adapters,
     "app_context": app_context,
     "turn_contexts": {}

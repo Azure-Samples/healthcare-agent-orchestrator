@@ -34,11 +34,11 @@ class MagenticBot(ActivityHandler):
         self,
         agent: dict,
         adapters: dict[str, CloudAdapter],
-        all_agents: list[dict],
         turn_contexts: dict[str, dict[str, TurnContext]],
         app_context: AppContext
     ):
-        self.all_agents = all_agents
+        self.app_context = app_context
+        self.all_agents = app_context.all_agent_configs
         self.adapters = adapters
         self.name = agent["name"]
         self.adapters[self.name].on_turn_error = self.on_error  # add error handling
@@ -104,7 +104,7 @@ class MagenticBot(ActivityHandler):
         else:
             logger.info(f"Creating Magentic chat for conversation {conversation_id}")
             magentic_chat = create_magentic_chat(
-                chat, self.all_agents, self.create_input_func_callback(turn_context, chat_ctx))
+                chat, self.app_context, self.create_input_func_callback(turn_context, chat_ctx))
 
             await self.process_magentic_chat(magentic_chat, text, turn_context, chat_ctx)
 
