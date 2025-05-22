@@ -92,7 +92,7 @@ class HealthcareAgent(Agent):
         if not chat_ctx:
             raise ValueError("Chat context is required.")
         if not app_ctx:
-            raise ValueError("Data access is required.")
+            raise ValueError("Application context is required.")
 
         # Initialize the HealthcareAgentServiceClient
         logger.debug("Initializing HealthcareAgentServiceClient.")
