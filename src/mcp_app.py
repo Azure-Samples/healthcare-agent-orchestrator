@@ -52,7 +52,7 @@ def create_fast_mcp_app(app_ctx: AppContext) -> Starlette:
 
             chat_ctx = await data_access.chat_context_accessor.read(session_id)
             chat_ctx.chat_history.add_user_message(message)
-            (chat, chat_ctx) = group_chat.create_group_chat(agent_config, chat_ctx, data_access)
+            (chat, chat_ctx) = group_chat.create_group_chat(app_ctx, chat_ctx)
             logger.info(f"Processing chat with question: {message}")
             chat.is_complete = False
             responses = []

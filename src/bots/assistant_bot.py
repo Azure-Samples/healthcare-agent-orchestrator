@@ -123,7 +123,7 @@ class AssistantBot(ActivityHandler):
             part_of_conversation = await asyncio.gather(*(is_part_of_conversation(agent) for agent in self.all_agents))
             agents = [agent for agent, should_include in zip(self.all_agents, part_of_conversation) if should_include]
 
-        (chat, chat_ctx) = create_group_chat(agents, chat_ctx, self.data_access)
+        (chat, chat_ctx) = create_group_chat(self.app_context, chat_ctx, participants=agents)
 
         # Add user message to chat history
         text = turn_context.remove_recipient_mention(turn_context.activity).strip()

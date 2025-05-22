@@ -6,7 +6,6 @@ import logging
 import os
 from typing import Tuple
 
-from openai.lib.azure import AsyncAzureADTokenProvider
 from pydantic import BaseModel
 from semantic_kernel import Kernel
 from semantic_kernel.agents import AgentGroupChat, ChatCompletionAgent
@@ -22,8 +21,8 @@ from semantic_kernel.contents.history_reducer.chat_history_truncation_reducer im
 from semantic_kernel.functions.kernel_function_from_prompt import KernelFunctionFromPrompt
 from semantic_kernel.kernel import Kernel, KernelArguments
 
+from data_models.app_context import AppContext
 from data_models.chat_context import ChatContext
-from data_models.data_access import DataAccess
 from data_models.plugin_configuration import PluginConfiguration
 from healthcare_agents import HealthcareAgent
 from healthcare_agents import config as healthcare_agent_config
@@ -39,12 +38,15 @@ class ChatRule(BaseModel):
 
 
 def create_group_chat(
-    all_agents_config: list[dict], chat_ctx: ChatContext, data_access: DataAccess, get_bearer_token_provider: AsyncAzureADTokenProvider | None = None
+    app_ctx: AppContext, chat_ctx: ChatContext, participants: list[dict] = None
 ) -> Tuple[AgentGroupChat, ChatContext]:
+    participant_configs = participants or app_ctx.all_agent_configs
+    participant_names = [cfg.get("name") for cfg in participant_configs]
+    logger.info(f"Creating group chat with participants: {participant_names}")
 
     # Remove magentic agent from the list of agents. In the future, we could add agent type to deal with agents that should not be included in the Semantic Kernel group chat.
     all_agents_config = [
-        agent for agent in all_agents_config if agent.get("name") != "magentic"
+        agent for agent in participant_configs if agent.get("name") != "magentic"
     ]
 
     def _create_kernel_with_chat_completion() -> Kernel:
@@ -54,7 +56,7 @@ def create_group_chat(
                 service_id="default",
                 deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
                 api_version="2024-10-21",
-                ad_token_provider=get_bearer_token_provider
+                ad_token_provider=app_ctx.cognitive_services_token_provider
             )
         )
         return kernel
@@ -64,8 +66,9 @@ def create_group_chat(
         plugin_config = PluginConfiguration(
             kernel=agent_kernel,
             agent_config=agent_config,
-            data_access=data_access,
+            data_access=app_ctx.data_access,
             chat_ctx=chat_ctx,
+            azureml_token_provider=app_ctx.azureml_token_provider,
         )
         is_healthcare_agent = healthcare_agent_config.yaml_key in agent_config and bool(
             agent_config[healthcare_agent_config.yaml_key])
@@ -92,7 +95,7 @@ def create_group_chat(
                                     arguments=arguments) if not is_healthcare_agent else
                 HealthcareAgent(name=agent_config["name"],
                                 chat_ctx=chat_ctx,
-                                data_access=data_access))
+                                app_ctx=app_ctx))
 
     settings = AzureChatPromptExecutionSettings(
         function_choice_behavior=FunctionChoiceBehavior.Auto(), temperature=DEFAULT_MODEL_TEMP, seed=42, response_format=ChatRule)

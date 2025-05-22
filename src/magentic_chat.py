@@ -6,7 +6,6 @@ import os
 from autogen_agentchat.agents import AssistantAgent, UserProxyAgent
 from autogen_agentchat.teams import MagenticOneGroupChat
 from autogen_ext.models.openai import AzureOpenAIChatCompletionClient
-from azure.identity import get_bearer_token_provider
 from semantic_kernel.agents import Agent, AgentGroupChat
 
 from data_models.app_context import AppContext
@@ -28,8 +27,7 @@ def create_magentic_chat(chat: AgentGroupChat, app_context: AppContext, input_fu
         model="gpt-4o",
         api_version="2024-10-21",
         azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
-        azure_ad_token_provider=get_bearer_token_provider(
-            app_context.credential, "https://cognitiveservices.azure.com/.default"),
+        azure_ad_token_provider=app_context.cognitive_services_token_provider,
     )
 
     assistants = [

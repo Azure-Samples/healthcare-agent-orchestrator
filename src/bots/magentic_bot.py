@@ -89,7 +89,7 @@ class MagenticBot(ActivityHandler):
             await turn_context.send_activity("Conversation cleared!")
             return
 
-        (chat, chat_ctx) = create_group_chat(self.all_agents, chat_ctx, self.data_access)
+        (chat, chat_ctx) = create_group_chat(self.app_context, chat_ctx)
         logger.info(f"Created chat for conversation {conversation_id}")
 
         blob_path_conversation = f"{turn_context.activity.conversation.id}/conversation_in_progress.txt"
