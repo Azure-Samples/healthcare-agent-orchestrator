@@ -2,6 +2,7 @@
 # Licensed under the MIT license.
 
 from dataclasses import dataclass
+from typing import Any, Callable, Coroutine
 
 from semantic_kernel import Kernel
 
@@ -29,3 +30,4 @@ class PluginConfiguration:
     chat_ctx: ChatContext
     agent_config: dict
     data_access: DataAccess
+    azureml_token_provider: Callable[[], Coroutine[Any, Any, str]]

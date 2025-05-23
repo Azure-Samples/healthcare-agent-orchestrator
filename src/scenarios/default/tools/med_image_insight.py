@@ -7,29 +7,21 @@ import os
 import aiohttp
 import numpy as np
 import scipy.special
-from azure.identity.aio import DefaultAzureCredential
 from semantic_kernel.functions import kernel_function
 
-from data_models.data_access import DataAccess
 from data_models.plugin_configuration import PluginConfiguration
 
 
 def create_plugin(plugin_config: PluginConfiguration):
-    return MedImageInsightPlugin(
-        plugin_config.agent_config.get("bot_id"),
-        plugin_config.agent_config["hls_model_endpoint"].get("med_image_insight"),
-        plugin_config.data_access,
-    )
+    return MedImageInsightPlugin(plugin_config)
 
 
 class MedImageInsightPlugin:
-    def __init__(self, managed_identity_client_id: str, url: str, data_access: DataAccess):
+    def __init__(self, config: PluginConfiguration):
+        self.azureml_token_provider = config.azureml_token_provider
+        self.data_access = config.data_access
+        self.url = config.agent_config["hls_model_endpoint"].get("med_image_insight")
         self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.credentials = DefaultAzureCredential(
-            managed_identity_client_id=managed_identity_client_id
-        )
-        self.url = url
-        self.data_access = data_access
 
     @kernel_function(description="Calculates the likelihood that a tumor is malignant")
     async def tumor_malignant(self, patient_id: str, filename: str, prompt: str):
@@ -47,7 +39,7 @@ class MedImageInsightPlugin:
         }
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {(await self.credentials.get_token('https://ml.azure.com/.default')).token}",
+            "Authorization": f"Bearer {await self.azureml_token_provider()}",
         }
         async with aiohttp.ClientSession() as session:
             async with session.post(self.url, json=body, headers=headers) as resp:

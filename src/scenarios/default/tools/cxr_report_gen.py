@@ -5,25 +5,21 @@ import base64
 import os
 
 import aiohttp
-from azure.identity.aio import DefaultAzureCredential
 from semantic_kernel.functions import kernel_function
 
-from data_models.data_access import DataAccess
 from data_models.plugin_configuration import PluginConfiguration
 
 
 def create_plugin(plugin_config: PluginConfiguration):
-    return CxrReportGenPlugin(plugin_config.agent_config.get("bot_id"), plugin_config.agent_config["hls_model_endpoint"].get("cxr_report_gen"), plugin_config.data_access)
+    return CxrReportGenPlugin(plugin_config)
 
 
 class CxrReportGenPlugin:
-    def __init__(self, managed_identity_client_id: str, url: str, data_access: DataAccess):
+    def __init__(self, config: PluginConfiguration):
+        self.azureml_token_provider = config.azureml_token_provider
+        self.data_access = config.data_access
+        self.url = config.agent_config["hls_model_endpoint"].get("cxr_report_gen")
         self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.credentials = DefaultAzureCredential(
-            managed_identity_client_id=managed_identity_client_id
-        )
-        self.url = url
-        self.data_access = data_access
 
     @kernel_function()
     async def generate_findings(self, patient_id: str, filename: str, indication: str):
@@ -49,7 +45,7 @@ class CxrReportGenPlugin:
         }
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {(await self.credentials.get_token('https://ml.azure.com/.default')).token}",
+            "Authorization": f"Bearer {await self.azureml_token_provider()}",
         }
         async with aiohttp.ClientSession() as session:
             async with session.post(self.url, json=body, headers=headers) as resp:

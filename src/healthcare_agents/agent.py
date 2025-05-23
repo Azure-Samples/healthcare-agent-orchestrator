@@ -6,15 +6,14 @@ import os
 from collections.abc import AsyncIterable
 from typing import ClassVar, override
 
-from azure.identity.aio import DefaultAzureCredential
 from azure.keyvault.secrets.aio import SecretClient
 from semantic_kernel.agents.agent import Agent
 from semantic_kernel.agents.channels.agent_channel import AgentChannel
 from semantic_kernel.contents import AuthorRole, ChatMessageContent
 from semantic_kernel.exceptions import AgentInvokeException
 
+from data_models.app_context import AppContext
 from data_models.chat_context import ChatContext
-from data_models.data_access import DataAccess
 from healthcare_agents.client import HealthcareAgentServiceClient
 from healthcare_agents.config import config
 
@@ -80,20 +79,20 @@ class HealthcareAgent(Agent):
     def __init__(self,
                  name: str = None,
                  chat_ctx: ChatContext = None,
-                 data_access: DataAccess = None,
+                 app_ctx: AppContext = None,
                  ):
         super().__init__(name=name)
         self.name = name
         self._chat_ctx = chat_ctx
-        self._data_access = data_access
+        self._data_access = app_ctx.data_access
         self._client: HealthcareAgentServiceClient = None
 
         if not name:
             raise ValueError("Agent name is required.")
         if not chat_ctx:
             raise ValueError("Chat context is required.")
-        if not data_access:
-            raise ValueError("Data access is required.")
+        if not app_ctx:
+            raise ValueError("Application context is required.")
 
         # Initialize the HealthcareAgentServiceClient
         logger.debug("Initializing HealthcareAgentServiceClient.")
@@ -103,7 +102,7 @@ class HealthcareAgent(Agent):
             url=config.directline_url,
             keyvault_client=SecretClient(
                 vault_url=os.getenv("KEYVAULT_ENDPOINT"),
-                credential=DefaultAzureCredential(exclude_cli_credential=True)
+                credential=app_ctx.credential,
             ),
             directline_secret_key=config.keyvault_secret_key_name.format(name=name),
             max_retries=config.max_retries,

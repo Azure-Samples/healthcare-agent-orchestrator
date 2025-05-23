@@ -13,12 +13,14 @@ from starlette.requests import Request
 from starlette.routing import Mount
 
 import group_chat
-from data_models.data_access import DataAccess
+from data_models.app_context import AppContext
 
 logger = logging.getLogger(__name__)
 
 
-def create_fast_mcp_app(agent_config: list[dict], data_access: DataAccess) -> Starlette:
+def create_fast_mcp_app(app_ctx: AppContext) -> Starlette:
+    agent_config = app_ctx.all_agent_configs
+    data_access = app_ctx.data_access
     task_group = None
 
     @contextlib.asynccontextmanager
@@ -50,7 +52,7 @@ def create_fast_mcp_app(agent_config: list[dict], data_access: DataAccess) -> St
 
             chat_ctx = await data_access.chat_context_accessor.read(session_id)
             chat_ctx.chat_history.add_user_message(message)
-            (chat, chat_ctx) = group_chat.create_group_chat(agent_config, chat_ctx, data_access)
+            (chat, chat_ctx) = group_chat.create_group_chat(app_ctx, chat_ctx)
             logger.info(f"Processing chat with question: {message}")
             chat.is_complete = False
             responses = []

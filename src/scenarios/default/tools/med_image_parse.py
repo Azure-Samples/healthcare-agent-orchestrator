@@ -11,23 +11,16 @@ import aiohttp
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-from azure.identity.aio import DefaultAzureCredential
 from semantic_kernel.functions import kernel_function
 
 from data_models.chat_artifact import ChatArtifact, ChatArtifactIdentifier
-from data_models.data_access import DataAccess
 from data_models.plugin_configuration import PluginConfiguration
 
 logger = logging.getLogger(__name__)
 
 
 def create_plugin(plugin_config: PluginConfiguration):
-    return MedImageParsePlugin(
-        managed_identity_client_id=plugin_config.agent_config.get("bot_id"),
-        url=plugin_config.agent_config["hls_model_endpoint"].get("med_image_parse"),
-        chat_ctx=plugin_config.chat_ctx,
-        data_access=plugin_config.data_access
-    )
+    return MedImageParsePlugin(plugin_config)
 
 
 def decode_json_to_array(json_encoded):
@@ -67,14 +60,11 @@ def find_longest_length(image_features, file_path):
 
 
 class MedImageParsePlugin:
-    def __init__(self, managed_identity_client_id, url, chat_ctx, data_access: DataAccess):
+    def __init__(self, config: PluginConfiguration):
+        self.azureml_token_provider = config.azureml_token_provider
+        self.data_access = config.data_access
+        self.url = config.agent_config["hls_model_endpoint"].get("med_image_parse")
         self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.credentials = DefaultAzureCredential(
-            managed_identity_client_id=managed_identity_client_id
-        )
-        self.url = url
-        self.chat_ctx = chat_ctx
-        self.data_access = data_access
 
     @kernel_function(description="Calculates the tumor size")
     async def calculate_tumor_size(self, patient_id: str, filename: str, prompt: str):
@@ -89,7 +79,7 @@ class MedImageParsePlugin:
         }
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {(await self.credentials.get_token('https://ml.azure.com/.default')).token}",
+            "Authorization": f"Bearer {await self.azureml_token_provider()}",
         }
         async with aiohttp.ClientSession() as session:
             async with session.post(self.url, json=body, headers=headers) as resp:

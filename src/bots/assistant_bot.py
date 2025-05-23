@@ -10,8 +10,8 @@ from botbuilder.integration.aiohttp import CloudAdapter
 from botbuilder.schema import Activity, ActivityTypes
 from semantic_kernel.agents import AgentGroupChat
 
+from data_models.app_context import AppContext
 from data_models.chat_context import ChatContext
-from data_models.data_access import DataAccess
 from group_chat import create_group_chat
 
 logger = logging.getLogger(__name__)
@@ -21,17 +21,17 @@ class AssistantBot(ActivityHandler):
     def __init__(
         self,
         agent: dict,
-        all_agents: list[dict],
         turn_contexts: dict[str, dict[str, TurnContext]],
         adapters: dict[str, CloudAdapter],
-        data_access: DataAccess,
+        app_context: AppContext
     ):
-        self.all_agents = all_agents
+        self.app_context = app_context
+        self.all_agents = app_context.all_agent_configs
         self.name = agent["name"]
         self.turn_contexts = turn_contexts
         self.adapters = adapters
         self.adapters[self.name].on_turn_error = self.on_error  # add error handling
-        self.data_access = data_access
+        self.data_access = app_context.data_access
         self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     async def get_bot_context(
@@ -123,7 +123,7 @@ class AssistantBot(ActivityHandler):
             part_of_conversation = await asyncio.gather(*(is_part_of_conversation(agent) for agent in self.all_agents))
             agents = [agent for agent, should_include in zip(self.all_agents, part_of_conversation) if should_include]
 
-        (chat, chat_ctx) = create_group_chat(agents, chat_ctx, self.data_access)
+        (chat, chat_ctx) = create_group_chat(self.app_context, chat_ctx, participants=agents)
 
         # Add user message to chat history
         text = turn_context.remove_recipient_mention(turn_context.activity).strip()
