@@ -329,6 +329,7 @@ output AZURE_OPENAI_DEPLOYMENT_NAME string = m_gpt.outputs.modelName
 output AZURE_OPENAI_DEPLOYMENT_NAME_REASONING_MODEL string = m_gpt.outputs.modelName
 output AZURE_OPENAI_REASONING_MODEL_ENDPOINT string = empty(aiEndpointReasoningOverride) ? m_aiservices.outputs.aiServicesEndpoint : aiEndpointReasoningOverride
 output AZURE_AI_PROJECT_CONNECTION_STRING string = m_aihub.outputs.aiProjectConnectionString
+output FHIR_SERVICE_ENDPOINT string = m_fhirService.outputs.endpoint
 output HLS_MODEL_ENDPOINTS string = string(m_app.outputs.modelEndpoints)
 output KEYVAULT_ENDPOINT string = m_keyVault.outputs.keyVaultEndpoint
 output HEALTHCARE_AGENT_SERVICE_ENDPOINTS array = !empty(healthcareAgents) ? m_healthcareAgentService.outputs.healthcareAgentServiceEndpoints : []
