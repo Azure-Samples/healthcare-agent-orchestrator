@@ -6,7 +6,7 @@ param tags object = {}
 
 var loginURL = environment().authentication.loginEndpoint
 var authority = '${loginURL}${tenantId}'
-var audience = 'https://${fhirServiceName}.fhir.azurehealthcareapis.com'
+var audience = 'https://${workspaceName}-${fhirServiceName}.fhir.azurehealthcareapis.com'
 
 var mergedTags = union({
   FhirServiceTemplate: 'FHIRServiceDeployment'
