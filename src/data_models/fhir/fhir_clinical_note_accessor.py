@@ -1,53 +1,36 @@
 import asyncio
 import base64
 import json
-from typing import Dict, List
+from typing import Any, Callable, Coroutine, Dict, List
 
 import requests
+from azure.core.credentials_async import AsyncTokenCredential
+from azure.identity.aio import get_bearer_token_provider
 
 
 class FhirClinicalNoteAccessor:
-    def __init__(self, fhir_url: str, tenant_id: str, client_id: str, client_secret: str):
+    def __init__(self, fhir_url: str, credential: AsyncTokenCredential):
         """
         Initializes the FhirClinicalNoteAccessor.
 
         :param fhir_url: The base URL of the FHIR server.
-        :param tenant_id: The Azure tenant ID.
-        :param client_id: The Azure client ID.
-        :param client_secret: The Azure client secret.
+        :param credential: The Azure credential for authentication.
         """
         self.fhir_url = fhir_url
-        self.tenant_id = tenant_id
-        self.client_id = client_id
-        self.client_secret = client_secret
+        self.credential = credential
 
-    def get_access_token(self) -> str:
-        """
-        Retrieves an access token for authenticating with the FHIR server.
+    @property
+    def fhir_token_provider(self) -> Callable[[], Coroutine[Any, Any, str]]:
+        return get_bearer_token_provider(self.credential, f"{self.fhir_url}/.default")
 
-        :return: The access token.
-        """
-        token_url = f"https://login.microsoftonline.com/{self.tenant_id}/oauth2/token"
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        data = {
-            "grant_type": "client_credentials",
-            "resource": self.fhir_url,
-            "client_id": self.client_id,
-            "client_secret": self.client_secret,
-            "scope": f"{self.fhir_url}/.default"
-        }
-        response = requests.post(token_url, headers=headers, data=data)
-        response.raise_for_status()  # Raise an error for bad responses
-        return response.json()["access_token"]
-
-    def get_headers(self) -> dict:
+    async def get_headers(self) -> dict:
         """
         Returns the headers required for FHIR API requests.
 
         :return: A dictionary of headers.
         """
         return {
-            "Authorization": f"Bearer {self.get_access_token()}",
+            "Authorization": f"Bearer {await self.fhir_token_provider()}",
             "Content-Type": "application/json",
         }
 
@@ -58,7 +41,7 @@ class FhirClinicalNoteAccessor:
         :return: A list of patient IDs.
         """
         url = f"{self.fhir_url}/Patient"
-        response = requests.get(url, headers=self.get_headers())
+        response = requests.get(url, headers=await self.get_headers())
         response.raise_for_status()
         patients = response.json().get("entry", [])
         return [entry["resource"]['name'][0]['given'][0] for entry in patients]
@@ -70,7 +53,7 @@ class FhirClinicalNoteAccessor:
         :return: A list of patient IDs.
         """
         url = f"{self.fhir_url}/Patient"
-        response = requests.get(url, headers=self.get_headers())
+        response = requests.get(url, headers=await self.get_headers())
         response.raise_for_status()
         patients = response.json().get("entry", [])
 
@@ -89,7 +72,7 @@ class FhirClinicalNoteAccessor:
             patient_id = patient_id_map[patient_id]
 
         url = f"{self.fhir_url}/DocumentReference?subject=Patient/{patient_id}"
-        response = requests.get(url, headers=self.get_headers())
+        response = requests.get(url, headers=await self.get_headers())
         response.raise_for_status()
         document_references = response.json().get("entry", [])
 
@@ -123,7 +106,7 @@ class FhirClinicalNoteAccessor:
         :return: The content of the clinical note.
         """
         url = f"{self.fhir_url}/DocumentReference/{note_id}"
-        response = requests.get(url, headers=self.get_headers())
+        response = requests.get(url, headers=await self.get_headers())
         response.raise_for_status()
         document_reference = response.json()
         note_content = document_reference["content"][0]["attachment"]["data"]
