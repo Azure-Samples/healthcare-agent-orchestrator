@@ -74,6 +74,9 @@
     "scenario": {
       "value": "${SCENARIO}"
     },
+    "clinicalNotesSource": {
+      "value": "${CLINICAL_NOTES_SOURCE}"
+    },
     "tags": {
       "value": {
         "Owner": "AI Team",

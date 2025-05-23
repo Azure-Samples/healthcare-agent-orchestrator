@@ -76,6 +76,9 @@ param scenario string = 'default'
 @secure()
 param graphRagSubscriptionKey string = ''
 
+@description('Storage location type for clincal notes. Options: fhir, blob.')
+param clinicalNotesSource string = 'blob'
+
 var modelName = split(model, ';')[0]
 var modelVersion = split(model, ';')[1]
 
@@ -93,6 +96,8 @@ var names = {
   storage: !empty(storageName) ? storageName : replace(replace('${abbrs.storageStorageAccounts}${environmentName}${uniqueSuffix}', '-', ''), '_', '')
   appStorage: !empty(appStorageName) ? appStorageName : replace(replace('${abbrs.storageStorageAccounts}app${environmentName}${uniqueSuffix}', '-', ''), '_', '')
   keyVault: !empty(keyVaultName) ? keyVaultName : '${abbrs.keyVaultVaults}${environmentName}-${uniqueSuffix}'
+  ahdsWorkspaceName: replace('ahds${environmentName}${uniqueSuffix}', '-', '')
+  ahdsFhirServiceName: replace('fhir${environmentName}${uniqueSuffix}', '-', '')
 }
 
 var agentConfigs = {
@@ -231,6 +236,21 @@ module m_appStorageAccount 'modules/storageAccount.bicep' = {
   }
 }
 
+module m_fhirService 'modules/fhirService.bicep' = if (clinicalNotesSource == 'fhir') {
+  name: 'deploy_fhir_service'
+  params: {
+    workspaceName: names.ahdsWorkspaceName
+    fhirServiceName: names.ahdsFhirServiceName
+    tenantId: subscription().tenantId
+    grantAccessTo: [
+      for i in range(0, length(agents)): {
+        id: m_msi[i].outputs.msiPrincipalID
+        type: 'ServicePrincipal'
+      }
+    ]
+  }
+}
+
 module m_app 'modules/appservice.bicep' = {
   name: 'deploy_app'
   params: {
@@ -256,6 +276,8 @@ module m_app 'modules/appservice.bicep' = {
     graphRagSubscriptionKey: graphRagSubscriptionKey
     keyVaultName: m_keyVault.outputs.keyVaultName
     scenario: scenario
+    clinicalNotesSource: clinicalNotesSource
+    fhirServiceEndpoint: m_fhirService.outputs.endpoint
   }
 }
 
