@@ -98,7 +98,7 @@ def create_data_access(
     clinical_notes_source = os.getenv("CLINICAL_NOTES_SOURCE")
     if clinical_notes_source == "fhir":
         clinical_note_accessor = FhirClinicalNoteAccessor(
-            fhir_url=os.getenv("FHIR_SERVER_URL"),
+            fhir_url=os.getenv("FHIR_SERVICE_ENDPOINT"),
             credential=credential,
         )
     else:
