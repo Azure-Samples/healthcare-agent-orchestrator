@@ -52,7 +52,8 @@ if (-not (Get-Module -ListAvailable -Name Az.Accounts)) {
     Write-Host "Az.Accounts module is already loaded."
 }
 
-$authToken = (Get-AzAccessToken -ResourceUrl "https://teams.microsoft.com" -Tenant $tenantId).Token
+$authToken = (ConvertFrom-SecureString -AsPlainText (Get-AzAccessToken -AsSecureString -ResourceUrl "https://teams.microsoft.com" -Tenant $tenantId).Token)
+
 # Make a POST call to get regionGtms/appService
 $authzUrl = "https://teams.microsoft.com/api/authsvc/v1.0/authz"
 $authzHeaders = @{

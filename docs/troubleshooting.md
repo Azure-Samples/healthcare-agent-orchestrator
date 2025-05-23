@@ -16,12 +16,15 @@ Then run `azd up` again.
 
 ### Install the Agents in Microsoft Teams
 
+#### Authentication errors on Windows
+
 If you encounter authentication errors, you can manually obtain a token:
 
 > [!NOTE]
 > This command should be run on the same PC where you typically use Microsoft Teams.
 
 **Bash/Unix:**
+
 ```sh
 authToken=$(az account get-access-token \
     --resource "https://teams.microsoft.com" \
@@ -29,6 +32,21 @@ authToken=$(az account get-access-token \
 ```
 
 **PowerShell/Windows:**
+
 ```powershell
 $authToken = (Get-AzAccessToken -ResourceUrl "https://teams.microsoft.com" -Tenant $tenantId).Token
+```
+
+#### Determining tenant ID on Windows
+
+If you are getting an error `Write-Error: Unable to determine tenantId from the current Az context. Pass -tenantId explicitly.`, try running the following command first to connect your Azure account to the current Powershell session.
+
+```powershell
+Connect-AzAccount
+```
+
+You may need to install the module first with the following command
+
+```powershell
+Install-Module az.accounts
 ```
