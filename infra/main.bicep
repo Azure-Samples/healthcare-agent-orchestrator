@@ -242,9 +242,15 @@ module m_fhirService 'modules/fhirService.bicep' = if (clinicalNotesSource == 'f
     workspaceName: names.ahdsWorkspaceName
     fhirServiceName: names.ahdsFhirServiceName
     tenantId: subscription().tenantId
-    grantAccessTo: [
-      for i in range(0, length(agents)): {
-        id: m_msi[i].outputs.msiPrincipalID
+    dataContributors: [
+      {
+        id: myPrincipalId
+        type: myPrincipalType
+      }
+    ]
+    dataReaders: [
+      {
+        id: m_msi[0].outputs.msiPrincipalID
         type: 'ServicePrincipal'
       }
     ]
