@@ -283,7 +283,7 @@ module m_app 'modules/appservice.bicep' = {
     keyVaultName: m_keyVault.outputs.keyVaultName
     scenario: scenario
     clinicalNotesSource: clinicalNotesSource
-    fhirServiceEndpoint: m_fhirService.outputs.endpoint
+    fhirServiceEndpoint: clinicalNotesSource == 'fhir' ? m_fhirService.outputs.endpoint : ''
   }
 }
 
