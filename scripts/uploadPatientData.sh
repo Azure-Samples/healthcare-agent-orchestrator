@@ -30,6 +30,31 @@ else
     exit 1
 fi
 
+if [ $CLINICAL_NOTES_SOURCE == "fhir" ]; then
+    # Check if Python is installed
+    pythonVersion=$(python -V 2>&1 | grep -Po '(?<=Python )(.+)')
+    if [[ -z "$version" ]]; then
+        echo "Python version 3.12 or higher is required. Please try again."
+        exit 1
+    fi
+
+    # Run the Python script to convert patient data to FHIR format
+    python "$rootDirectory\scripts\generate_fhir_resources.py"
+    if [ $? -ne 0 ]; then
+        Write-Error "Failed to generate FHIR resources. Please check the script for errors."
+        exit 1
+    fi
+
+    # Run the Python script to upload patient data to FHIR service
+    python "$rootDirectory\scripts\ingest_fhir_resources.py"
+    if [ $? -ne 0 ]; then
+        Write-Error "Failed to ingest FHIR resources. Please check the script for errors."
+        exit 1
+    fi
+    
+    exit 0
+fi
+
 # Define variables
 storageAccountName="$APP_STORAGE_ACCOUNT_NAME"
 containerName="patient-data"
