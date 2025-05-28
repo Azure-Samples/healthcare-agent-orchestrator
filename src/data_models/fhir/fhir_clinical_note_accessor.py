@@ -11,6 +11,7 @@ import aiohttp
 import requests
 from azure.core.credentials_async import AsyncTokenCredential
 from azure.identity.aio import get_bearer_token_provider
+import urllib
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +37,10 @@ class FhirClinicalNoteAccessor:
                 "client_secret": client_secret,
                 "scope": f"{fhir_url}/.default"
             }
-            async with aiohttp.request('POST', token_url, json=data, headers=headers) as resp:
+            async with aiohttp.request('POST', token_url, data=data, headers=headers) as resp:
                 resp.raise_for_status()
-                return await resp.json()["access_token"]
+                json_response = await resp.json()
+                return json_response["access_token"]
 
         return FhirClinicalNoteAccessor(fhir_url, bearer_token_provider)
 
@@ -67,6 +69,48 @@ class FhirClinicalNoteAccessor:
             "Authorization": f"Bearer {await self.bearer_token_provider()}",
             "Content-Type": "application/json",
         }
+    
+    @staticmethod
+    def get_continuation_token(links):
+        for link in links:
+            if "relation" in link and link["relation"] == "next":
+                return link["url"].split("?", 1)[-1]
+        return None
+
+    async def fetch_all_entries(
+        self,
+        base_url: str,
+        result_count_limit: int = 100,
+        extract_entries=lambda r: r.get("entry", []),
+        extract_continuation_token=lambda r: FhirClinicalNoteAccessor.get_continuation_token(r.get("link", []))
+    ) -> List[dict]:
+        """
+        Generic function to fetch all entries from a paginated FHIR resource endpoint.
+        :param base_url: The initial FHIR resource URL (e.g., f"{fhir_url}/Patient").
+        :param result_count_limit: Maximum number of entries to fetch.
+        :param extract_entries: Function to extract entries from the response JSON.
+        :param extract_continuation_token: Function to extract continuation token from the response JSON.
+        :return: List of resource entries.
+        """
+        entries = []
+        url = base_url
+        while url and len(entries) < result_count_limit:
+            print(f"Fetching from URL: {url}")
+            response = requests.get(url, headers=await self.get_headers())
+            response.raise_for_status()
+            response_json = response.json()
+            new_entries = extract_entries(response_json)
+            entries.extend(new_entries)
+            if len(entries) >= result_count_limit:
+                break
+            token = extract_continuation_token(response_json)
+            if token:
+                # Append or replace query string with continuation token
+                parsed_url = urllib.parse.urlparse(base_url)
+                url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}?{token}"
+            else:
+                url = None
+        return entries[:result_count_limit]
 
     async def get_patients(self) -> List[str]:
         """
@@ -74,11 +118,11 @@ class FhirClinicalNoteAccessor:
 
         :return: A list of patient IDs.
         """
-        url = f"{self.fhir_url}/Patient"
-        response = requests.get(url, headers=await self.get_headers())
-        response.raise_for_status()
-        patients = response.json().get("entry", [])
-        return [entry["resource"]['name'][0]['given'][0] for entry in patients]
+        entries = await self.fetch_all_entries(
+            base_url=f"{self.fhir_url}/Patient",
+            result_count_limit=100
+        )
+        return [entry["resource"]['name'][0]['given'][0] for entry in entries]
 
     async def get_patient_id_map(self) -> List[str]:
         """
@@ -86,30 +130,27 @@ class FhirClinicalNoteAccessor:
 
         :return: A list of patient IDs.
         """
-        url = f"{self.fhir_url}/Patient"
-        response = requests.get(url, headers=await self.get_headers())
-        response.raise_for_status()
-        patients = response.json().get("entry", [])
+        entries = await self.fetch_all_entries(
+            base_url=f"{self.fhir_url}/Patient",
+            result_count_limit=100
+        )
 
-        return {entry["resource"]['name'][0]['given'][0]: entry["resource"]['id'] for entry in patients}
+        return {entry["resource"]['name'][0]['given'][0]: entry["resource"]['id'] for entry in entries}
 
     async def get_metadata_list(self, patient_id: str) -> List[Dict[str, str]]:
         """
         Retrieves metadata for clinical notes associated with a given patient ID.
-
         :param patient_id: The ID of the patient.
         :return: A list of metadata dictionaries for clinical notes.
         """
         patient_id_map = await self.get_patient_id_map()
-
         if patient_id in patient_id_map:
             patient_id = patient_id_map[patient_id]
-
-        url = f"{self.fhir_url}/DocumentReference?subject=Patient/{patient_id}"
-        response = requests.get(url, headers=await self.get_headers())
-        response.raise_for_status()
-        document_references = response.json().get("entry", [])
-
+        
+        document_references = await self.fetch_all_entries(
+            base_url=f"{self.fhir_url}/DocumentReference?subject=Patient/{patient_id}&_elements=subject,id",
+            result_count_limit=100
+        )
         entries = []
         for document_reference in document_references:
             if "resource" not in document_reference:
@@ -120,12 +161,10 @@ class FhirClinicalNoteAccessor:
                 continue
             if patient_id not in document_reference["resource"]["subject"]["reference"]:
                 continue
-
             entries.append({
                 "id": document_reference["resource"]["id"],
                 "type": document_reference["resource"]["type"]["text"] if "type" in document_reference["resource"] else "clinical note",
             })
-
         return entries
 
     async def read(self, patient_id: str, note_id: str) -> str:
@@ -137,9 +176,11 @@ class FhirClinicalNoteAccessor:
         :return: The content of the clinical note.
         """
         url = f"{self.fhir_url}/DocumentReference/{note_id}"
-        response = requests.get(url, headers=await self.get_headers())
-        response.raise_for_status()
-        document_reference = response.json()
+        headers = await self.get_headers()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                response.raise_for_status()
+                document_reference = await response.json()
         note_content = document_reference["content"][0]["attachment"]["data"]
 
         note_json = json.loads(base64.b64decode(note_content).decode("utf-8"))
