@@ -31,14 +31,24 @@ else
 fi
 
 if [ "$CLINICAL_NOTES_SOURCE" == "fhir" ]; then
+    echo "CLINICAL_NOTES_SOURCE is set to \"fhir\". Uploading patient data to FHIR service..."
+
     # Check if Python is installed
     pythonVersion=$(python -V 2>&1 | grep -Po '(?<=Python )(.+)')
     if [[ -z "$pythonVersion" ]]; then
-        echo "Python version 3.12 or higher is required. Please try again."
+        echo "Python version 3.12 or higher is required. Please install Python and try again."
+        exit 1
+    fi
+
+    pythonVersionArray=(${pythonVersion//./ })
+    echo "  Python version: ${pythonVersionArray[0]}.${pythonVersionArray[1]}"
+    if [[ ${pythonVersionArray[0]} -eq 3 && ${pythonVersionArray[1]} -lt 12 ]]; then
+        echo "Python version 3.12 or higher is required. Please update your Python installation."
         exit 1
     fi
 
     # Run the Python script to convert patient data to FHIR format
+    echo "  Generating FHIR resources from patient data..."
     python "$rootDirectory\scripts\generate_fhir_resources.py"
     if [ $? -ne 0 ]; then
         echo "Failed to generate FHIR resources. Please check the script for errors."
@@ -46,6 +56,7 @@ if [ "$CLINICAL_NOTES_SOURCE" == "fhir" ]; then
     fi
 
     # Run the Python script to upload patient data to FHIR service
+    echo "  Uploading FHIR resources into the FHIR service..."
     python "$rootDirectory\scripts\ingest_fhir_resources.py"
     if [ $? -ne 0 ]; then
         echo "Failed to ingest FHIR resources. Please check the script for errors."
