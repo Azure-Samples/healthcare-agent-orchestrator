@@ -20,35 +20,40 @@ Import-Csv $envFilePath -Delimiter '=' -Header Key,Value | ForEach-Object {
 
 # Upload patient data to FHIR service
 if ($env:CLINICAL_NOTES_SOURCE -eq "fhir") {
+    Write-Output "CLINICAL_NOTES_SOURCE is set to ""fhir"". Uploading patient data to FHIR service..."
+
     # Ensure Python is installed
     $pythonOutput = &{python -V}
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Python is not installed or not found in PATH. Please install Python and try again."
-        return
+        exit 1
     }
-    Write-Output "Found python version: $pythonOutput"
+    
     # Check if python version is 3.12 or higher
     $pythonVersion = [version]$pythonOutput.Split(" ")[1]
+    Write-Output "  Python version: $pythonVersion"
     if ($pythonVersion -lt [version]"3.12") {
         Write-Error "Python version 3.12 or higher is required. Please update Python and try again."
-        return
+        exit 1
     }
 
     # Run the Python script to convert patient data to FHIR format
+    Write-Output "  Generating FHIR resources from patient data..."
     python "$rootDirectory\scripts\generate_fhir_resources.py"
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Failed to generate FHIR resources. Please check the script for errors."
-        return
+        exit 1
     }
 
     # Run the Python script to upload patient data to FHIR service
+    Write-Output "  Uploading FHIR resources into the FHIR service..."
     python "$rootDirectory\scripts\ingest_fhir_resources.py"
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Failed to ingest FHIR resources. Please check the script for errors."
-        return
+        exit 1
     }
 
-    return
+    exit 0
 }
 
 # Define variables
