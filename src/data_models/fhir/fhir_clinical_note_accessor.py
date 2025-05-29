@@ -8,7 +8,6 @@ import logging
 from typing import Any, Callable, Coroutine, Dict, List
 
 import aiohttp
-import requests
 from azure.core.credentials_async import AsyncTokenCredential
 from azure.identity.aio import get_bearer_token_provider
 import urllib
@@ -94,11 +93,14 @@ class FhirClinicalNoteAccessor:
         """
         entries = []
         url = base_url
+        parsed_url = urllib.parse.urlparse(url)
         while url and len(entries) < result_count_limit:
             print(f"Fetching from URL: {url}")
-            response = requests.get(url, headers=await self.get_headers())
-            response.raise_for_status()
-            response_json = response.json()
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, headers=await self.get_headers()) as response:
+                    response.raise_for_status()
+                    response_json = await response.json()
+            
             new_entries = extract_entries(response_json)
             entries.extend(new_entries)
             if len(entries) >= result_count_limit:
@@ -106,7 +108,6 @@ class FhirClinicalNoteAccessor:
             token = extract_continuation_token(response_json)
             if token:
                 # Append or replace query string with continuation token
-                parsed_url = urllib.parse.urlparse(base_url)
                 url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}?{token}"
             else:
                 url = None
