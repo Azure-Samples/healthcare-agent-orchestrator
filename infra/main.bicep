@@ -24,8 +24,6 @@ param storageName string = ''
 param appStorageName string = ''
 @description('Name of the Key Vault. Automatically generated if left blank')
 param keyVaultName string = ''
-@description('Name of the Bot Service. Automatically generated if left blank')
-param botName string = ''
 
 // Other configurations
 @description('Name of the Bot Service. Automatically generated if left blank')
@@ -87,7 +85,6 @@ var names = {
   msi: !empty(msiName) ? msiName : '${abbrs.managedIdentityUserAssignedIdentities}${environmentName}-${uniqueSuffix}'
   appPlan: !empty(appPlanName) ? appPlanName : '${abbrs.webSitesAppServiceEnvironment}${environmentName}-${uniqueSuffix}'
   app: !empty(appName) ? appName : '${abbrs.webSitesAppService}${environmentName}-${uniqueSuffix}'
-  bot: !empty(botName) ? botName : '${abbrs.cognitiveServicesBot}${environmentName}-${uniqueSuffix}'
   aiServices: !empty(aiServicesName) ? aiServicesName : '${abbrs.cognitiveServicesAccounts}${environmentName}-${uniqueSuffix}'
   aiHub: !empty(aiHubName) ? aiHubName : '${abbrs.cognitiveServicesAccounts}hub-${environmentName}-${uniqueSuffix}'
   storage: !empty(storageName) ? storageName : replace(replace('${abbrs.storageStorageAccounts}${environmentName}${uniqueSuffix}', '-', ''), '_', '')
