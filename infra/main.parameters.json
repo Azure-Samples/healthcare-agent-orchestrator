@@ -20,9 +20,6 @@
     "keyVaultName": {
       "value": "${AZURE_KEYVAULT_NAME}"
     },
-    "botName": {
-      "value": "${AZURE_BOT_NAME}"
-    },
     "msiName": {
       "value": "${AZURE_MSI_NAME}"
     },
