@@ -1,0 +1,233 @@
+import asyncio
+import json
+import os
+import re
+from typing import Any, Callable, Coroutine
+from dotenv import load_dotenv
+import requests
+from azure.identity import AzureCliCredential
+from azure.identity.aio import get_bearer_token_provider
+
+async def post_fhir_resource_batch(fhir_url: str, resource_batch: Any, get_access_token: Coroutine[Any, Any, str]):
+    """
+    Posts a batch of resources to the FHIR server.
+    :param resource_batch: A bundle of resources to post."""
+    url = f"{fhir_url}"
+    token = await get_access_token()
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    response = requests.post(url, headers=headers, json=resource_batch)
+    response.raise_for_status()  # Raise an error for bad responses
+    if response.ok == False:
+        raise Exception(f"Failed to post resource: {response.content}")
+    return response.json()
+
+def load_resources(path):
+    """
+    Yields individual resources from a file or folder.
+    :param path: Path to a file or folder containing resources.
+    """
+    # ndjson file case
+    if os.path.isfile(path):
+        with open(path, "r") as file:
+            for line in file:
+                yield json.loads(line.strip())
+    # Single file per resource case
+    elif os.path.isdir(path):
+        for file_name in os.listdir(path):
+            file_path = os.path.join(path, file_name)
+            if os.path.isfile(file_path):
+                with open(file_path, "r") as file:
+                    yield json.loads(file.read())
+    else:
+        raise ValueError(f"Invalid path: {path}")
+
+async def patient_with_given_name_exists(
+        fhir_url: str, 
+        get_access_token: Callable[[], Coroutine[Any, Any, str]],
+        resource: dict) -> bool:
+    """
+    Checks to see if a patient with the same name already exists in the FHIR server.
+    """
+    patient_name = resource['name'][0]['given'][0]
+    filtered_patients = []
+    try:
+        url = f"{fhir_url}/Patient?name={patient_name}"
+        token = await get_access_token()
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        patients = response.json().get("entry", [])
+
+        filtered_patients = [p for p in patients if p["resource"]['name'][0]['given'][0] == patient_name]
+
+    except Exception as e:
+        print(f"An error occurred while checking if patient exists: {e}")
+    finally:
+        return len(filtered_patients) > 0
+
+async def post_resources_in_batches(
+        file_path: str, 
+        fhir_url: str, 
+        resource_type: str, 
+        get_access_token: Coroutine[Any, Any, str],
+        id_map: dict = {},
+        batch_size: int = 10,
+        resource_exists_async_fn: Callable[[dict], Coroutine[Any, Any, bool]] = None,
+        id_map_required: bool = False):
+    """
+    Posts resources in batches to the FHIR server.
+    :param file_path: Path to a file or folder containing resources.
+    :param resource_type: The type of resource to post.
+    :param get_access_token: A couroutine to get an access token.
+    :param batch_size: The number of resources to post in each batch."""
+    if os.path.exists(file_path):
+        batch_request = {
+            "resourceType": "Bundle",
+            "type": "batch",
+            "entry": []
+        }
+        print(f"Posting {resource_type} resources in batches of {batch_size}...")
+        count = 0
+        total = 0
+        responses = []
+        for resource in load_resources(file_path):
+            print(f"Processing resource type {resource['resourceType']} with id: {resource['id']}")
+            found_id = False
+            if "subject" in resource and "reference" in resource["subject"]:
+                current_id = resource["subject"]["reference"].split("/")[1]
+                if current_id in id_map:
+                    found_id = True
+                    new_id = id_map[current_id]
+                    resource["subject"]["reference"] = f"Patient/{new_id}"
+            
+            # Resource was found in the id_map or does not require id_map
+            should_include = ((not id_map_required and len(id_map) == 0) or found_id)
+
+            # Check if the resource already exists in the FHIR server           
+            if should_include and resource_exists_async_fn is not None:
+                exists = await resource_exists_async_fn(resource)
+                if exists:
+                    print(f"{resource_type} resource with id {resource['id']} already exists. Skipping.")
+                    continue
+            
+            if should_include:
+                batch_request["entry"].append({
+                    "resource": resource,
+                    "request": {
+                        "method": "POST",
+                        "url": resource_type
+                    }
+                })
+                count += 1
+                total += 1
+                # If batch size is reached, post the batch and reset
+                if count == batch_size:
+                    response = await post_fhir_resource_batch(fhir_url, batch_request, get_access_token)
+                    responses.append([batch_request, response])
+                    print(f"Posted batch of {batch_size} {resource_type} resources.")
+                    batch_request["entry"] = []  # Reset the batch
+                    count = 0
+            else:
+                print(f"Skipping {resource_type} resource with id {resource['id']} as it does not match the id_map or already exists on the server.")
+
+        # Post any remaining resources in the last batch
+        if batch_request["entry"] and (len(id_map) == 0 or found_id):
+            response = await post_fhir_resource_batch(fhir_url, batch_request, get_access_token)
+            responses.append([batch_request, response])
+            print(f"Posted final batch of {len(batch_request['entry'])} {resource_type} resources.")
+        print(f"Created a total of {total} {resource_type} resources.")
+        return responses
+
+def create_patient_id_map(batch_responses):
+    id_map = {}
+    for batch_request, batch_response in batch_responses:
+        for i in range(len(batch_request['entry'])):
+            request_resource = batch_request['entry'][i]['resource']
+            response_resource = batch_response['entry'][i]['resource']
+            id_map[request_resource["id"]] = response_resource["id"]
+    return id_map
+
+async def get_headers(bearer_token_provider: Callable[[], Coroutine[Any, Any, str]]) -> dict:
+    """
+    Returns the headers required for FHIR API requests.
+
+    :return: A dictionary of headers.
+    """
+    return {
+        "Authorization": f"Bearer {await bearer_token_provider()}",
+        "Content-Type": "application/json",
+    }
+
+def is_default_fhir_url(fhir_url: str, formatted_env_name: str) -> bool:
+    """
+    Checks if the given fhir_url matches the default Azure Health Data Services FHIR endpoint pattern
+    for the current environment, including a 3-character alphanumeric unique suffix.
+
+    The pattern is:
+      https://ahds<env><suffix>-fhir<env><suffix>.fhir.azurehealthcareapis.com
+    where <env> is AZURE_ENV_NAME and <suffix> is a 3-character alphanumeric string.
+
+    :param fhir_url: The FHIR service endpoint URL to check.
+    :return: True if it matches the default pattern, False otherwise.
+    """
+    if not formatted_env_name:
+        return False
+
+    # Build the regex pattern
+    pattern = (
+        rf"^https://ahds{re.escape(formatted_env_name)}([a-zA-Z0-9]+)-fhir{re.escape(formatted_env_name)}\1\.fhir\.azurehealthcareapis\.com/?$"
+    )
+
+    return re.match(pattern, fhir_url) is not None
+
+async def main():
+
+    if not os.getenv("AZURE_ENV_NAME"):
+        load_dotenv("src/.env")
+
+    credential = AzureCliCredential()
+    fhir_url = os.getenv("FHIR_SERVICE_ENDPOINT")
+    formatted_env_name = os.getenv("AZURE_ENV_NAME").replace("-", "")
+
+    if not is_default_fhir_url(fhir_url, formatted_env_name):
+        print(f"The environment FHIR server endpoint ({fhir_url}) does not match the default deployed Azure Health Data Services FHIR endpoint pattern.")
+        print(f"\nThis script is intended to ingest sample data into the test server only, exiting without changes.\n")
+        return
+
+    get_access_token = get_bearer_token_provider(credential, f"{fhir_url}/.default")
+
+    root_folder = os.path.join(os.getcwd(), "output", "fhir_resources")
+    patient_file_path = os.path.join(root_folder, "patients")
+    document_reference_file_path = os.path.join(root_folder, "document_references")
+
+    try:
+        responses = await post_resources_in_batches(
+            patient_file_path, 
+            fhir_url, 
+            "Patient", 
+            get_access_token,
+            resource_exists_async_fn= lambda r: patient_with_given_name_exists(fhir_url, get_access_token, r))
+        
+        id_map = create_patient_id_map(responses)
+
+        responses = await post_resources_in_batches(
+            document_reference_file_path,
+            fhir_url,
+            "DocumentReference",
+            get_access_token,
+            id_map,
+            batch_size=10,
+            id_map_required=True)
+
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
