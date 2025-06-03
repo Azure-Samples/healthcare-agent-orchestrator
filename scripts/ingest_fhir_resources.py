@@ -150,7 +150,6 @@ def post_resources_in_batches(
         print(f"Created a total of {total} {resource_type} resources.")
         return responses
 
-
 def create_patient_id_map(batch_responses):
     id_map = {}
     for batch_request, batch_response in batch_responses:
