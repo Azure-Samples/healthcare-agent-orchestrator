@@ -95,7 +95,7 @@ class PatientDataPlugin:
         chat_history.add_system_message(
             "Create a Patient Timeline: Organize the patient data in chronological order to create a clear timeline " +
             "of the patient's medical history and treatment. Use the provided clinical notes. Add the referenced " +
-            "clinical note as a source. A source may contain multiple multiple sentences.")
+            "clinical note as a source. A source may contain multiple sentences.")
 
         # Add patient history
         chat_history.add_system_message("You have access to the following patient history:\n" + json.dumps(files))
@@ -156,7 +156,7 @@ class PatientDataPlugin:
         chat_history.add_system_message(
             "When answering questions, always base the answer strictly on the patient's history. You may infer the " +
             "answer if it is not directly available. Provide your reasoning if you have inferred the answer. Use the " +
-            "provided clinical notes. Add the referenced clinical notes as sources. A source may contain multiple " +
+            "provided clinical notes. Add the referenced clinical notes as sources. A source may contain " +
             "multiple sentences.")
         chat_history.add_system_message("You have access to the following patient history:\n" + json.dumps(files))
         chat_history.add_system_message(prompt)
