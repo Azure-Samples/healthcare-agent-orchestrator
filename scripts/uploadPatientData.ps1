@@ -49,9 +49,9 @@ if ($env:CLINICAL_NOTES_SOURCE -eq "fhir") {
     Write-Output "  Uploading FHIR resources into the FHIR service..."
     $authToken = (ConvertFrom-SecureString -AsPlainText (Get-AzAccessToken -AsSecureString -ResourceUrl $env:FHIR_SERVICE_ENDPOINT -Tenant $tenantId).Token)
     python "$rootDirectory\scripts\ingest_fhir_resources.py" `
-        --fhir-service-endpoint $env:FHIR_SERVICE_ENDPOINT `
+        --fhir-url $env:FHIR_SERVICE_ENDPOINT `
         --auth-token $authToken `
-        --azure-env-name $env:AZURE_ENV_NAME `
+        --azure-env-name $env:AZURE_ENV_NAME
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Failed to ingest FHIR resources. Please check the script for errors."
         exit 1

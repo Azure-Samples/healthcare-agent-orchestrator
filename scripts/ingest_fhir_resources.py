@@ -179,9 +179,9 @@ def is_default_fhir_url(fhir_url: str, formatted_env_name: str) -> bool:
     return re.match(pattern, fhir_url) is not None
 
 
-def main(auth_token: str, azd_env_name: str, fhir_url: str):
+def main(auth_token: str, azure_env_name: str, fhir_url: str):
     # Check if the fhir_url is the default deployed Azure Health Data Services FHIR endpoint
-    formatted_env_name = azd_env_name.replace("-", "")
+    formatted_env_name = azure_env_name.replace("-", "")
     if not is_default_fhir_url(fhir_url, formatted_env_name):
         print(
             f"The environment FHIR server endpoint ({fhir_url}) does not match the default deployed Azure Health Data Services FHIR endpoint pattern.")
