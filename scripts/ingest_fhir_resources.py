@@ -27,6 +27,7 @@ def post_fhir_resource_batch(fhir_url: str, resource_batch: Any, auth_token: str
         return json.loads(response_body)
 
 
+
 def load_resources(path):
     """
     Yields individual resources from a file or folder.
@@ -149,6 +150,7 @@ def post_resources_in_batches(
             print(f"Posted final batch of {len(batch_request['entry'])} {resource_type} resources.")
         print(f"Created a total of {total} {resource_type} resources.")
         return responses
+
 
 def create_patient_id_map(batch_responses):
     id_map = {}
