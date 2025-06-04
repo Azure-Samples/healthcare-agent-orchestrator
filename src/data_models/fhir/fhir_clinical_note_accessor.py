@@ -38,7 +38,8 @@ class FhirClinicalNoteAccessor:
             }
             async with aiohttp.request('POST', token_url, data=data, headers=headers) as resp:
                 resp.raise_for_status()
-                return (await resp.json())["access_token"]
+                json_response = await resp.json()
+                return json_response["access_token"]
 
         return FhirClinicalNoteAccessor(fhir_url, bearer_token_provider)
 
