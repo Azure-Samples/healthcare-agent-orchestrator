@@ -38,7 +38,10 @@ param appName string = ''
 param model string
 @description('Tokens per minute capacity for the model. Units of 1000 (capacity = 100 means 100K tokens per minute)')
 param modelCapacity int
-
+// https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/deployment-types
+@description('Specify the deployment type of the model. Default is Standard. Standard keeps data processing and data storage in the specified Azure geography.')
+@allowed(['Standard', 'DataZoneStandard'])
+param modelSku string = 'Standard'
 
 @description('Location to deploy AI Services')
 param gptDeploymentLocation string = resourceGroup().location
@@ -206,6 +209,7 @@ module m_gpt 'modules/gptDeployment.bicep' = {
     modelName: modelName
     modelVersion: modelVersion
     modelCapacity: modelCapacity
+    modelSku: modelSku
   }
 }
 
