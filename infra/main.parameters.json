@@ -41,6 +41,9 @@
     "modelCapacity": {
       "value": "${Azure_OPENAI_MODEL_CAPACITY}"
     },
+    "modelSku": {
+      "value": "${Azure_OPENAI_MODEL_SKU}"
+    },
     "gptDeploymentLocation": {
       "value": "${AZURE_GPT_LOCATION}"
     },
