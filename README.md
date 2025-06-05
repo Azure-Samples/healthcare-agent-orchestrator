@@ -116,7 +116,7 @@ azd env set AZURE_APPSERVICE_LOCATION <region>
 azd env set GPU_INSTANCE_TYPE Standard_NC40ads_H100_v5
 ```
 
-[OPTIONAL] Configure agents to retrieve clinical notes from FHIR service. See more information in [FHIR Integration](./docs/fhir_integration.md).
+[OPTIONAL] Configure agents to retrieve clinical notes from an EHR via FHIR. See more information in [FHIR Integration](./docs/fhir_integration.md).
 
 ```sh
 azd env set CLINICAL_NOTES_SOURCE fhir

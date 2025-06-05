@@ -1,6 +1,6 @@
-# FHIR Integration
+# EHR Integration via HL7® FHIR
 
-This user guide provides instructions for integrating AI agents with a FHIR (Fast Healthcare Interoperability Resources) service to enable the retrieval of clinical notes. The sample code includes support for a `CLINICAL_NOTES_SOURCE` environment variable, which can be set to activate FHIR service integration. When this integration is enabled, a test FHIR service will be automatically deployed within your resource group, and sample patient data `patient_4` will be uploaded to the service. With this configuration, the deployed agents will retrieve clinical notes directly from the FHIR service rather than from blob storage, ensuring a more streamlined and standardized access to patient information. The guide also includes practical examples and configurations to help you connect agents to your own FHIR services.
+This user guide provides instructions for integrating AI agents with an EHR via HL7® FHIR (Fast Healthcare Interoperability Resources) service to enable the retrieval of clinical notes. The sample code includes support for a `CLINICAL_NOTES_SOURCE` environment variable, which can be set to activate FHIR service integration. When this integration is enabled, an Azure Healthcare Data Services (AHDS) FHIR service instance will be automatically deployed within your resource group, and sample patient data `patient_4` will be uploaded to the service. With this configuration, the deployed agents will retrieve clinical notes directly from the FHIR service rather than from blob storage, ensuring a more streamlined and standardized access to patient information. The guide also includes practical examples and configurations to help you connect agents to your own EHR's FHIR services.
 
 ## Overview
 ![Solution Architecture](images/fhir_diagram.jpg)
@@ -9,7 +9,7 @@ The dataflow for integrating AI agents with a FHIR service to retrieve clinical 
 
 ## Authentication
 
-The sample code in this guide demonstrates how to deploy an instance of FHIR service using Azure Healthcare Data Service and connect to it securely. Azure Healthcare Data Service supports OAuth2 for authentication, ensuring authorized access to healthcare data. The sample code provides three methods for authenticating with the FHIR service:  
+The sample code in this guide demonstrates how to deploy an instance of the AHDS FHIR service and connect to it securely. The FHIR service supports OAuth2 for authentication, ensuring authorized access to healthcare data. The sample code provides three methods for authenticating with the FHIR service:  
    
 - **Managed Identity Authentication**: Use Azure managed identities to access the FHIR service without managing credentials.  
 - **Client Secret Authentication**: Connect to the FHIR service using a client ID and client secret from a registered Azure Active Directory application.  
