@@ -106,7 +106,7 @@ class PatientDataPlugin:
                 - Response to treatment, including dates and details of imaging used to evaluate response
                 - Any other relevant details
                 Be sure to include an overview of patient demographics and a summary of current status.
-                Add the referenced clinical note as a source. A source may contain multiple multiple sentences.
+                Add the referenced clinical note as a source. A source may contain multiple sentences.
             """).strip()
         )
 
