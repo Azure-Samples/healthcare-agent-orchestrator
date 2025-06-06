@@ -93,9 +93,22 @@ class PatientDataPlugin:
 
         # Add instructions
         chat_history.add_system_message(
-            "Create a Patient Timeline: Organize the patient data in chronological order to create a clear timeline " +
-            "of the patient's medical history and treatment. Use the provided clinical notes. Add the referenced " +
-            "clinical note as a source. A source may contain multiple sentences.")
+            textwrap.dedent("""
+                Create a Patient Timeline: Organize the patient data in chronological order to create a
+                clear timeline of the patient's medical history and treatment. Use the provided clinical
+                notes. The timeline will be used as background for a molecular tumor board discussion.
+                Be sure to include all relevant details such as:
+                - Initial presentation and diagnosis
+                - All biomarkers
+                - Dates, doseages, and cycles of treatments
+                - Surgeries
+                - Biopsies or other pathology results
+                - Response to treatment, including dates and details of imaging used to evaluate response
+                - Any other relevant details
+                Be sure to include an overview of patient demographics and a summary of current status.
+                Add the referenced clinical note as a source. A source may contain multiple sentences.
+            """).strip()
+        )
 
         # Add patient history
         chat_history.add_system_message("You have access to the following patient history:\n" + json.dumps(files))
