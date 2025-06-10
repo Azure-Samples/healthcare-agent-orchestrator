@@ -156,13 +156,34 @@ class Evaluator:
         }
 
         for metric_name, metric_results in results.items():
-            valid_scores = [r.get("result", {}).get("score", 0) for r in metric_results]
-            avg_score = sum(valid_scores) / len(valid_scores) if valid_scores else 0
+            # Extract valid scores handling nested result structures
+            valid_scores = []
+            for result in metric_results:
+                score = None
+                # Handle different result structures
+                if "result" in result:
+                    if isinstance(result["result"], dict):
+                        if "score" in result["result"]:
+                            score = result["result"]["score"]
+                        elif "result" in result["result"] and "score" in result["result"]["result"]:
+                            score = result["result"]["result"]["score"]
+                
+                # Add valid positive scores
+                if score is not None and score > 0:
+                    valid_scores.append(score)
 
+            # Calculate metrics
+            avg_score = sum(valid_scores) / len(valid_scores) if valid_scores else 0
+            num_valid = len(valid_scores)
+            num_total = len(metric_results)
+            num_errors = num_total - num_valid
+
+            logging.info(f"Metric {metric_name}: {num_valid} valid scores out of {num_total} total evaluations")
+            
             summary["metrics"][metric_name] = {
                 "average_score": avg_score,
-                "num_evaluations": len(metric_results),
-                "num_errors": len([r for r in metric_results if "error" in r]),
+                "num_evaluations": num_valid,
+                "num_errors": num_errors,
                 "results": metric_results
             }
 

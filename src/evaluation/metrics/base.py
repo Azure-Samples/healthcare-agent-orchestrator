@@ -19,6 +19,64 @@ from evaluation.utils import chat_history_to_readable_text
 class EvaluationMetric(ABC):
     """Base class for all evaluation metrics."""
 
+    def chat_history_to_text(self, chat_history: ChatHistory) -> str:
+        """
+        Convert chat history to readable text with optional summarization.
+
+        Args:
+            chat_history: ChatHistory object containing the conversation
+
+        Returns:
+            A formatted string representation of the conversation
+        """
+        messages = []
+        for msg in chat_history.messages:
+            if not msg.content:
+                continue
+
+            role = msg.role.value.upper()
+            if role == AuthorRole.ASSISTANT.value.upper():
+                role += f" (agent id: {msg.name})"
+            messages.append(f"{role}:\n{msg.content}\n\n---\n\n")
+
+        return "".join(messages)
+
+    def create_context_summary(self, history: ChatHistory) -> dict:
+        """Create structured summary focusing on the current turn."""
+        return {
+            "num_turns": len([m for m in history.messages if m.role == AuthorRole.USER]),
+            "agents_involved": self._get_unique_agents(history),
+            "conversation_flow": self._summarize_current_turn(history)
+        }
+
+    def _get_unique_agents(self, history: ChatHistory) -> list[str]:
+        """Get unique agents in conversation."""
+        agents = set()
+        for msg in history.messages:
+            if msg.role == AuthorRole.ASSISTANT and msg.name != "Orchestrator":
+                agents.add(msg.name)
+        return sorted(list(agents))
+
+    def _summarize_current_turn(self, history: ChatHistory) -> str:
+        """Summarize flow of current conversation turn."""
+        flow = []
+        # Get last user message
+        for msg in reversed(history.messages):
+            if msg.role == AuthorRole.USER:
+                flow.append("USER query")
+                break
+
+        # Add subsequent messages
+        for msg in history.messages:
+            if msg in flow:
+                continue
+            if msg.name == "Orchestrator":
+                flow.append("ORCHESTRATOR response")
+            elif msg.role == AuthorRole.ASSISTANT:
+                flow.append(f"{msg.name} response")
+
+        return " > ".join(flow)  # Use plain '>' instead of unicode arrow
+
     @property
     @abstractmethod
     def name(self) -> str:
@@ -64,6 +122,37 @@ class AgentEvaluationMetric(EvaluationMetric):
     This class handles splitting the chat history into segments where each segment ends with a message from the
     target agent, preceded by n context messages.
     """
+
+    @staticmethod
+    def load_valid_agents(scenario: str = "Orchestrator") -> list[str]:
+        """
+        Load valid agents from scenario config.
+
+        Args:
+            scenario: Name of the scenario folder (defaults to "Orchestrator")
+
+        Returns:
+            List of valid agent names
+        """
+        from pathlib import Path
+
+        import yaml
+
+        # Find config path relative to current file
+        current_dir = Path(__file__).parent
+        yaml_path = current_dir.parents[2] / "scenarios" / scenario / "config" / "agents.yaml"
+
+        try:
+            with open(yaml_path, 'r') as f:
+                agents_config = yaml.safe_load(f)
+                return [agent['name'] for agent in agents_config
+                        if isinstance(agent, dict) and 'name' in agent]
+
+        except Exception as e:
+            logging.warning(f"Error loading agents config from {yaml_path}: {str(e)}, using default agents")
+            # Fall back to default agents if config can't be loaded
+            return ["dataorganizer", "radiology", "patientstatus", "treatment",
+                    "summary", "researchagent", "clinicaltrials", "pathology"]
 
     def __init__(self, agent_name: str, context_window: int = 5):
         """
