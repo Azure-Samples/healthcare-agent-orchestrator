@@ -3,8 +3,7 @@
 ### Overview
 This user guide provides instructions for integrating AI agents with [healthcare data solutions (HDS) on Microsoft Fabric](https://learn.microsoft.com/en-us/industry/healthcare/healthcare-data-solutions/overview). Microsoft Fabric provides a comprehensive ecosystem for data integration, data engineering, real-time analytics, data science, and business intelligence. Healthcare data solutions (HDS) is built on Fabric and provides several capabilities making it easy to manage and analyze your multi-modal healthcare data. 
 
-Healthcare data solutions (HDS) supports both FHIR and OMOP, but will use OMOP in this example. The changes required to use FHIR are trivial and will be covered briefly in this doc. 
-
+Healthcare data solutions (HDS) supports both FHIR and OMOP, but will use FHIR in this example. The changes required to use FHIR are trivial and will be covered briefly in this doc.
 
 ### What is healthcare data solutions (HDS) on Fabric?
 
@@ -19,9 +18,9 @@ The assumption is that you have already deployed Healthcare Agent Orchestrator (
 
 ## Deploy healthcare data solutions (HDS) to a Fabric Workspace
 
-In a Fabric workspace, you will want to [deploy the OMOP transformations capability](https://learn.microsoft.com/en-us/industry/healthcare/healthcare-data-solutions/omop-transformations-configure), which emulates a medallion architecture to transform raw NDJSON files into the Observational Medical Outcomes Paternship (OMOP). 
+In a Fabric workspace, you will want to [deploy the clinical foundations capability](https://learn.microsoft.com/en-us/industry/healthcare/healthcare-data-solutions/healthcare-data-foundations-configure?toc=%2Findustry%2Fhealthcare%2Ftoc.json&bc=%2Findustry%2Fbreadcrumb%2Ftoc.json), which emulates a medallion architecture to transform raw NDJSON files into relational FHIR. 
 
-![](omop-transformations.png)
+![](./healthcare-data-foundations-artifacts.png)
 
 > Note: You do ___NOT___ need to deploy sample data that is shipped with HDS. The next step will show you how to generate and ingest sample data.
 
@@ -44,13 +43,23 @@ After generating the sample NDJSON files, you will need to upload them to the Br
 
 ### Run the ingestion pipeline
 
-After uploading the data you want ingested, we need to run the OMOP transformation pipeline. Navigate to the `healthcare1_msft_omop_analytics` data pipeline in your workspace. It should look like the screenshot below. Click on the 'Run' button, the pipeline should take about 10 minutes to complete. You can verify data was processed correctly by checking the notes table in the `healthcare1_msft_gold_omop` lakehouse.
+After uploading the data you want ingested, we need to run the clinical data ingestion pipeline. Navigate to the `healthcare1_msft_clinical_data_foundations_ingestion` data pipeline in your workspace. It should look like the screenshot below. Click on the 'Run' button, the pipeline should take about 10 minutes to complete. You can verify data was processed correctly by checking the notes table in the `healthcare1_msft_silver` lakehouse.
+
+> NOTE: You can confirm data was ingested properly by opening the silver lakehouse and selecting the `DocumentReference` table which should now have some entries. If the pipeline completed successfully and you are not seeing any data being populated in the UI, try executing a query in the SQL Analytics Endpoint UI, there can be some latency before the data shows up properly. 
 
 ![](run_pipeline.png)
 
 ### Create a User Data Function (UDF)
 
-We will create a User Data Function to expose the data in our OMOP Lakehouse. An overview of how to create a UDF can be found [here](https://learn.microsoft.com/en-us/fabric/data-engineering/user-data-functions/user-data-functions-overview). The required code for this sample is located at ```sample/code/path```.
+We will create a User Data Function to expose the data in our Silver Lakehouse that realized relational FHIR. An overview of how to create a UDF can be found [here](https://learn.microsoft.com/en-us/fabric/data-engineering/user-data-functions/user-data-functions-overview).
+
+1. Create the UDF in your workspace that has HDS deployed. When the editor page appears, add the sample code located at ```docs/fabric/udf.py```.
+
+2. You will need to add a connection to your FHIR Lakehouse by selecting 'Manage Connections' and 'add data connection' in the 'Connections' tab in the side panel that opens. The connections in the sample code use the name "FHIR". It is important the make sure the alias your define matches the alias used in the function definition (see below).
+
+3. Publish your UDF and test some of the endpoints with sample data. Publishing can take a few minutes.
+
+![](udf_data_connection.png)
 
 After creating the UDF, make note of the UDF id which will be used in the deployment. This id can be found in the url when opening the UDF. The pattern for the url is as follows:
 
@@ -85,4 +94,9 @@ After deploying HAO, your subscription should have multiple managed identities c
 - Update the bicep files to use client secret credentials
 
 ## Redploy the solution
+
+There are two small changes that need to be made before redeploying:
+
+1. In `main.bicep`, change `clinicalNotesSource` to `fabric`
+2. Set the `fabricUserDataFunctionEndpoint` value to the Fabric User Data Function Endpoint you created in the previous step.
 
