@@ -20,6 +20,7 @@ param keyVaultName string
 param scenario string
 param clinicalNotesSource string
 param fhirServiceEndpoint string = ''
+param fabricUserDataFunctionEndpoint string = ''
 
 var botIdsArray = [
   for (msi, index) in msis: {
@@ -123,6 +124,7 @@ resource backEndNameSiteConfig 'Microsoft.Web/sites/config@2024-04-01' = {
     SCENARIO: scenario
     CLINICAL_NOTES_SOURCE: clinicalNotesSource
     FHIR_SERVICE_ENDPOINT: fhirServiceEndpoint
+    FABRIC_USER_DATA_FUNCTION_ENDPOINT: fabricUserDataFunctionEndpoint
   }
 }
 

@@ -1,0 +1,130 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+import asyncio
+import logging
+from typing import Any, Callable, Coroutine, List, Optional, Tuple
+import json
+import requests
+import base64
+from datetime import date, timedelta
+
+import re
+import requests
+from azure.core.credentials_async import AsyncTokenCredential
+from azure.identity.aio import get_bearer_token_provider
+
+logger = logging.getLogger(__name__)
+
+
+class FabricClinicalNoteAccessor:
+    def __init__(
+        self,
+        fabric_user_data_function_endpoint: str,
+        bearer_token_provider: Callable[[], Coroutine[Any, Any, str]],
+    ):
+        self.fabric_user_data_function_endpoint = fabric_user_data_function_endpoint
+        self.workspace_id, self.data_function_id = self.__parse_fabric_endpoint(fabric_user_data_function_endpoint)
+        self.bearer_token_provider = bearer_token_provider
+
+    def __parse_fabric_endpoint(self, url: str) -> Optional[Tuple[str, str]]:
+        """
+        Parses a Fabric API URL to extract the workspace_id and data_function_id.
+
+        Example URL:
+        https://api.fabric.microsoft.com/v1/workspaces/{workspace_id}/userDataFunctions/{data_function_id}
+
+        :param url: The Fabric API URL.
+        :return: Tuple of (workspace_id, data_function_id) if found, else None.
+        """
+        pattern = r"/workspaces/([^/]+)/userDataFunctions/([^/]+)"
+        match = re.search(pattern, url)
+        if match:
+            workspace_id, data_function_id = match.groups()
+            return workspace_id, data_function_id
+        return None
+
+    @staticmethod
+    def from_credential(fabric_user_data_function_endpoint: str, credential: AsyncTokenCredential) -> 'FabricClinicalNoteAccessor':
+        """ Creates an instance of FabricClinicalNoteAccessor using Azure credential."""
+        token_provider = get_bearer_token_provider(credential, f"https://analysis.windows.net/powerbi/api")
+        return FabricClinicalNoteAccessor(fabric_user_data_function_endpoint, token_provider)
+
+    async def get_headers(self) -> dict:
+        """
+        Returns the headers required for Fabric API requests.
+
+        :return: A dictionary of headers.
+        """
+        return {
+            "Authorization": f"Bearer {await self.bearer_token_provider()}",
+            "Content-Type": "application/json",
+        }
+
+    async def get_patients(self) -> list[str]:
+        """Get the list of patients."""
+        target_endpoint = f"{self.fabric_user_data_function_endpoint}/functions/get_patients_by_id/invoke"
+        headers = await self.get_headers()
+        response = requests.post(target_endpoint, json={}, headers=headers)
+        return response.json()['output']['ids']
+
+    async def get_metadata_list(self, patient_id: str) -> list[dict[str, str]]:
+        """Get the clinical note URLs for a given patient ID."""
+        target_endpoint = f"{self.fabric_user_data_function_endpoint}/functions/get_clinical_notes_by_patient_id/invoke"
+        response = requests.post(target_endpoint, json={"patientId": patient_id}, headers=await self.get_headers())
+        document_reference_ids = response.json()['output']
+
+        return [
+            {
+                "id": doc_ref_id,
+                "type": "clinical note",
+            } for doc_ref_id in document_reference_ids
+        ]
+
+    async def read(self, patient_id: str, note_id: str) -> str:
+        """Read the clinical note for a given patient ID and note ID."""
+        target_endpoint = f"{self.fabric_user_data_function_endpoint}/functions/get_clinical_note_by_patient_id/invoke"
+        response = requests.post(target_endpoint, json={"noteId": note_id}, headers=await self.get_headers())
+        document_reference = response.json()["output"]
+        note_content = document_reference["content"][0]["attachment"]["data"]
+
+        try:
+            note_content = base64.b64decode(note_content).decode("utf-8")
+        except Exception as e:
+            logger.error(f"Error decoding note content: {e}")
+            raise
+
+        note_json = {}
+        try:
+            note_json = json.loads(note_content)
+            note_json['id'] = note_id
+        except json.JSONDecodeError as e:
+            if note_content:
+                target_date = date.today() - timedelta(days=30)
+                target_date.isoformat()
+                note_json = {
+                    "id": note_id,
+                    "text": note_content,
+                    "date": target_date.isoformat(),
+                    "type": "clinical note",
+                }
+
+        return json.dumps(note_json)
+
+    async def read_all(self, patient_id: str) -> List[str]:
+        """
+        Retrieves all clinical notes for a given patient ID.
+
+        :param patient_id: The ID of the patient.
+        :return: A list of clinical note contents.
+        """
+        metadata_list = await self.get_metadata_list(patient_id)
+
+        notes = []
+        batch_size = 10
+        for i in range(0, len(metadata_list), batch_size):
+            batch_input = metadata_list[i:i + batch_size]
+            batch = [self.read(patient_id, note["id"]) for note in batch_input]
+            batch_results = await asyncio.gather(*batch)
+            notes.extend(batch_results)
+        return notes

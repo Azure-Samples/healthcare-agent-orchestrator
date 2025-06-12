@@ -77,11 +77,13 @@ param scenario string = 'default'
 @secure()
 param graphRagSubscriptionKey string = ''
 
-@description('Storage location type for clincal notes. Options: fhir, blob.')
+@description('Storage location type for clincal notes. Options: fhir, blob, fabric.')
 param clinicalNotesSource string = 'blob'
 
 @description('FHIR Service endpoint for retrieving clinical notes')
 param fhirServiceEndpoint string = ''
+@description('The Microsoft Fabric User Data Function Endpoint.')
+param fabricUserDataFunctionEndpoint string = ''
 
 var modelName = split(model, ';')[0]
 var modelVersion = split(model, ';')[1]
@@ -292,6 +294,7 @@ module m_app 'modules/appservice.bicep' = {
     scenario: scenario
     clinicalNotesSource: clinicalNotesSource
     fhirServiceEndpoint: fhirServiceEndpoint
+    fabricUserDataFunctionEndpoint: fabricUserDataFunctionEndpoint
   }
 }
 
@@ -343,7 +346,8 @@ output AZURE_OPENAI_DEPLOYMENT_NAME string = m_gpt.outputs.modelName
 output AZURE_OPENAI_DEPLOYMENT_NAME_REASONING_MODEL string = m_gpt.outputs.modelName
 output AZURE_OPENAI_REASONING_MODEL_ENDPOINT string = empty(aiEndpointReasoningOverride) ? m_aiservices.outputs.aiServicesEndpoint : aiEndpointReasoningOverride
 output AZURE_AI_PROJECT_CONNECTION_STRING string = m_aihub.outputs.aiProjectConnectionString
-output FHIR_SERVICE_ENDPOINT string = outFhirServiceEndpoint
+output FHIR_SERVICE_ENDPOINT string = fhirServiceEndpoint
+output FABRIC_USER_DATA_FUNCTION_ENDPOINT string = fabricUserDataFunctionEndpoint
 output HLS_MODEL_ENDPOINTS string = string(m_app.outputs.modelEndpoints)
 output KEYVAULT_ENDPOINT string = m_keyVault.outputs.keyVaultEndpoint
 output HEALTHCARE_AGENT_SERVICE_ENDPOINTS array = !empty(healthcareAgents) ? m_healthcareAgentService.outputs.healthcareAgentServiceEndpoints : []
