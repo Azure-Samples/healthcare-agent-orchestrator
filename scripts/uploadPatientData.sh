@@ -58,6 +58,11 @@ if [ "$CLINICAL_NOTES_SOURCE" == "fhir" ]; then
     # Run the Python script to upload patient data to FHIR service
     echo "  Uploading FHIR resources into the FHIR service..."
     authToken=$(az account get-access-token --resource "$FHIR_SERVICE_ENDPOINT" --tenant "$tenantId" --query accessToken -o tsv)
+    if [ $? -ne 0 ]; then
+        echo "Failed to obtain access token for FHIR service. If you're running from a device outside of your organization, such as Github Codespace, you'll need to obtain the access token from an approved device by your organization."
+        exit 1
+    fi
+
     python $rootDirectory/scripts/ingest_fhir_resources.py \
         --fhir-url "$FHIR_SERVICE_ENDPOINT" \
         --auth-token "$authToken" \
