@@ -4,9 +4,10 @@
 .conda
 .env
 __pycache__
-
+democlient/build
 node_modules
-
+src/static
+src/static/static
 bin
 obj
 appsettings.json
@@ -19,3 +20,4 @@ output
 src/public/output_data
 infra/config
 data
+.env.production

@@ -8,8 +8,10 @@ from azure.storage.blob.aio import BlobServiceClient
 from botbuilder.integration.aiohttp import CloudAdapter, ConfigurationBotFrameworkAuthentication
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from starlette.applications import Starlette
 from starlette.routing import Mount
+from starlette.responses import FileResponse
 
 from bots import AssistantBot, MagenticBot
 from bots.show_typing_middleware import ShowTypingMiddleware
@@ -18,6 +20,8 @@ from data_models.app_context import AppContext
 from data_models.data_access import DataAccess
 from mcp_app import create_fast_mcp_app
 from routes.api.messages import messages_routes
+from routes.api.user import user_routes
+from routes.api.chats import chats_routes
 from routes.patient_data.patient_data_routes import patient_data_routes
 from routes.views.patient_data_answer_routes import patient_data_answer_source_routes
 from routes.views.patient_timeline_routes import patient_timeline_entry_source_routes
@@ -60,9 +64,32 @@ def create_app(
 ) -> FastAPI:
     app = FastAPI()
     app.include_router(messages_routes(adapters, bots))
+    app.include_router(chats_routes(app_context))
+    app.include_router(user_routes())
     app.include_router(patient_data_routes(app_context.blob_service_client))
     app.include_router(patient_data_answer_source_routes(app_context.data_access))
     app.include_router(patient_timeline_entry_source_routes(app_context.data_access))
+
+    # Serve static files from the React build directory
+    static_files_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+    if os.path.exists(static_files_path):
+        app.mount("/static", StaticFiles(directory=os.path.join(static_files_path, "static")), name="static")
+        
+        # Add a route for the root URL to serve index.html
+        @app.get("/")
+        async def serve_root():
+            index_path = os.path.join(static_files_path, "index.html")
+            if os.path.exists(index_path):
+                return FileResponse(index_path)
+            return {"detail": "React app not built yet"}
+        
+        # Add a catch-all route to serve index.html for client-side routing only triggered if the path falls through to the static files
+        @app.get("/{full_path:path}")
+        async def serve_react_app(full_path: str):
+            index_path = os.path.join(static_files_path, "index.html")
+            if os.path.exists(index_path):
+                return FileResponse(index_path)
+            return {"detail": "React app not built yet"}
 
     return app
 

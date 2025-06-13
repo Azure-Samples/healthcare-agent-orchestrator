@@ -197,6 +197,10 @@ You can interact with any of the agents:
 > [!TIP] 
 > For detailed instructions on testing agents with sample scenarios and troubleshooting tips, see the [User Guide](./docs/user_guide.md).
 
+### Step 6: Using the React Client Application
+
+As part of the deployment, a simple chat UI was also deployed. You can access it using the url that showed up after doing azd up in step 3.
+
 ### [Optional] Uninstall / Clean-up
 
 To completely remove all deployed resources and clean up your environment, run:
