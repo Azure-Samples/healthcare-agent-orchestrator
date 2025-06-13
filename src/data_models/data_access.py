@@ -13,11 +13,11 @@ from azure.storage.blob.aio import BlobServiceClient
 from data_models.chat_artifact_accessor import ChatArtifactAccessor
 from data_models.chat_context_accessor import ChatContextAccessor
 from data_models.clinical_note_accessor import ClinicalNoteAccessor
+from data_models.fabric.fabric_clinical_note_accessor import FabricClinicalNoteAccessor
 from data_models.fhir.fhir_clinical_note_accessor import FhirClinicalNoteAccessor
 from data_models.image_accessor import ImageAccessor
 
 logger = logging.getLogger(__name__)
-
 
 class UserDelegationKeyDelegate:
     def __init__(self, blob_service_client: BlobServiceClient):
@@ -100,6 +100,11 @@ def create_data_access(
         # Note: You can change FhirClinicalNoteAccessor instantiation to use different authentication methods
         clinical_note_accessor = FhirClinicalNoteAccessor.from_credential(
             fhir_url=os.getenv("FHIR_SERVICE_ENDPOINT"),
+            credential=credential,
+        )
+    elif clinical_notes_source == "fabric":
+        clinical_note_accessor = FabricClinicalNoteAccessor.from_credential(
+            fabric_user_data_function_endpoint=os.getenv("FABRIC_USER_DATA_FUNCTION_ENDPOINT"),
             credential=credential,
         )
     else:
