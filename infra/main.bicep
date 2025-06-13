@@ -77,6 +77,12 @@ param scenario string = 'default'
 @secure()
 param graphRagSubscriptionKey string = ''
 
+@description('Storage location type for clincal notes. Options: fhir, blob.')
+param clinicalNotesSource string = 'blob'
+
+@description('FHIR Service endpoint for retrieving clinical notes')
+param fhirServiceEndpoint string = ''
+
 var modelName = split(model, ';')[0]
 var modelVersion = split(model, ';')[1]
 
@@ -93,6 +99,8 @@ var names = {
   storage: !empty(storageName) ? storageName : replace(replace('${abbrs.storageStorageAccounts}${environmentName}${uniqueSuffix}', '-', ''), '_', '')
   appStorage: !empty(appStorageName) ? appStorageName : replace(replace('${abbrs.storageStorageAccounts}app${environmentName}${uniqueSuffix}', '-', ''), '_', '')
   keyVault: !empty(keyVaultName) ? keyVaultName : '${abbrs.keyVaultVaults}${environmentName}-${uniqueSuffix}'
+  ahdsWorkspaceName: replace('ahds${environmentName}${uniqueSuffix}', '-', '')
+  ahdsFhirServiceName: replace('fhir${environmentName}${uniqueSuffix}', '-', '')
 }
 
 var agentConfigs = {
@@ -232,6 +240,31 @@ module m_appStorageAccount 'modules/storageAccount.bicep' = {
   }
 }
 
+var shouldDeployFhirService = clinicalNotesSource == 'fhir' && empty(fhirServiceEndpoint)
+
+module m_fhirService 'modules/fhirService.bicep' = if (shouldDeployFhirService) {
+  name: 'deploy_fhir_service'
+  params: {
+    workspaceName: names.ahdsWorkspaceName
+    fhirServiceName: names.ahdsFhirServiceName
+    tenantId: subscription().tenantId
+    dataContributors: [
+      {
+        id: myPrincipalId
+        type: myPrincipalType
+      }
+    ]
+    dataReaders: [
+      {
+        id: m_msi[0].outputs.msiPrincipalID
+        type: 'ServicePrincipal'
+      }
+    ]
+  }
+}
+
+var outFhirServiceEndpoint = shouldDeployFhirService ? m_fhirService.outputs.endpoint : fhirServiceEndpoint
+
 module m_app 'modules/appservice.bicep' = {
   name: 'deploy_app'
   params: {
@@ -257,6 +290,8 @@ module m_app 'modules/appservice.bicep' = {
     graphRagSubscriptionKey: graphRagSubscriptionKey
     keyVaultName: m_keyVault.outputs.keyVaultName
     scenario: scenario
+    clinicalNotesSource: clinicalNotesSource
+    fhirServiceEndpoint: fhirServiceEndpoint
   }
 }
 
@@ -308,6 +343,7 @@ output AZURE_OPENAI_DEPLOYMENT_NAME string = m_gpt.outputs.modelName
 output AZURE_OPENAI_DEPLOYMENT_NAME_REASONING_MODEL string = m_gpt.outputs.modelName
 output AZURE_OPENAI_REASONING_MODEL_ENDPOINT string = empty(aiEndpointReasoningOverride) ? m_aiservices.outputs.aiServicesEndpoint : aiEndpointReasoningOverride
 output AZURE_AI_PROJECT_CONNECTION_STRING string = m_aihub.outputs.aiProjectConnectionString
+output FHIR_SERVICE_ENDPOINT string = outFhirServiceEndpoint
 output HLS_MODEL_ENDPOINTS string = string(m_app.outputs.modelEndpoints)
 output KEYVAULT_ENDPOINT string = m_keyVault.outputs.keyVaultEndpoint
 output HEALTHCARE_AGENT_SERVICE_ENDPOINTS array = !empty(healthcareAgents) ? m_healthcareAgentService.outputs.healthcareAgentServiceEndpoints : []

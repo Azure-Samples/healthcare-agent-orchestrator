@@ -3,13 +3,17 @@
 
 import datetime
 import logging
+import os
+from dataclasses import dataclass
 
+from azure.core.credentials_async import AsyncTokenCredential
 from azure.storage.blob import BlobSasPermissions, UserDelegationKey, generate_blob_sas
 from azure.storage.blob.aio import BlobServiceClient
 
 from data_models.chat_artifact_accessor import ChatArtifactAccessor
 from data_models.chat_context_accessor import ChatContextAccessor
 from data_models.clinical_note_accessor import ClinicalNoteAccessor
+from data_models.fhir.fhir_clinical_note_accessor import FhirClinicalNoteAccessor
 from data_models.image_accessor import ImageAccessor
 
 logger = logging.getLogger(__name__)
@@ -75,10 +79,36 @@ class BlobSasDelegate(UserDelegationKeyDelegate):
         return f"{url}?{sas_token}"
 
 
+@dataclass(frozen=True)
 class DataAccess:
-    def __init__(self, blob_service_client: BlobServiceClient):
-        self.blob_sas_delegate = BlobSasDelegate(blob_service_client)
-        self.chat_artifact_accessor = ChatArtifactAccessor(blob_service_client)
-        self.chat_context_accessor = ChatContextAccessor(blob_service_client)
-        self.clinical_note_accessor = ClinicalNoteAccessor(blob_service_client)
-        self.image_accessor = ImageAccessor(blob_service_client)
+    """ Data access layer for the application. """
+    blob_sas_delegate: BlobSasDelegate
+    chat_artifact_accessor: ChatArtifactAccessor
+    chat_context_accessor: ChatContextAccessor
+    clinical_note_accessor: ClinicalNoteAccessor
+    image_accessor: ImageAccessor
+
+
+def create_data_access(
+    blob_service_client: BlobServiceClient,
+    credential: AsyncTokenCredential
+) -> DataAccess:
+    """ Factory function to create a DataAccess object. """
+    # Create clinical note accessor based on the source
+    clinical_notes_source = os.getenv("CLINICAL_NOTES_SOURCE")
+    if clinical_notes_source == "fhir":
+        # Note: You can change FhirClinicalNoteAccessor instantiation to use different authentication methods
+        clinical_note_accessor = FhirClinicalNoteAccessor.from_credential(
+            fhir_url=os.getenv("FHIR_SERVICE_ENDPOINT"),
+            credential=credential,
+        )
+    else:
+        clinical_note_accessor = ClinicalNoteAccessor(blob_service_client)
+
+    return DataAccess(
+        blob_sas_delegate=BlobSasDelegate(blob_service_client),
+        chat_artifact_accessor=ChatArtifactAccessor(blob_service_client),
+        chat_context_accessor=ChatContextAccessor(blob_service_client),
+        clinical_note_accessor=clinical_note_accessor,
+        image_accessor=ImageAccessor(blob_service_client),
+    )

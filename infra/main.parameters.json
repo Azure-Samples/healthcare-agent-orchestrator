@@ -86,6 +86,12 @@
     "scenario": {
       "value": "${SCENARIO}"
     },
+    "clinicalNotesSource": {
+      "value": "${CLINICAL_NOTES_SOURCE}"
+    },
+    "fhirServiceEndpoint": {
+      "value": "${FHIR_SERVICE_ENDPOINT}"
+    },
     "tags": {
       "value": {
         "Owner": "AI Team",

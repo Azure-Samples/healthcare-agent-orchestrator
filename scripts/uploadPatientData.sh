@@ -24,10 +24,50 @@ envFilePath="$rootDirectory/src/.env"
 
 # Load the environment variables
 if [ -f "$envFilePath" ]; then
-    export $(grep -v '^#' "$envFilePath" | xargs)
+    source "$envFilePath"
 else
     echo "Environment file not found at $envFilePath"
     exit 1
+fi
+
+if [ "$CLINICAL_NOTES_SOURCE" == "fhir" ]; then
+    echo "CLINICAL_NOTES_SOURCE is set to \"fhir\". Uploading patient data to FHIR service..."
+
+    # Check if Python is installed
+    pythonVersion=$(python -V 2>&1 | grep -Po '(?<=Python )(.+)')
+    if [[ -z "$pythonVersion" ]]; then
+        echo "Python version 3.12 or higher is required. Please install Python and try again."
+        exit 1
+    fi
+
+    pythonVersionArray=(${pythonVersion//./ })
+    echo "  Python version: ${pythonVersionArray[0]}.${pythonVersionArray[1]}"
+    if [[ ${pythonVersionArray[0]} -eq 3 && ${pythonVersionArray[1]} -lt 12 ]]; then
+        echo "Python version 3.12 or higher is required. Please update your Python installation."
+        exit 1
+    fi
+
+    # Run the Python script to convert patient data to FHIR format
+    echo "  Generating FHIR resources from patient data..."
+    python "$rootDirectory\scripts\generate_fhir_resources.py"
+    if [ $? -ne 0 ]; then
+        echo "Failed to generate FHIR resources. Please check the script for errors."
+        exit 1
+    fi
+
+    # Run the Python script to upload patient data to FHIR service
+    echo "  Uploading FHIR resources into the FHIR service..."
+    authToken=$(az account get-access-token --resource "$FHIR_SERVICE_ENDPOINT" --tenant "$tenantId" --query accessToken -o tsv)
+    python $rootDirectory\scripts\ingest_fhir_resources.py \
+        --fhir-service-url "$FHIR_SERVICE_ENDPOINT" \
+        --auth-token "$authToken" \
+        --azure-env-name "$AZURE_ENV_NAME"
+    if [ $? -ne 0 ]; then
+        echo "Failed to ingest FHIR resources. Please check the script for errors."
+        exit 1
+    fi
+    
+    exit 0
 fi
 
 # Define variables
