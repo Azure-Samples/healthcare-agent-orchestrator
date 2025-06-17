@@ -1,13 +1,13 @@
 import argparse
 import json
+import logging
 import os
 import re
+import urllib.request
 from typing import Any, Callable
 
-import requests
 
-
-def post_fhir_resource_batch(fhir_url: str, resource_batch: Any, auth_token: str):
+def post_fhir_resource_batch(fhir_url: str, resource_batch: Any, auth_token: str) -> Any:
     """
     Posts a batch of resources to the FHIR server.
     :param resource_batch: A bundle of resources to post."""
@@ -16,11 +16,15 @@ def post_fhir_resource_batch(fhir_url: str, resource_batch: Any, auth_token: str
         "Authorization": f"Bearer {auth_token}",
         "Content-Type": "application/json"
     }
-    response = requests.post(url, headers=headers, json=resource_batch)
-    response.raise_for_status()  # Raise an error for bad responses
-    if response.ok == False:
-        raise Exception(f"Failed to post resource: {response.content}")
-    return response.json()
+    data = json.dumps(resource_batch).encode('utf-8')
+    request = urllib.request.Request(url, data=data, headers=headers, method="POST")
+    with urllib.request.urlopen(request) as response:
+        if response.status != 200:
+            raise Exception(f"Failed to post resources to {url}. Status code: {response.status}")
+
+        # Read response data
+        response_body = response.read().decode('utf-8')
+        return json.loads(response_body)
 
 
 def load_resources(path):
@@ -52,23 +56,24 @@ def patient_with_given_name_exists(
     Checks to see if a patient with the same name already exists in the FHIR server.
     """
     patient_name = resource['name'][0]['given'][0]
-    filtered_patients = []
-    try:
-        url = f"{fhir_url}/Patient?name={patient_name}"
-        headers = {
-            "Authorization": f"Bearer {auth_token}",
-            "Content-Type": "application/json"
-        }
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        patients = response.json().get("entry", [])
+    url = f"{fhir_url}/Patient?name={patient_name}"
+    headers = {
+        "Authorization": f"Bearer {auth_token}",
+        "Content-Type": "application/json"
+    }
+    request = urllib.request.Request(url, headers=headers)
 
-        filtered_patients = [p for p in patients if p["resource"]['name'][0]['given'][0] == patient_name]
+    with urllib.request.urlopen(request) as response:
+        if response.status != 200:
+            raise Exception(f"Failed to fetch data from {url}. Status code: {response.status}")
 
-    except Exception as e:
-        print(f"An error occurred while checking if patient exists: {e}")
-    finally:
-        return len(filtered_patients) > 0
+        # Read patient data
+        data_str = response.read().decode('utf-8')
+        data = json.loads(data_str)
+        patients = data.get("entry", [])
+
+    filtered_patients = [p for p in patients if p["resource"]['name'][0]['given'][0] == patient_name]
+    return len(filtered_patients) > 0
 
 
 def post_resources_in_batches(
@@ -210,9 +215,8 @@ def main(auth_token: str, azure_env_name: str, fhir_url: str):
             id_map,
             batch_size=10,
             id_map_required=True)
-
-    except requests.exceptions.RequestException as e:
-        print(f"An error occurred: {e}")
+    except:
+        logging.exception("Failed to upload resources to FHIR server.")
 
 
 if __name__ == "__main__":
