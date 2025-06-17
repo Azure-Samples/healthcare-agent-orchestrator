@@ -1,6 +1,6 @@
 # Evaluation Module: Simulate & Score Agent Conversations
 
-This standalone module enables structured simulation and evaluation of multi-agent chat systems. It is designed for testing AI agents, especially in clinical or healthcare workflows, using synthetic conversations and modular evaluation metrics.
+This standalone module located in `/src/eval` directory enables structured simulation and evaluation of multi-agent chat systems. It is designed for testing AI agents, especially in clinical or healthcare workflows, using synthetic conversations and modular evaluation metrics.
 
 The module supports both:
 - **Reference-based evaluation** (e.g., ROUGE)
@@ -10,10 +10,10 @@ The module supports both:
 
 ## Installation
 
-This module is standalone and does **not** need to be deployed with your main agent application.
+This module is standalone and does **not** need to be deployed with your main agent application. To install, run the following command from `/src/`.
 
 ```bash
-pip install -r requirements_eval.txt
+pip install -r requirements-eval.txt
 ```
 
 This is also necessary for running the [evaluation notebook](/notebooks/evaluations/evaluation.ipynb).

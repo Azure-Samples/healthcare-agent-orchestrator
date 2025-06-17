@@ -130,12 +130,12 @@ In the case that a patient met the inclusion criteria, ground truth patient summ
 Performance measurements used to compare Healthcare Agent Orchestration to ground truth patient summaries leveraged the following metrics:
 
 - **Lexical**: We use the collection of ROUGE metrics to assess similarities between text documents, as prior work has found these best correlate to human judgement among currently available lexical metrics [1].
-- **Factual**: We developed a metric we term "TBFact", which is a modified form of RadFact [2]. A first text document is converted to a summarized list of facts using an LLM agent. Then a second agent is used to determine entailment of each fact from the second document.
+- **Factual**: We developed a metric we term "TBFact", which is a modified form of RadFact [2]. At first text document is converted to a summarized list of facts using an LLM agent. Then a second agent is used to determine entailment of each fact from the second document.
 
 System performance is not guaranteed. We recommend usage patterns matching that which was used for evaluation to maximize output quality.
 
 ## References
 
-[1] Chen et al. "Fully Authentic Visual Question Answering Dataset from Online Communities" ECCV 2024. arxiv.org/pdf/2311.15562 
-[2] Bannur et al. "MAIRA-2: Grounded Radiology Report Generation" https://arxiv.org/abs/2406.04449 
+[1] Chen et al. "Fully Authentic Visual Question Answering Dataset from Online Communities" ECCV 2024. arxiv.org/pdf/2311.15562  
+[2] Bannur et al. "MAIRA-2: Grounded Radiology Report Generation" https://arxiv.org/abs/2406.04449  
 [3] Wong, C., Zhang, S., Gu, Y., Moung, C., Abel, J., Usuyama, N., Weerasinghe, R., Piening, B., Naumann, T., Bifulco, C. and Poon, H., 2023, December. Scaling clinical trial matching using large language models: a case study in oncology. In Machine Learning for Healthcare Conference (pp. 846-862). PMLR.
