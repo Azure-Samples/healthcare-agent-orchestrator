@@ -98,6 +98,8 @@ The Healthcare Agent Orchestration framework is not meant for processing identif
 
 ## Performance Assessments and Evaluations
 
+For detailed guidance on evaluating agent performance, running simulations, and measuring conversation quality, see the [Evaluation Guide](./evaluation.md) which provides comprehensive instructions for testing AI agents using synthetic conversations and modular evaluation metrics.
+
 ### Individual Agent Evaluations
 
 When possible, the underlying agents have been based on evaluated technology to ensure a baseline performance under constrained conditions. While these do not imply performance at the scenario level, we reference the following validation of the individual agents:

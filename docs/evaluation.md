@@ -18,6 +18,8 @@ pip install -r requirements-eval.txt
 
 This is also necessary for running the [evaluation notebook](/notebooks/evaluations/evaluation.ipynb).
 
+> **Note**: To run Jupyter notebooks in this dev container, ensure Jupyter is installed (`pip install jupyter`) or use the VS Code Jupyter extension which is included in the dev container for running notebooks directly in VS Code.
+
 ## Quick Start
 
 ### Simulate Conversations

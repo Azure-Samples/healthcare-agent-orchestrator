@@ -64,6 +64,7 @@ Before deploying, verify your Azure subscription has sufficient quota and your a
   - Ensure you have quota for either **GPT-4o** or **GPT-4.1** models (`GlobalStandard`) in your `AZURE_GPT_LOCATION` region (recommended: 100K-200K TPM)
   - Confirm availability of at least **24 cores** of NCADSA100v4 for `Standard_NC24ads_A100_v4` VM or **40 cores** of NCADSH100v5 for `Standard_NC40ads_H100_v5` VM in your `AZURE_HLS_LOCATION` region
   - The [Azure AI Management Center](https://ai.azure.com/managementCenter/quota) is a helpful tool for this.
+  - Note: When using Azure ML, you need adequate capacity in your ML workspace quota, which is separate from and managed independently of your subscription GPU quota.
 
 * **App Service Capacity**
   - Verify App Service quota in your `AZURE_APPSERVICE_LOCATION` region:
