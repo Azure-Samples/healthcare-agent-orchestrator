@@ -17,7 +17,7 @@ from bots import AssistantBot, MagenticBot
 from bots.show_typing_middleware import ShowTypingMiddleware
 from config import DefaultConfig, load_agent_config, setup_logging
 from data_models.app_context import AppContext
-from data_models.data_access import DataAccess
+from data_models.data_access import create_data_access
 from mcp_app import create_fast_mcp_app
 from routes.api.messages import messages_routes
 from routes.api.user import user_routes
@@ -48,7 +48,7 @@ def create_app_context():
         account_url=os.getenv("APP_BLOB_STORAGE_ENDPOINT"),
         credential=credential,
     )
-    data_access = DataAccess(blob_service_client)
+    data_access = create_data_access(blob_service_client, credential)
 
     return AppContext(
         all_agent_configs=agent_config,
