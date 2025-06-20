@@ -32,7 +32,7 @@ Run the script with the following argument to generate the corresponding files:
 ```
 python generate_fhir_resources.py --fabric
 ```
-The newly generated files will be located at `output/fabric`
+The newly generated files will be located at `output/fabric_resources`
 
 
 ### Ingesting Sample Data
@@ -80,23 +80,52 @@ If you are interested in exposing data using a Fabric GraphQL instance, more inf
 
 We can use Managed Identities that are already created as part of the HAO deployment for authentication when calling [Fabric REST APIs](https://learn.microsoft.com/en-us/rest/api/fabric/articles/using-fabric-apis)
 
+### Creating a Security group
+
+The service principal created by the default deployment doesn't have access to any of your Power BI content and APIs. To give the service principal access, we can create a security group in Microsoft Entra ID and then add the service principal you created to that security group. You can do this [manually](https://learn.microsoft.com/en-us/entra/fundamentals/how-to-manage-groups#create-a-basic-group-and-add-members) or by executing the script below.
+
+```ps
+# Sign in as an admin.
+Connect-MgGraph -Scopes "Application.ReadWrite.All"
+
+# Get the service principal that you created earlier.
+$servicePrincipal = Get-MgServicePrincipal -Filter "AppId eq '<app-client-ID>'"
+
+# Create an Azure AD security group.
+$group = New-MgGroup -DisplayName "securitygroup1" -SecurityEnabled -MailEnabled:$False -MailNickName "notSet"
+Write-Host "Object ID of new security group: " $($group.Id)
+
+# Add the service principal to the group.
+New-MgGroupMember -GroupId $($group.Id) -DirectoryObjectId $($servicePrincipal.Id)
+```
+
+### Configure Fabric Tenant Settings
+
+On the Fabric side, you need to configure your Tenant settings in the [Admin Center](https://learn.microsoft.com/en-us/fabric/admin/admin-center) to allow the service principal to use the Fabric APIs.
+
+
+![](admin-portal-option-settings-menu.png)
+
+Make sure you have the setting enabled to allow service principals to use Fabric APIs and specify the security group created in the previous step.
+
+![](admin-portal-allow-apis.png)
 
 ### Assign a Managed Identity to your Workspace
 
-After deploying HAO, your subscription should have multiple managed identities created. You can add the 'Orchestrator' identity to your Fabric Workspace by going to the Workspace landing page and selecting 'Manage Access' to show a side panel. From there, you can click 'Add people or groups' and enter the id or client id of your Orchestrator.
+You can add the 'Orchestrator' identity to your Fabric Workspace by going to the Workspace landing page and selecting 'Manage Access' to show a side panel. From there, you can click 'Add people or groups' and enter the id or client id of your Orchestrator. **Make sure that the service principal is assigned an Admin role**.
 
 ![](managed_identity.png)
 
-
-## Update Deployment Parameters
-
-- Update the bicep files with the solution id and UDF artifact id
-- Update the bicep files to use client secret credentials
 
 ## Redploy the solution
 
 There are two small changes that need to be made before redeploying:
 
-1. In `main.bicep`, change `clinicalNotesSource` to `fabric`
-2. Set the `fabricUserDataFunctionEndpoint` value to the Fabric User Data Function Endpoint you created in the previous step.
+```
+azd env set CLINICAL_NOTES_SOURCE fabric
+```
+
+```
+azd env set FABRIC_USER_DATA_FUNCTION_ENDPOINT <endpoint>
+```
 

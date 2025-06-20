@@ -5,17 +5,15 @@ import asyncio
 import logging
 from typing import Any, Callable, Coroutine, List, Optional, Tuple
 import json
-import requests
 import base64
 from datetime import date, timedelta
 
 import re
-import requests
+import aiohttp
 from azure.core.credentials_async import AsyncTokenCredential
 from azure.identity.aio import get_bearer_token_provider
 
 logger = logging.getLogger(__name__)
-
 
 class FabricClinicalNoteAccessor:
     def __init__(
@@ -65,14 +63,21 @@ class FabricClinicalNoteAccessor:
         """Get the list of patients."""
         target_endpoint = f"{self.fabric_user_data_function_endpoint}/functions/get_patients_by_id/invoke"
         headers = await self.get_headers()
-        response = requests.post(target_endpoint, json={}, headers=headers)
-        return response.json()['output']['ids']
+        async with aiohttp.ClientSession() as session:
+            async with session.post(target_endpoint, json={}, headers=headers) as response:
+                response.raise_for_status()
+                data = await response.json()
+        return data['output']['ids']
 
     async def get_metadata_list(self, patient_id: str) -> list[dict[str, str]]:
         """Get the clinical note URLs for a given patient ID."""
         target_endpoint = f"{self.fabric_user_data_function_endpoint}/functions/get_clinical_notes_by_patient_id/invoke"
-        response = requests.post(target_endpoint, json={"patientId": patient_id}, headers=await self.get_headers())
-        document_reference_ids = response.json()['output']
+        headers = await self.get_headers()
+        async with aiohttp.ClientSession() as session:
+            async with session.post(target_endpoint, json={"patientId": patient_id}, headers=headers) as response:
+                response.raise_for_status()
+                data = await response.json()
+        document_reference_ids = data['output']
 
         return [
             {
@@ -84,21 +89,23 @@ class FabricClinicalNoteAccessor:
     async def read(self, patient_id: str, note_id: str) -> str:
         """Read the clinical note for a given patient ID and note ID."""
         target_endpoint = f"{self.fabric_user_data_function_endpoint}/functions/get_clinical_note_by_patient_id/invoke"
-        response = requests.post(target_endpoint, json={"noteId": note_id}, headers=await self.get_headers())
-        document_reference = response.json()["output"]
-        note_content = document_reference["content"][0]["attachment"]["data"]
+        headers = await self.get_headers()
+        async with aiohttp.ClientSession() as session:
+            async with session.post(target_endpoint, json={"noteId": note_id}, headers=headers) as response:
+                response.raise_for_status()
+                data = await response.json()
+        document_reference = data["output"]
+        document_reference_data = document_reference["content"][0]["attachment"]["data"]
 
-        try:
-            note_content = base64.b64decode(note_content).decode("utf-8")
-        except Exception as e:
-            logger.error(f"Error decoding note content: {e}")
-            raise
+        note_content = base64.b64decode(document_reference_data).decode("utf-8")
 
         note_json = {}
         try:
             note_json = json.loads(note_content)
             note_json['id'] = note_id
         except json.JSONDecodeError as e:
+
+            # Try to handle note content that is not JSON
             if note_content:
                 target_date = date.today() - timedelta(days=30)
                 target_date.isoformat()
