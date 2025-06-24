@@ -100,7 +100,7 @@ If you've identified single region for deployment, you can proceed to authentica
 | AZURE_GPT_LOCATION | Region for GPT resources | Defaults to `AZURE_LOCATION` |
 | AZURE_APPSERVICE_LOCATION | Region for App Service deployment | Defaults to `AZURE_LOCATION` |
 | GPU_INSTANCE_TYPE | GPU SKU for model deployment | Defaults to `Standard_NC24ads_A100_v4` |
-| CLINICAL_NOTES_SOURCE | Source of clinical notes used by agents. Accepted values: `blob`, `fhir`. | Defaults to `blob` |
+| CLINICAL_NOTES_SOURCE | Source of clinical notes used by agents. Accepted values: `blob`, `fhir`, `fabric`. | Defaults to `blob` |
 
 
 First, authenticate with Azure services:
