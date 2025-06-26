@@ -20,6 +20,5 @@ git+https://github.com/modelcontextprotocol/python-sdk.git@58c5e7223c40b2ec682fd
 uvicorn[standard]==0.34.1
 uvicorn-worker==0.3.0
 fastapi[standard]==0.115.11
-requests==2.32.3
 
 -r ./scenarios/${SCENARIO}/requirements.txt

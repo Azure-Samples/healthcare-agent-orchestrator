@@ -27,7 +27,6 @@ def post_fhir_resource_batch(fhir_url: str, resource_batch: Any, auth_token: str
         return json.loads(response_body)
 
 
-
 def load_resources(path):
     """
     Yields individual resources from a file or folder.
