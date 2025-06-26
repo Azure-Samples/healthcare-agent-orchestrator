@@ -22,24 +22,32 @@ class FabricClinicalNoteAccessor:
         bearer_token_provider: Callable[[], Coroutine[Any, Any, str]],
     ):
         self.fabric_user_data_function_endpoint = fabric_user_data_function_endpoint
-        self.workspace_id, self.data_function_id = self.__parse_fabric_endpoint(fabric_user_data_function_endpoint)
+        workspace_id, data_function_id = self.__parse_fabric_endpoint(fabric_user_data_function_endpoint)
+        self.api_endpoint = f"https://api.fabric.microsoft.com/v1/workspaces/{workspace_id}/userDataFunctions/{data_function_id}"
         self.bearer_token_provider = bearer_token_provider
 
     def __parse_fabric_endpoint(self, url: str) -> Optional[Tuple[str, str]]:
         """
         Parses a Fabric API URL to extract the workspace_id and data_function_id.
 
-        Example URL:
+        Supports both the following patterns:
         https://api.fabric.microsoft.com/v1/workspaces/{workspace_id}/userDataFunctions/{data_function_id}
+        and
+        https://msit.powerbi.com/groups/{workspace_id}/userdatafunctions/{data_function_id}
 
         :param url: The Fabric API URL.
         :return: Tuple of (workspace_id, data_function_id) if found, else None.
         """
-        pattern = r"/workspaces/([^/]+)/userDataFunctions/([^/]+)"
-        match = re.search(pattern, url)
-        if match:
-            workspace_id, data_function_id = match.groups()
-            return workspace_id, data_function_id
+        # Try both possible patterns (case-insensitive for 'userdatafunctions')
+        patterns = [
+            r"/workspaces/([^/]+)/userDataFunctions/([^/]+)",
+            r"/groups/([^/]+)/userdatafunctions/([^/]+)"
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, url, re.IGNORECASE)
+            if match:
+                workspace_id, data_function_id = match.groups()
+                return workspace_id, data_function_id
         return None
 
     @staticmethod
@@ -61,22 +69,24 @@ class FabricClinicalNoteAccessor:
 
     async def get_patients(self) -> list[str]:
         """Get the list of patients."""
-        target_endpoint = f"{self.fabric_user_data_function_endpoint}/functions/get_patients_by_id/invoke"
+        target_endpoint = f"{self.api_endpoint}/functions/get_patients_by_id/invoke"
         headers = await self.get_headers()
         async with aiohttp.ClientSession() as session:
             async with session.post(target_endpoint, json={}, headers=headers) as response:
                 response.raise_for_status()
-                data = await response.json()
+                content = await response.content.read()
+                data = json.loads(content.decode('utf-8'))
         return data['output']['ids']
 
     async def get_metadata_list(self, patient_id: str) -> list[dict[str, str]]:
         """Get the clinical note URLs for a given patient ID."""
-        target_endpoint = f"{self.fabric_user_data_function_endpoint}/functions/get_clinical_notes_by_patient_id/invoke"
+        target_endpoint = f"{self.api_endpoint}/functions/get_clinical_notes_by_patient_id/invoke"
         headers = await self.get_headers()
         async with aiohttp.ClientSession() as session:
             async with session.post(target_endpoint, json={"patientId": patient_id}, headers=headers) as response:
                 response.raise_for_status()
-                data = await response.json()
+                content = await response.content.read()
+                data = json.loads(content.decode('utf-8'))
         document_reference_ids = data['output']
 
         return [
@@ -88,12 +98,13 @@ class FabricClinicalNoteAccessor:
 
     async def read(self, patient_id: str, note_id: str) -> str:
         """Read the clinical note for a given patient ID and note ID."""
-        target_endpoint = f"{self.fabric_user_data_function_endpoint}/functions/get_clinical_note_by_patient_id/invoke"
+        target_endpoint = f"{self.api_endpoint}/functions/get_clinical_note_by_patient_id/invoke"
         headers = await self.get_headers()
         async with aiohttp.ClientSession() as session:
             async with session.post(target_endpoint, json={"noteId": note_id}, headers=headers) as response:
                 response.raise_for_status()
-                data = await response.json()
+                content = await response.content.read()
+                data = json.loads(content.decode('utf-8'))
         document_reference = data["output"]
         document_reference_data = document_reference["content"][0]["attachment"]["data"]
 
