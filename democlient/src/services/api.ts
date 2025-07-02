@@ -1,7 +1,7 @@
 import type { Chat, Message, SendMessageResponse, SendMessagesResponse } from '../types';
 
 // Base URL for API requests
-export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 // Base URL for WebSocket connections (replace http/https with ws/wss)
 export const WS_BASE_URL = API_BASE_URL.replace(/^http/, 'ws').replace(/^https/, 'wss');
 

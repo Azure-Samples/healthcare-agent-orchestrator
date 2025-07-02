@@ -1,4 +1,4 @@
-aiohttp==3.9.5
+aiohttp==3.10.11
 aiohttp-compress==0.2.1
 azure-core==1.31.0
 azure-identity==1.19.0

@@ -42,7 +42,7 @@ ENV_FILE_CHANGED=1
 
 if [ -f "$ENV_FILE" ]; then
     EXISTING_ENV_CONTENT=$(cat "$ENV_FILE")
-    NEW_ENV_CONTENT="REACT_APP_API_BASE_URL=/api"
+    NEW_ENV_CONTENT="VITE_API_BASE_URL=/api"
     
     if [ "$EXISTING_ENV_CONTENT" = "$NEW_ENV_CONTENT" ]; then
         echo "Environment file exists and content is unchanged."
@@ -52,11 +52,11 @@ if [ -f "$ENV_FILE" ]; then
     fi
 fi
 
-# Create environment file for React if needed
+# Create environment file for Vite if needed
 if [ "$ENV_FILE_CHANGED" -eq 1 ]; then
     echo "Creating or updating $ENV_FILE file..."
     cat > $ENV_FILE << EOL
-REACT_APP_API_BASE_URL=/api
+VITE_API_BASE_URL=/api
 EOL
 fi
 
@@ -89,6 +89,12 @@ need_rebuild() {
         return 0
     fi
     
+    # Check if vite.config.ts is newer than build directory
+    if [ -f "vite.config.ts" ] && [ "vite.config.ts" -nt "$BUILD_DIR" ]; then
+        echo "vite.config.ts has changed. Build needed."
+        return 0
+    fi
+    
     # Check if env file has changed
     if [ "$env_changed" -eq 1 ]; then
         echo "Environment file has changed. Build needed."
@@ -107,8 +113,8 @@ fi
 
 # Check if we need to rebuild
 if need_rebuild "$1" "$ENV_FILE_CHANGED"; then
-    # Build the React app
-    echo "Building React app..."
+    # Build the React app with Vite
+    echo "Building React app with Vite..."
     npm run build
     echo "Frontend build completed successfully!"
 else
@@ -120,5 +126,4 @@ echo "Copying build files to src/static directory for deployment..."
 mkdir -p "$STATIC_DIR"
 rm -rf "$STATIC_DIR"/*
 cp -R "$BUILD_DIR"/* "$STATIC_DIR"/
-cp -R "$BUILD_DIR/static" "$STATIC_DIR"/
 echo "Files copied successfully!" 

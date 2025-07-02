@@ -58,9 +58,9 @@ if (Test-Path -Path $envFilePath) {
     $existingEnvContent = Get-Content -Path $envFilePath
 }
 
-# Create environment file for React if it doesn't exist or content is different
+# Create environment file for Vite if it doesn't exist or content is different
 $envContent = @"
-REACT_APP_API_BASE_URL=/api
+VITE_API_BASE_URL=/api
 "@
 
 if ($existingEnvContent -eq $envContent) {
@@ -117,6 +117,16 @@ function NeedRebuild {
         }
     }
 
+    # Check if vite.config.ts is newer than build output file
+    $viteConfig = Join-Path -Path $democlientDir -ChildPath "vite.config.ts"
+    if (Test-Path -Path $viteConfig) {
+        $viteConfigLastWriteTime = (Get-Item -Path $viteConfig).LastWriteTime
+        if ($viteConfigLastWriteTime -gt $buildLastWriteTime) {
+            Write-Host "vite.config.ts has changed. Build needed."
+            return $true
+        }
+    }
+
     # Check if env file has changed
     if ($EnvFileChanged) {
         Write-Host "Environment file has changed. Build needed."
@@ -135,8 +145,8 @@ if (-not (Test-Path -Path "node_modules") -or $args[0] -eq "--force") {
 
 # Check if we need to rebuild
 if (NeedRebuild -Force $args[0] -EnvFileChanged $envFileChanged) {
-    # Build the React app
-    Write-Host "Building React app..."
+    # Build the React app with Vite
+    Write-Host "Building React app with Vite..."
     npm run build
     Write-Host "Frontend build completed successfully!"
 } else {
