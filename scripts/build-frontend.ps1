@@ -55,7 +55,7 @@ $existingEnvContent = ""
 $envFileChanged = $true
 
 if (Test-Path -Path $envFilePath) {
-    $existingEnvContent = Get-Content -Path $envFilePath -Raw
+    $existingEnvContent = Get-Content -Path $envFilePath
 }
 
 # Create environment file for React if it doesn't exist or content is different

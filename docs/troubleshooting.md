@@ -12,6 +12,49 @@ Try switching the location of the app service plan to a different region using t
 
 Then run `azd up` again.
 
+### Post Provision Hook Failed with Exit Code 127 (Dev Container Issue)
+
+When running `azd up` in a dev container environment, you may encounter the following error:
+
+```
+post provision hook failed with exit code : '127' 
+Path: '/tmp/azd-postprovision-##########.sh'
+```
+
+This error typically occurs due to **line ending differences (CRLF vs LF)** between Windows and Unix systems when working in dev containers.
+
+#### Root Cause
+The issue happens when:
+- Git is configured with `core.autocrlf = true` (common on Windows)
+- Shell scripts get checked out with Windows line endings (CRLF)
+- Dev container tries to execute scripts with CRLF endings on a Unix system
+- Unix systems expect LF line endings for shell scripts
+
+#### Solution 1: Fix Git Configuration
+
+1. **Check your current Git configuration:**
+   ```bash
+   git config core.autocrlf
+   ```
+
+2. **If the output is `true`, change it to `input`:**
+   ```bash
+   git config --global core.autocrlf input
+   ```
+
+3. **Re-clone the repository to get correct line endings:**
+   ```bash
+   cd ..
+   rm -rf healthcare-agent-orchestrator
+   git clone https://github.com/Azure-Samples/healthcare-agent-orchestrator.git
+   cd healthcare-agent-orchestrator
+   ```
+
+4. **Run the deployment again:**
+   ```bash
+   azd up
+   ```
+
 ## Teams
 
 ### Install the Agents in Microsoft Teams

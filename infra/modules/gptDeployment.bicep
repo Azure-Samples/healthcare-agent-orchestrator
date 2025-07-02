@@ -5,6 +5,7 @@ param aiServicesName string
 param modelName string
 param modelVersion string
 param modelCapacity int = 10
+param modelSku string
 
 resource aiServices 'Microsoft.CognitiveServices/accounts@2023-05-01' existing = {
   name: aiServicesName
@@ -20,7 +21,7 @@ resource aiServices 'Microsoft.CognitiveServices/accounts@2023-05-01' existing =
     }
     sku: {
       capacity: modelCapacity
-      name: 'GlobalStandard'
+      name: modelSku
     }
   }
 }

@@ -22,6 +22,17 @@ Healthcare Agent Orchestrator is a code sample to help you build an agent inte
 
 For each agent defined in `agents.yaml`, an Azure bot and associated Teams app are created. These are integrated into Semantic Kernel's group chat feature, allowing a group of experts to collaboratively solve tasks. Each agent has access to a set of tools. New agents can be added by updating `agents.yaml` and redeploying the application.
 
+## AI Agent Role Summaries
+
+- Orchestrator: Facilitates the conversation between the user and all expert agents. Determines the order of responses, gathers required information, and ensures agents yield control back after completing their tasks.
+- Patient History: Loads and presents the patient's full clinical timeline using structured data tools. Answers questions about medical history but does not interpret images or make clinical recommendations.
+- Radiology: Analyzes chest x-ray images using the CXRReportGen model and compares findings to the patient's history. Does not support other imaging modalities like CT or pathology.
+- Patient Status: Provides a structured summary of the patient’s current clinical status including stage, biomarkers, and performance score. Requests missing details from PatientHistory if needed.
+- Clinical Guidelines: Generates a structured treatment plan based on patient status using clinical guidelines and biomarker rationale. Recommends therapy adjustments and progression contingencies.
+- Report Creation: Compiles a comprehensive tumor board Word document using all previously gathered information. Does not summarize or interpret; simply assembles validated agent outputs.
+- Clinical Trials: Searches for and presents relevant clinical trials based on patient characteristics and prior treatments. Filters only for trials the patient is eligible for and formats them clearly.
+- Medical Research: Retrieves research-backed insights using Microsoft GraphRAG. Responses include unaltered source references and links, focusing strictly on verified data.
+
 ## Getting Started
 
 To get started with using our code sample for multi-agent workflows, follow the instructions below to set up your environment and run the sample application.
@@ -53,6 +64,7 @@ Before deploying, verify your Azure subscription has sufficient quota and your a
   - Ensure you have quota for either **GPT-4o** or **GPT-4.1** models (`GlobalStandard`) in your `AZURE_GPT_LOCATION` region (recommended: 100K-200K TPM)
   - Confirm availability of at least **24 cores** of NCADSA100v4 for `Standard_NC24ads_A100_v4` VM or **40 cores** of NCADSH100v5 for `Standard_NC40ads_H100_v5` VM in your `AZURE_HLS_LOCATION` region
   - The [Azure AI Management Center](https://ai.azure.com/managementCenter/quota) is a helpful tool for this.
+  - When using Azure ML, you need adequate capacity in your Azure Machine Learning Compute, which is separate from and managed independently of your subscription GPU quota. Refer to [Manage resources and quotas - Azure Machine Learning | Microsoft Learn](https://docs.microsoft.com/en-us/azure/machine-learning/how-to-manage-quotas) for more details.
 
 * **App Service Capacity**
   - Verify App Service quota in your `AZURE_APPSERVICE_LOCATION` region:
@@ -88,6 +100,7 @@ If you've identified single region for deployment, you can proceed to authentica
 | AZURE_GPT_LOCATION | Region for GPT resources | Defaults to `AZURE_LOCATION` |
 | AZURE_APPSERVICE_LOCATION | Region for App Service deployment | Defaults to `AZURE_LOCATION` |
 | GPU_INSTANCE_TYPE | GPU SKU for model deployment | Defaults to `Standard_NC24ads_A100_v4` |
+| CLINICAL_NOTES_SOURCE | Source of clinical notes used by agents. Accepted values: `blob`, `fhir`, `fabric`. | Defaults to `blob` |
 
 
 First, authenticate with Azure services:
@@ -113,6 +126,12 @@ azd env set AZURE_APPSERVICE_LOCATION <region>
 
 # Override GPU instance type (only needed if not using the default Standard_NC24ads_A100_v4)
 azd env set GPU_INSTANCE_TYPE Standard_NC40ads_H100_v5
+```
+
+[OPTIONAL] Agents can be configured to have a different data access layer. This repo provides two alternatives for retrieving clinical notes using the Fast Healthcare Interopability Resource (FHIR) standard. The first option leverages the FHIR server from Azure Health Data Services (AHDS), more information can be found [here](./docs/fhir_integration.md). The second alternative uses a relational FHIR server as part of healthcare data solutions (HDS) in Microsoft Fabric, more information can be found [here](./docs/fabric/fabric_integration.md).
+
+```sh
+azd env set CLINICAL_NOTES_SOURCE fhir
 ```
 
 > [!NOTE] 

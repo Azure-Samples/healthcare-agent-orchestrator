@@ -18,6 +18,10 @@ param authClientId string
 param graphRagSubscriptionKey string
 param keyVaultName string
 param scenario string
+param clinicalNotesSource string
+param fhirServiceEndpoint string = ''
+param fabricUserDataFunctionEndpoint string = ''
+
 var botIdsArray = [
   for (msi, index) in msis: {
     msi: msi.msiClientID
@@ -118,6 +122,9 @@ resource backEndNameSiteConfig 'Microsoft.Web/sites/config@2024-04-01' = {
     BACKEND_APP_HOSTNAME: backend.properties.defaultHostName
     GRAPH_RAG_SUBSCRIPTION_KEY: '@Microsoft.KeyVault(VaultName=${graphRagKeyVault.name};SecretName=${graphRagKeyVaultSecret.name})'
     SCENARIO: scenario
+    CLINICAL_NOTES_SOURCE: clinicalNotesSource
+    FHIR_SERVICE_ENDPOINT: fhirServiceEndpoint
+    FABRIC_USER_DATA_FUNCTION_ENDPOINT: fabricUserDataFunctionEndpoint
   }
 }
 

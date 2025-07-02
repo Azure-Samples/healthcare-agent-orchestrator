@@ -1,4 +1,6 @@
 name: healthcare-agent-orchestrator
+metadata:
+  template: healthcare-agent-orchestrator@0.0.1
 services:
   healthcare-agent-orchestrator-app:
     project: src

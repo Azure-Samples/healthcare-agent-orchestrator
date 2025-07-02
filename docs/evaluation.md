@@ -1,6 +1,6 @@
 # Evaluation Module: Simulate & Score Agent Conversations
 
-This standalone module enables structured simulation and evaluation of multi-agent chat systems. It is designed for testing AI agents, especially in clinical or healthcare workflows, using synthetic conversations and modular evaluation metrics.
+This standalone module located in `/src/eval` directory enables structured simulation and evaluation of multi-agent chat systems. It is designed for testing AI agents, especially in clinical or healthcare workflows, using synthetic conversations and modular evaluation metrics.
 
 The module supports both:
 - **Reference-based evaluation** (e.g., ROUGE)
@@ -10,13 +10,16 @@ The module supports both:
 
 ## Installation
 
-This module is standalone and does **not** need to be deployed with your main agent application.
+This module is standalone and does **not** need to be deployed with your main agent application. To install, run the following command from `/src/`.
 
 ```bash
-pip install -r requirements_eval.txt
+pip install -r requirements-eval.txt
 ```
 
 This is also necessary for running the [evaluation notebook](/notebooks/evaluations/evaluation.ipynb).
+
+> [!NOTE]
+> To run Jupyter notebooks in this dev container, ensure Jupyter is installed (`pip install jupyter`) or use the VS Code Jupyter extension which is included in the dev container for running notebooks directly in VS Code.
 
 ## Quick Start
 
@@ -25,10 +28,11 @@ This is also necessary for running the [evaluation notebook](/notebooks/evaluati
 All simulated conversations results are saved to user-defined paths. Set them up like this:
 
 ```python
-INITIAL_QUERIES_CSV_PATH = "../data/evaluation_sample_initial_queries.csv"
-SIMULATION_OUTPUT_PATH = "../data/simulated_chats/patient_4"
+INITIAL_QUERIES_CSV_PATH = "./evaluation_sample_initial_queries.csv"
+SIMULATION_OUTPUT_PATH = "./simulated_chats/patient_4"
 ```
 
+To bring your own patient data and ask questions, follow the instructions in the [Data Ingestion](./data_ingestion.md). We also provide sample input queries in `./evaluation_sample_initial_queries.csv`, which you can use to directly test questions with the agent. 
 Use the ChatSimulator class to create synthetic conversations with either scripted (e.g.: `ProceedUser`) or LLM-powered (e.g.: `LLMUser`) simulated users:
 
 ```python
@@ -111,11 +115,11 @@ self.save(f"chat_context_trial{trial}_{checkpoint_key}.json",
 
 Once chats are [simulated or collected from real user sessions](#real-vs-simulated-conversations), use the Evaluator class to score conversations.
 
-Similar to simulated conversations, evaluation results are saved to user-defined paths:
+Just like simulated conversations, evaluation results are saved to user-defined paths. For reference-based metrics such as ROUGE, we also provide sample synthetic patient data:
 
 ```python
 EVALUATION_RESULTS_PATH = os.path.join(SIMULATION_OUTPUT_PATH, "evaluation_results")
-PATIENT_TIMELINE_REFERENCE_PATH = "../data/references/patient_timeline_reference/"
+PATIENT_TIMELINE_REFERENCE_PATH = "./references/"
 ```
 
 We may reuse the paths across both simulation and evaluation stages for consistent file organization.
@@ -211,7 +215,7 @@ Each reference response should be saved as a .txt file in a designated directory
 
 Example directory structure:
 ```
-/data/references/
+/references/
 ├── patient_7.txt
 ├── patient_8.txt
 ```
