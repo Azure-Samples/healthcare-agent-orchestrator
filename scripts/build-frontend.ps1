@@ -24,141 +24,74 @@ $azdEnvOutput | ForEach-Object {
 }
 
 # Check if frontend build is disabled
-if ($envValues.ContainsKey("DISABLE_FRONT_END") -and $envValues["DISABLE_FRONT_END"] -eq "true") {
+if ($envValues["DISABLE_FRONT_END"] -eq "true") {
     Write-Host "Frontend build is disabled (DISABLE_FRONT_END=true). Skipping frontend build."
     exit 0
 }
 
 # Check if Node.js is installed
 try {
-    $nodeVersion = node -v
+    $nodeVersion = node --version
     Write-Host "Node.js version: $nodeVersion"
 } catch {
     Write-Host "Node.js is required for frontend build but not installed."
-    $skipFrontend = Read-Host "Do you want to skip the frontend build? (y/n)"
-    if ($skipFrontend -eq "y" -or $skipFrontend -eq "Y") {
-        Write-Host "Skipping frontend build. Note that the application may not function properly without a built frontend."
-        exit 0
-    } else {
-        Write-Host "Please install Node.js and try again."
-        exit 1
-    }
+    exit 1
 }
 
-# Navigate to the democlient directory
-Set-Location -Path $democlientDir
-
-# Check if env file exists and get its content
-$envFile = ".env.production"
-$envFilePath = Join-Path -Path $democlientDir -ChildPath $envFile
-$existingEnvContent = ""
-$envFileChanged = $true
-
-if (Test-Path -Path $envFilePath) {
-    $existingEnvContent = Get-Content -Path $envFilePath
+# Check if npm is installed
+try {
+    $npmVersion = npm --version
+    Write-Host "npm version: $npmVersion"
+} catch {
+    Write-Host "npm is required for frontend build but not installed."
+    exit 1
 }
 
-# Create environment file for Vite if it doesn't exist or content is different
-$envContent = @"
-VITE_API_BASE_URL=/api
-"@
+# Navigate to the React project directory
+Set-Location $democlientDir
 
-if ($existingEnvContent -eq $envContent) {
-    Write-Host "Environment file exists and content is unchanged."
-    $envFileChanged = $false
-} else {
-    Write-Host "Creating or updating $envFile file..."
-    $envContent | Out-File -FilePath $envFile -Encoding utf8
+Write-Host "Installing frontend dependencies..."
+npm install
+
+# Create .env.production file with Vite environment variables
+Write-Host "Creating .env.production with environment variables..."
+$reactAppApiBaseUrl = $envValues["REACT_APP_API_BASE_URL"]
+if (-not $reactAppApiBaseUrl) {
+    $reactAppApiBaseUrl = ""
 }
 
-# Function to check if build is needed
-function NeedRebuild {
-    param (
-        [string]$Force,
-        [bool]$EnvFileChanged
-    )
+$envContent = "VITE_API_BASE_URL=$reactAppApiBaseUrl"
+$envContent | Out-File -FilePath ".env.production" -Encoding UTF8
 
-    # Always build if the --force flag is passed
-    if ($Force -eq "--force") {
-        Write-Host "Force rebuild requested."
-        return $true
-    }
+Write-Host "Building React frontend..."
+npm run build
 
-    # Always build if build directory doesn't exist
-    if (-not (Test-Path -Path $buildDir)) {
-        Write-Host "Build directory doesn't exist. Build needed."
-        return $true
-    }
-
-    # Use index.html as reference file instead of directory timestamp
-    $buildIndexFile = Join-Path -Path $buildDir -ChildPath "index.html"
-    if (-not (Test-Path -Path $buildIndexFile)) {
-        Write-Host "Build output file (index.html) doesn't exist. Build needed."
-        return $true
-    }
-    
-    # Get the build output file's last write time
-    $buildLastWriteTime = (Get-Item -Path $buildIndexFile).LastWriteTime
-
-    # Check if any source files are newer than the build output file
-    $newerFiles = Get-ChildItem -Path $srcDir -Recurse -File | Where-Object { $_.LastWriteTime -gt $buildLastWriteTime }
-    if ($null -ne $newerFiles -and $newerFiles.Count -gt 0) {
-        Write-Host "Source files have changed. Build needed."
-        return $true
-    }
-
-    # Check if package-lock.json is newer than build output file
-    $packageLockJson = Join-Path -Path $democlientDir -ChildPath "package-lock.json"
-    if (Test-Path -Path $packageLockJson) {
-        $packageLockJsonLastWriteTime = (Get-Item -Path $packageLockJson).LastWriteTime
-        if ($packageLockJsonLastWriteTime -gt $buildLastWriteTime) {
-            Write-Host "package-lock.json has changed. Build needed."
-            return $true
-        }
-    }
-
-    # Check if vite.config.ts is newer than build output file
-    $viteConfig = Join-Path -Path $democlientDir -ChildPath "vite.config.ts"
-    if (Test-Path -Path $viteConfig) {
-        $viteConfigLastWriteTime = (Get-Item -Path $viteConfig).LastWriteTime
-        if ($viteConfigLastWriteTime -gt $buildLastWriteTime) {
-            Write-Host "vite.config.ts has changed. Build needed."
-            return $true
-        }
-    }
-
-    # Check if env file has changed
-    if ($EnvFileChanged) {
-        Write-Host "Environment file has changed. Build needed."
-        return $true
-    }
-
-    Write-Host "No changes detected. Skipping build."
-    return $false
+# Check if build was successful
+if (-not (Test-Path $buildDir)) {
+    Write-Host "Error: Build directory does not exist. Frontend build may have failed."
+    exit 1
 }
 
-# Install dependencies if needed
-if (-not (Test-Path -Path "node_modules") -or $args[0] -eq "--force") {
-    Write-Host "Installing dependencies from package-lock.json..."
-    npm ci
+Write-Host "Copying build files to src/static/static directory for deployment..."
+
+# Create the static directory structure that the Python app expects
+$staticStaticDir = Join-Path -Path $staticDir -ChildPath "static"
+if (-not (Test-Path $staticDir)) {
+    New-Item -ItemType Directory -Path $staticDir -Force
+}
+if (-not (Test-Path $staticStaticDir)) {
+    New-Item -ItemType Directory -Path $staticStaticDir -Force
 }
 
-# Check if we need to rebuild
-if (NeedRebuild -Force $args[0] -EnvFileChanged $envFileChanged) {
-    # Build the React app with Vite
-    Write-Host "Building React app with Vite..."
-    npm run build
-    Write-Host "Frontend build completed successfully!"
-} else {
-    Write-Host "Using existing build."
+# Remove existing files in the target directory
+if (Test-Path $staticStaticDir) {
+    Remove-Item -Path "$staticStaticDir\*" -Recurse -Force
 }
 
-# Copy the build directory to src/static for deployment
-Write-Host "Copying build files to src/static directory for deployment..."
-if (-not (Test-Path -Path $staticDir)) {
-    New-Item -Path $staticDir -ItemType Directory -Force
-} else {
-    Get-ChildItem -Path $staticDir -Recurse | Remove-Item -Force -Recurse
-}
-Copy-Item -Path "$buildDir\*" -Destination $staticDir -Recurse -Force
-Write-Host "Files copied successfully!" 
+# Copy all build files to the static/static directory (note the double static)
+Copy-Item -Path "$buildDir\*" -Destination $staticStaticDir -Recurse -Force
+
+Write-Host "Frontend build completed successfully!"
+Write-Host "Files copied to: $staticStaticDir"
+Write-Host "Build contents:"
+Get-ChildItem $staticStaticDir 
