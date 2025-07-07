@@ -1,6 +1,6 @@
 # Healthcare Agent Orchestrator Chat Client
 
-This is a React-based frontend for the Healthcare Agent Orchestrator built with Vite. It allows users to interact with the agents through a web interface instead of using Microsoft Teams.
+This is a React-based frontend for the Healthcare Agent Orchestrator. It allows users to interact with the agents through a web interface instead of using Microsoft Teams.
 
 ## Setup
 
