@@ -21,8 +21,7 @@
       "@services/*": ["src/services/*"],
       "@store/*": ["src/store/*"],
       "@types/*": ["src/types/*"]
-    },
-    "types": ["vite/client"]
+    }
   },
   "include": ["src"]
 } 

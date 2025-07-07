@@ -13,6 +13,10 @@ $staticDir = Join-Path -Path $projectRoot -ChildPath "src\static"
 # Get environment values
 Write-Host "Getting environment variables from azd..."
 $azdEnvOutput = azd env get-values
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Error: azd env get-values failed with exit code $LASTEXITCODE"
+    exit 1
+}
 $envValues = @{}
 $azdEnvOutput | ForEach-Object {
     $parts = $_ -split '='
@@ -52,6 +56,10 @@ Set-Location $democlientDir
 
 Write-Host "Installing frontend dependencies..."
 npm install
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Error: npm install failed with exit code $LASTEXITCODE"
+    exit 1
+}
 
 # Create .env.production file with Vite environment variables
 Write-Host "Creating .env.production with environment variables..."
@@ -65,6 +73,10 @@ $envContent | Out-File -FilePath ".env.production" -Encoding UTF8
 
 Write-Host "Building React frontend..."
 npm run build
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Error: npm run build failed with exit code $LASTEXITCODE"
+    exit 1
+}
 
 # Check if build was successful
 if (-not (Test-Path $buildDir)) {
