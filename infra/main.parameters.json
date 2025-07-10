@@ -48,7 +48,7 @@
       "value": "${AZURE_GPT_LOCATION}"
     },
     "hlsDeploymentLocation": {
-      "value": "${HLS_DEPLOYMENT_LOCATION}"
+      "value": "${AZURE_HLS_LOCATION}"
     },
     "hlsModelEndpoints": {
       "value": {
