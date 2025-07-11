@@ -20,5 +20,11 @@ git+https://github.com/modelcontextprotocol/python-sdk.git@58c5e7223c40b2ec682fd
 uvicorn[standard]==0.34.1
 uvicorn-worker==0.3.0
 fastapi[standard]==0.115.11
+opentelemetry-api==1.31.1
+opentelemetry-sdk==1.31.1
+azure-monitor-opentelemetry==1.6.10
+azure-monitor-opentelemetry-exporter==1.0.0b39
+opentelemetry-instrumentation-fastapi==0.52b1
+opentelemetry-instrumentation-logging==0.52b1
 
 -r ./scenarios/${SCENARIO}/requirements.txt

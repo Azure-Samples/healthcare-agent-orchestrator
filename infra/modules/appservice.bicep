@@ -18,6 +18,8 @@ param authClientId string
 param graphRagSubscriptionKey string
 param keyVaultName string
 param scenario string
+@description('Application Insights connection string for logging')
+param applicationInsightsConnectionString string = ''
 param clinicalNotesSource string
 param fhirServiceEndpoint string = ''
 param fabricUserDataFunctionEndpoint string = ''
@@ -123,6 +125,7 @@ resource backEndNameSiteConfig 'Microsoft.Web/sites/config@2024-04-01' = {
     GRAPH_RAG_SUBSCRIPTION_KEY: '@Microsoft.KeyVault(VaultName=${graphRagKeyVault.name};SecretName=${graphRagKeyVaultSecret.name})'
     SCENARIO: scenario
     CLINICAL_NOTES_SOURCE: clinicalNotesSource
+    APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsightsConnectionString
     FHIR_SERVICE_ENDPOINT: fhirServiceEndpoint
     FABRIC_USER_DATA_FUNCTION_ENDPOINT: fabricUserDataFunctionEndpoint
   }
