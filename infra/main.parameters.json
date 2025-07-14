@@ -103,18 +103,6 @@
     "fabricUserDataFunctionEndpoint": {
       "value": "${FABRIC_USER_DATA_FUNCTION_ENDPOINT}"
     },
-    "vnetName": {
-      "value": "${AZURE_VNET_NAME}"
-    },
-    "appServiceSubnetName": {
-      "value": "${AZURE_APP_SERVICE_SUBNET_NAME}"
-    },
-    "vnetAddressPrefix": {
-      "value": "${AZURE_VNET_ADDRESS_PREFIX}"
-    },
-    "appServiceSubnetAddressPrefix": {
-      "value": "${AZURE_APP_SERVICE_SUBNET_ADDRESS_PREFIX}"
-    },
     "networkLocation": {
       "value": "${AZURE_NETWORK_LOCATION}"
     }

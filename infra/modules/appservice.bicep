@@ -100,6 +100,7 @@ resource backend 'Microsoft.Web/sites@2023-12-01' = {
   properties: {
     serverFarmId: appServicePlanId
     httpsOnly: true
+    virtualNetworkSubnetId: appServiceSubnetId
     siteConfig: {
       httpLoggingEnabled: true
       logsDirectorySizeLimit: 35
@@ -112,6 +113,7 @@ resource backend 'Microsoft.Web/sites@2023-12-01' = {
       webSocketsEnabled: true
       appCommandLine: 'gunicorn app:app'
       alwaysOn: true
+      vnetRouteAllEnabled: true
     }
     keyVaultReferenceIdentity: msis[0].msiID
   }
@@ -172,14 +174,7 @@ resource backEndNameSiteConfig 'Microsoft.Web/sites/config@2024-04-01' = {
 }
 
 // VNet integration for App Service
-resource vnetConnection 'Microsoft.Web/sites/virtualNetworkConnections@2023-12-01' = {
-  parent: backend
-  name: 'vnet-integration'
-  properties: {
-    vnetResourceId: appServiceSubnetId
-    isSwift: true
-  }
-}
+// VNet integration is now handled directly in the App Service resource properties
 
 output backendHostName string = backend.properties.defaultHostName
 output botIds object = botIds

@@ -292,8 +292,8 @@ module hlsModels 'modules/hlsModel.bicep' = {
     location: empty(hlsDeploymentLocation) ? location : hlsDeploymentLocation
     workspaceName: 'cog-ai-prj-${environmentName}-${uniqueSuffix}'
     instanceType: instanceType
-    includeRadiologyModels: empty(healthcareAgents) ? true : !hasHealthcareAgentNeedingRadiologyModels
-
+    // includeRadiologyModels: empty(healthcareAgents) ? true : !hasHealthcareAgentNeedingRadiologyModels
+    includeRadiologyModels: false
   }
   dependsOn: [
     m_aihub
