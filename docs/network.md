@@ -103,6 +103,8 @@ The following sections outline the key network components and configurations tha
 - Dedicated subnet for Application Gateway deployment
 - No delegation required
 - Specific NSG rules for Application Gateway traffic
+- Private DNS Zones: Configure  `privatelink.azurewebsites.net` and related zones for private endpoint and vpn name resolution
+- Backed Pool Targets: use private endpoint ip's. 
 
 **SSL/TLS Configuration**:
 - Frontend HTTPS endpoint with public-facing access
