@@ -62,6 +62,19 @@ var microsoft365IpRanges = [
   '40.126.0.0/18'      // Azure AD authentication (ID 56)
   '20.20.32.0/19'      // Azure AD authentication (ID 56)
   '20.231.128.0/19'    // Azure AD authentication (ID 56)
+    
+  // SharePoint Online & OneDrive (CRITICAL for Teams file sharing)
+  '13.107.136.0/22'    // SharePoint Online core (ID 31)
+  '40.108.128.0/17'    // SharePoint Online core (ID 31)
+  '52.104.0.0/14'      // SharePoint Online core (ID 31)
+  '104.146.128.0/17'   // SharePoint Online core (ID 31)
+  '150.171.40.0/22'    // SharePoint Online core (ID 31)
+  
+  // Exchange Protection Services (for email security)
+  '40.92.0.0/15'       // Exchange Protection (ID 9, 10)
+  '40.107.0.0/16'      // Exchange Protection (ID 9, 10)
+  '52.100.0.0/14'      // Exchange Protection (ID 9, 10)
+  '104.47.0.0/17'      // Exchange Protection (ID 9, 10)
 ]
 
 var ipSecurityRestrictions = [

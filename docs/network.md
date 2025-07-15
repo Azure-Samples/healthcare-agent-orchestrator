@@ -19,6 +19,10 @@ The Healthcare Agent Orchestrator deploys with a secure network foundation that 
 > [!NOTE]
 > The App Service is not publicly accessible from the internet. Access is restricted to Microsoft 365 and Teams IP ranges to ensure proper integration with Teams while maintaining security boundaries.
 
+### Microsoft 365/Teams Integration Considerations
+
+- **IP Restriction Limitations**: The current IP-based approach covers core Teams/M365 services but has limitations with FQDN-dependent services (like `*.teams.microsoft.com`, `login.microsoft.com`). For full functionality, consider Azure Firewall with FQDN rules or the enhanced private architecture with Application Gateway.
+
 ### Security Features
 
 - **Network Isolation**: Resources deployed within dedicated virtual network
@@ -33,7 +37,7 @@ The network architecture is fully parameterized and can be customized during dep
 **VNet Configuration**:
 - `vnetName`: Custom name for the virtual network (auto-generated if not specified)
 - `vnetAddressPrefixes`: Array of address prefixes for the VNet (default: `["10.0.0.0/16"]`)
-- `networkLocation`: Azure region for network resources (defaults to resource group location)
+- `networkLocation`: Azure region for network resources should be similar to that as the appservice (defaults to resource group location)
 
 **Subnet Configuration**:
 - `subnets`: Array of subnet configurations, each containing:
