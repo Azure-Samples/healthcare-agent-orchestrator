@@ -97,6 +97,9 @@
     "fhirServiceEndpoint": {
       "value": "${FHIR_SERVICE_ENDPOINT}"
     },
+    "networkLocation": {
+      "value": "${AZURE_APPSERVICE_LOCATION}"
+    },
     "tags": {
       "value": {
         "Owner": "AI Team",

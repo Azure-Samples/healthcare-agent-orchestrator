@@ -6,6 +6,8 @@ param keyVaultName string
 param tags object = {}
 param grantAccessTo array
 param additionalIdentities array = []
+param appServiceSubnetId string
+
 
 var access = [for i in range(0, length(additionalIdentities)): {
   id: additionalIdentities[i]
@@ -25,10 +27,16 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
     enabledForTemplateDeployment: false
     enableSoftDelete: true
     enableRbacAuthorization: true
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'Disabled'
     networkAcls: {
       bypass: 'AzureServices'
-      defaultAction: 'Allow' 
+      defaultAction: 'Deny'
+      virtualNetworkRules: [
+        {
+          id: appServiceSubnetId
+          ignoreMissingVnetServiceEndpoint: false
+        }
+      ]
     }
     sku: {
       family: 'A'

@@ -94,6 +94,77 @@ var abbrs = loadJsonContent('abbreviations.json')
 var uniqueSuffix = substring(uniqueString(subscription().id, environmentName), 1, 3)
 var location = resourceGroup().location
 
+// Network configurations
+@description('Name of the Virtual Network. Automatically generated if left blank')
+param vnetName string = ''
+@description('Virtual network address prefixes')
+param vnetAddressPrefixes array = ['10.0.0.0/16']
+@description('Subnet configurations for the virtual network')
+param subnets array = [
+  {
+    name: 'appservice-subnet'
+    addressPrefix: '10.0.1.0/24'
+    delegation: 'Microsoft.Web/serverFarms'
+    serviceEndpoints: ['Microsoft.KeyVault', 'Microsoft.Storage', 'Microsoft.Web']
+    securityRules: [
+      {
+        name: 'AllowHTTPSInbound'
+        properties: {
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '443'
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: '*'
+          access: 'Allow'
+          priority: 1000
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'AllowHTTPInbound'
+        properties: {
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '80'
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: '*'
+          access: 'Allow'
+          priority: 1010
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'AllowAzureServicesOutbound'
+        properties: {
+          protocol: '*'
+          sourcePortRange: '*'
+          destinationPortRange: '*'
+          sourceAddressPrefix: 'VirtualNetwork'
+          destinationAddressPrefix: 'AzureCloud'
+          access: 'Allow'
+          priority: 1000
+          direction: 'Outbound'
+        }
+      }
+      {
+        name: 'AllowInternetOutbound'
+        properties: {
+          protocol: '*'
+          sourcePortRange: '*'
+          destinationPortRange: '*'
+          sourceAddressPrefix: 'VirtualNetwork'
+          destinationAddressPrefix: 'Internet'
+          access: 'Allow'
+          priority: 1010
+          direction: 'Outbound'
+        }
+      }
+    ]
+  }
+]
+@description('Location to deploy network resources')
+param networkLocation string = resourceGroup().location
+
 var names = {
   msi: !empty(msiName) ? msiName : '${abbrs.managedIdentityUserAssignedIdentities}${environmentName}-${uniqueSuffix}'
   appPlan: !empty(appPlanName) ? appPlanName : '${abbrs.webSitesAppServiceEnvironment}${environmentName}-${uniqueSuffix}'
@@ -105,6 +176,8 @@ var names = {
   keyVault: !empty(keyVaultName) ? keyVaultName : '${abbrs.keyVaultVaults}${environmentName}-${uniqueSuffix}'
   ahdsWorkspaceName: replace('ahds${environmentName}${uniqueSuffix}', '-', '')
   ahdsFhirServiceName: replace('fhir${environmentName}${uniqueSuffix}', '-', '')
+  vnet: !empty(vnetName) ? vnetName : '${abbrs.networkVirtualNetworks}${environmentName}-${uniqueSuffix}'
+
 }
 
 var agentConfigs = {
@@ -125,6 +198,18 @@ module m_appServicePlan 'modules/appserviceplan.bicep' = {
   params: {
     location: empty(appServiceLocation) ? location : appServiceLocation
     appServicePlanName: names.appPlan
+    tags: tags
+  }
+}
+
+// Network module - deploy VNet and subnets for enhanced security
+module m_network 'modules/network.bicep' = {
+  name: 'deploy_network'
+  params: {
+    location: empty(networkLocation) ? location : networkLocation
+    vnetName: names.vnet
+    vnetAddressPrefixes: vnetAddressPrefixes
+    subnets: subnets
     tags: tags
   }
 }
@@ -166,6 +251,7 @@ module m_keyVault 'modules/aistudio/keyVault.bicep' = {
   params: {
     location: empty(keyVaultLocation) ? location : keyVaultLocation
     keyVaultName: names.keyVault
+    appServiceSubnetId: m_network.outputs.appServiceSubnetId
     grantAccessTo: [
         {
           id: myPrincipalId
@@ -299,6 +385,7 @@ module m_app 'modules/appservice.bicep' = {
     clinicalNotesSource: clinicalNotesSource
     fhirServiceEndpoint: fhirServiceEndpoint
     fabricUserDataFunctionEndpoint: fabricUserDataFunctionEndpoint
+    appServiceSubnetId: m_network.outputs.appServiceSubnetId 
   }
 }
 
@@ -355,3 +442,6 @@ output FABRIC_USER_DATA_FUNCTION_ENDPOINT string = fabricUserDataFunctionEndpoin
 output HLS_MODEL_ENDPOINTS string = string(outHlsModelEndpoints)
 output KEYVAULT_ENDPOINT string = m_keyVault.outputs.keyVaultEndpoint
 output HEALTHCARE_AGENT_SERVICE_ENDPOINTS array = !empty(healthcareAgents) ? m_healthcareAgentService.outputs.healthcareAgentServiceEndpoints : []
+output VNET_ID string = m_network.outputs.vnetId
+output VNET_NAME string = m_network.outputs.vnetName
+output APP_SERVICE_SUBNET_ID string = m_network.outputs.appServiceSubnetId
