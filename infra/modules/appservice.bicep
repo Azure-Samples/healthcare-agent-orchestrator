@@ -22,6 +22,7 @@ param clinicalNotesSource string
 param fhirServiceEndpoint string = ''
 param fabricUserDataFunctionEndpoint string = ''
 param appServiceSubnetId string
+param additionalAllowedIps string = ''
 
 
 var botIdsArray = [
@@ -77,13 +78,19 @@ var microsoft365IpRanges = [
   '104.47.0.0/17'      // Exchange Protection (ID 9, 10)
 ]
 
+// Parse additional allowed IPs from comma-separated string to array
+var additionalAllowedIpsArray = additionalAllowedIps != '' ? split(additionalAllowedIps, ',') : []
+
+// Combine Microsoft 365 IP ranges with additional allowed IPs
+var allAllowedIps = concat(microsoft365IpRanges, additionalAllowedIpsArray)
+
 var ipSecurityRestrictions = [
-  for (ipRange, index) in microsoft365IpRanges: {
+  for (ipRange, index) in allAllowedIps: {
     ipAddress: ipRange
     action: 'Allow'
     priority: 1000 + index
-    name: 'AllowMicrosoft365-${index}'
-    description: 'Allow Microsoft 365 IP range ${ipRange}'
+    name: contains(microsoft365IpRanges, ipRange) ? 'AllowMicrosoft365-${index}' : 'AllowAdditional-${index}'
+    description: contains(microsoft365IpRanges, ipRange) ? 'Allow Microsoft 365 IP range ${ipRange}' : 'Allow additional IP range ${ipRange}'
   }
 ]
 

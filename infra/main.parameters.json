@@ -85,6 +85,9 @@
     "authClientId": {
       "value": "${CLIENT_ID}"
     },
+    "additionalAllowedIps": {
+      "value": "${ADDITIONAL_ALLOWED_IPS}"
+    },
     "graphRagSubscriptionKey": {
       "value": "${GRAPH_RAG_SUBSCRIPTION_KEY}"
     },
@@ -96,9 +99,6 @@
     },
     "fhirServiceEndpoint": {
       "value": "${FHIR_SERVICE_ENDPOINT}"
-    },
-    "networkLocation": {
-      "value": "${AZURE_APPSERVICE_LOCATION}"
     },
     "tags": {
       "value": {

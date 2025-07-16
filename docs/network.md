@@ -14,10 +14,28 @@ The Healthcare Agent Orchestrator deploys with a secure network foundation that 
 - **Service endpoints** for secure access to Azure Key Vault and Web services
 - **Public storage accounts** with Azure services bypass for AI Hub and deployment compatibility
 - **Network Security Groups (NSGs)** with HTTP/HTTPS inbound rules and Azure services/Internet outbound rules
-- **App Service with IP restrictions** allowing access only from Microsoft 365/Teams IP ranges as defined in [Microsoft 365 URLs and IP address ranges](https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges?view=o365-worldwide#microsoft-teams)
+- **App Service with IP restrictions** allowing access only from Microsoft 365/Teams IP ranges as defined in [Microsoft 365 URLs and IP address ranges](https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges?view=o365-worldwide#microsoft-teams) and any additional IPs specified in the `ADDITIONAL_ALLOWED_IPS` parameter set while deploying with azd
 
 > [!NOTE]
-> The App Service is not publicly accessible from the internet. Access is restricted to Microsoft 365 and Teams IP ranges to ensure proper integration with Teams while maintaining security boundaries.
+> The App Service uses `ipSecurityRestrictionsDefaultAction: 'Deny'` for security. Access is restricted to Microsoft 365/Teams IP ranges and any additional IPs you specify. To add your own IP for development access, use the `ADDITIONAL_ALLOWED_IPS` environment variable during deployment.
+
+### Adding Developer Access
+
+To allow additional IP addresses (such as your development machine) to access the App Service, you can set the `ADDITIONAL_ALLOWED_IPS` environment variable:
+
+```bash
+# For a single IP address
+azd env set ADDITIONAL_ALLOWED_IPS "203.0.113.100/32"
+
+# For multiple IP addresses or ranges (comma-separated)
+azd env set ADDITIONAL_ALLOWED_IPS "203.0.113.100/32,198.51.100.0/24,192.168.1.0/24"
+
+# To remove all additional IPs (only Microsoft 365/Teams ranges will be allowed)
+azd env set ADDITIONAL_ALLOWED_IPS ""
+
+# Then redeploy
+azd up
+```
 
 ### Microsoft 365/Teams Integration Considerations
 

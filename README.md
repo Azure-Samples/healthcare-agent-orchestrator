@@ -101,7 +101,7 @@ If you've identified single region for deployment, you can proceed to authentica
 | AZURE_APPSERVICE_LOCATION | Region for App Service deployment | Defaults to `AZURE_LOCATION` |
 | GPU_INSTANCE_TYPE | GPU SKU for model deployment | Defaults to `Standard_NC24ads_A100_v4` |
 | CLINICAL_NOTES_SOURCE | Source of clinical notes used by agents. Accepted values: `blob`, `fhir`, `fabric`. | Defaults to `blob` |
-
+| ADDITIONAL_ALLOWED_IPS | Additional IP addresses/ranges for App Service access (comma-separated string format) | Defaults to empty string |
 
 First, authenticate with Azure services:
 ```sh
@@ -126,6 +126,9 @@ azd env set AZURE_APPSERVICE_LOCATION <region>
 
 # Override GPU instance type (only needed if not using the default Standard_NC24ads_A100_v4)
 azd env set GPU_INSTANCE_TYPE Standard_NC40ads_H100_v5
+
+# Allow additional IP addresses for App Service access (for development/debugging)
+azd env set ADDITIONAL_ALLOWED_IPS "203.0.113.100/32,198.51.100.0/24"
 ```
 
 [OPTIONAL] Agents can be configured to have a different data access layer. This repo provides two alternatives for retrieving clinical notes using the Fast Healthcare Interopability Resource (FHIR) standard. The first option leverages the FHIR server from Azure Health Data Services (AHDS), more information can be found [here](./docs/fhir_integration.md). The second alternative uses a relational FHIR server as part of healthcare data solutions (HDS) in Microsoft Fabric, more information can be found [here](./docs/fabric/fabric_integration.md).
@@ -246,6 +249,7 @@ This command will permanently delete all Azure resources created during deployme
 - [Tool Integration Guide](./docs/agent_development.md#adding-tools-plugins-to-your-agents)
 - [Healthcare Scenarios Guide](./docs/scenarios.md) for implementation examples
 - [Data Ingestion Guide](./docs/data_ingestion.md) for adding custom data
+- [Network Architecture](./docs/network.md) for network configuration and security
 - [Microsoft Cloud for Healthcare Integration](./docs/mcp.md)
 - [Teams Integration Guide](./docs/teams.md)
 

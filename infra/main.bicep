@@ -73,6 +73,9 @@ param azureOpenaiDeploymentNameReasoningModelOverride string = ''
 @description('Client ID for the Azure AD application used for authentication. Leave empty to skip')
 param authClientId string = ''
 
+@description('Additional IP addresses or ranges to allow access to the App Service (comma-separated list, e.g., "192.168.1.100/32,10.0.0.0/24")')
+param additionalAllowedIps string = ''
+
 @description('The scenario to use for the deployment.')
 param scenario string = 'default'
 
@@ -162,8 +165,6 @@ param subnets array = [
     ]
   }
 ]
-@description('Location to deploy network resources')
-param networkLocation string = resourceGroup().location
 
 var names = {
   msi: !empty(msiName) ? msiName : '${abbrs.managedIdentityUserAssignedIdentities}${environmentName}-${uniqueSuffix}'
@@ -206,7 +207,7 @@ module m_appServicePlan 'modules/appserviceplan.bicep' = {
 module m_network 'modules/network.bicep' = {
   name: 'deploy_network'
   params: {
-    location: empty(networkLocation) ? location : networkLocation
+    location: empty(appServiceLocation) ? location : appServiceLocation
     vnetName: names.vnet
     vnetAddressPrefixes: vnetAddressPrefixes
     subnets: subnets
@@ -385,7 +386,8 @@ module m_app 'modules/appservice.bicep' = {
     clinicalNotesSource: clinicalNotesSource
     fhirServiceEndpoint: fhirServiceEndpoint
     fabricUserDataFunctionEndpoint: fabricUserDataFunctionEndpoint
-    appServiceSubnetId: m_network.outputs.appServiceSubnetId 
+    appServiceSubnetId: m_network.outputs.appServiceSubnetId
+    additionalAllowedIps: additionalAllowedIps 
   }
 }
 
