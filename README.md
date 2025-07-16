@@ -223,6 +223,14 @@ You can interact with any of the agents:
 
 As part of the deployment, a simple chat UI was also deployed. You can access it using the url that showed up after doing azd up in step 3.
 
+> [!NOTE] 
+> By default, the chat application is only accessible from Microsoft 365/Teams IP ranges for security. If you need to access the web UI directly from your development machine, you'll need to add your IP address to the allowed list using:
+> ```sh
+> azd env set ADDITIONAL_ALLOWED_IPS "your.ip.address/32"
+> azd up
+> ```
+> For more information on network security configuration, see the [Network Architecture](./docs/network.md) documentation.
+
 ### [Optional] Uninstall / Clean-up
 
 To completely remove all deployed resources and clean up your environment, run:

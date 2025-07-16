@@ -8,6 +8,8 @@ Consult the main [README](../README.md) for general information about the projec
 - [Data Ingestion](./data_ingestion.md): How to import and process patient data in the system
 - [Evaluation](./evaluation.md): Methods for measuring and improving agent performance
 - [Infrastructure](./infra.md): Additional infrastructure information including how to enable secure file downloads with SSO authentication
+- [Network Architecture](./network.md) for network configuration and security
+
 
 ## Developer Documentation
 - [Agent Development](./agent_development.md): Creating and customizing specialized healthcare agents
