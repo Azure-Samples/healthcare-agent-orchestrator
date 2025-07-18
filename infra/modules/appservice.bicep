@@ -23,7 +23,7 @@ param fhirServiceEndpoint string = ''
 param fabricUserDataFunctionEndpoint string = ''
 param appServiceSubnetId string
 param additionalAllowedIps string = ''
-
+param additionalAllowedTenantIds string = ''
 
 var botIdsArray = [
   for (msi, index) in msis: {
@@ -173,6 +173,7 @@ resource backEndNameSiteConfig 'Microsoft.Web/sites/config@2024-04-01' = {
     MicrosoftAppType: 'UserAssignedMSI'
     AZURE_CLIENT_ID: msis[0].msiClientID
     MicrosoftAppTenantId: tenant().tenantId
+    ADDITIONAL_ALLOWED_TENANT_IDS: additionalAllowedTenantIds
     AZURE_AI_PROJECT_CONNECTION_STRING: '${split(aiProject.properties.discoveryUrl, '/')[2]};${subscription().subscriptionId};${resourceGroup().name};${aiProjectName}'
     AZURE_OPENAI_API_ENDPOINT: openaiEnpoint
     AZURE_OPENAI_ENDPOINT: openaiEnpoint

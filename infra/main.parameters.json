@@ -88,6 +88,9 @@
     "additionalAllowedIps": {
       "value": "${ADDITIONAL_ALLOWED_IPS}"
     },
+    "additionalAllowedTenantIds": {
+      "value": "${ADDITIONAL_ALLOWED_TENANT_IDS}"
+    },
     "graphRagSubscriptionKey": {
       "value": "${GRAPH_RAG_SUBSCRIPTION_KEY}"
     },
