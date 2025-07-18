@@ -357,8 +357,8 @@ module m_fhirService 'modules/fhirService.bicep' = if (shouldDeployFhirService) 
   }
 }
 
-var outHlsModelEndpoints = hasHlsModelEndpoints ? hlsModelEndpoints : toObject(hlsModels.outputs.modelEndpoints, model => model.name, model => model.endpoint)
-var outFhirServiceEndpoint = shouldDeployFhirService ? m_fhirService.outputs.endpoint : fhirServiceEndpoint
+var outHlsModelEndpoints = hasHlsModelEndpoints ? hlsModelEndpoints : toObject(hlsModels!.outputs.modelEndpoints, model => model.name, model => model.endpoint)
+var outFhirServiceEndpoint = shouldDeployFhirService ? m_fhirService!.outputs.endpoint : fhirServiceEndpoint
 
 module m_app 'modules/appservice.bicep' = {
   name: 'deploy_app'
@@ -446,7 +446,7 @@ output FHIR_SERVICE_ENDPOINT string = outFhirServiceEndpoint
 output FABRIC_USER_DATA_FUNCTION_ENDPOINT string = fabricUserDataFunctionEndpoint
 output HLS_MODEL_ENDPOINTS string = string(outHlsModelEndpoints)
 output KEYVAULT_ENDPOINT string = m_keyVault.outputs.keyVaultEndpoint
-output HEALTHCARE_AGENT_SERVICE_ENDPOINTS array = !empty(healthcareAgents) ? m_healthcareAgentService.outputs.healthcareAgentServiceEndpoints : []
+output HEALTHCARE_AGENT_SERVICE_ENDPOINTS array = !empty(healthcareAgents) ? m_healthcareAgentService!.outputs.healthcareAgentServiceEndpoints : []
 output VNET_ID string = m_network.outputs.vnetId
 output VNET_NAME string = m_network.outputs.vnetName
 output APP_SERVICE_SUBNET_ID string = m_network.outputs.appServiceSubnetId
