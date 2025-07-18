@@ -4,20 +4,23 @@
 import asyncio
 import logging
 import os
+from typing import List
 
-from botbuilder.core import ActivityHandler, MessageFactory, TurnContext
+from botbuilder.core import MessageFactory, TurnContext
+from botbuilder.core.teams import TeamsActivityHandler
 from botbuilder.integration.aiohttp import CloudAdapter
-from botbuilder.schema import Activity, ActivityTypes
+from botbuilder.schema import Activity, ActivityTypes, ChannelAccount
 from semantic_kernel.agents import AgentGroupChat
 
 from data_models.app_context import AppContext
 from data_models.chat_context import ChatContext
+from errors import NotAuthorizedError
 from group_chat import create_group_chat
 
 logger = logging.getLogger(__name__)
 
 
-class AssistantBot(ActivityHandler):
+class AssistantBot(TeamsActivityHandler):
     def __init__(
         self,
         agent: dict,
@@ -82,6 +85,18 @@ class AssistantBot(ActivityHandler):
 
         return context
 
+    async def on_members_added_activity(
+        self, members_added: List[ChannelAccount], turn_context: TurnContext
+    ):
+        logger.info(
+            f"recipient_id: {turn_context.activity.recipient.id}, members_added: {[member.id for member in members_added]}")
+
+        for member in members_added:
+            if member.id != turn_context.activity.recipient.id:
+                # If the bot is added to a group chat, send a welcome message
+                welcome_message = f"Hello! I am {self.name}. How can I assist you today?"
+                await turn_context.send_activity(MessageFactory.text(welcome_message))
+
     async def on_message_activity(self, turn_context: TurnContext) -> None:
         conversation_id = turn_context.activity.conversation.id
         chat_context_accessor = self.data_access.chat_context_accessor
@@ -143,6 +158,9 @@ class AssistantBot(ActivityHandler):
         # This error is raised as Exception, so we can only use the message to handle the error.
         if str(error) == "Unable to proceed while another agent is active.":
             await context.send_activity("Please wait for the current agent to finish.")
+        elif isinstance(error, NotAuthorizedError):
+            logger.warning(error)
+            await context.send_activity("You are not authorized to access this agent.")
         else:
             # default exception handling
             logger.exception(f"Agent {self.name} encountered an error")

@@ -1,10 +1,11 @@
-aiohttp==3.9.5
+aiohttp==3.12.14
 aiohttp-compress==0.2.1
 azure-core==1.31.0
 azure-identity==1.19.0
 azure-storage-blob==12.25.0
-botbuilder-core==4.16.1
-botbuilder-integration-aiohttp==4.16.1
+botbuilder-core==4.17.0
+botbuilder-dialogs==4.17.0
+botbuilder-integration-aiohttp==4.17.0
 python-dotenv==1.0.1
 semantic-kernel==1.20.0
 numpy==1.26.4

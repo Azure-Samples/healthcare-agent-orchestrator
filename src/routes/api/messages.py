@@ -24,11 +24,13 @@ def create_router(botName: str, bot: AssistantBot, adapter: CloudAdapter, router
             if "Authorization" in request.headers
             else ""
         )
+        logger.info(f"Received message for bot {botName}. headers: {request.headers}, body: {body}")
 
         # add explicit auth check
         authentication_result = await adapter.bot_framework_authentication.authenticate_request(
             activity, auth_header
         )
+        logger.info(f"Authentication result: {{ audience: {authentication_result.audience}, claims: {authentication_result.claims_identity.claims}, authenticated: {authentication_result.claims_identity.is_authenticated}, auth_type: {authentication_result.claims_identity.authentication_type}, caller_id: {authentication_result.caller_id} }}")
 
         if not authentication_result or not authentication_result.claims_identity.is_authenticated:
             # Optionally could check the aud claim to make sure it matches the requested bot. Though I am fairly certain this is already done in the adapter.

@@ -10,18 +10,19 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette.applications import Starlette
-from starlette.routing import Mount
 from starlette.responses import FileResponse
+from starlette.routing import Mount
 
 from bots import AssistantBot, MagenticBot
+from bots.access_control_middleware import AccessControlMiddleware
 from bots.show_typing_middleware import ShowTypingMiddleware
 from config import DefaultConfig, load_agent_config, setup_logging
 from data_models.app_context import AppContext
 from data_models.data_access import create_data_access
 from mcp_app import create_fast_mcp_app
+from routes.api.chats import chats_routes
 from routes.api.messages import messages_routes
 from routes.api.user import user_routes
-from routes.api.chats import chats_routes
 from routes.patient_data.patient_data_routes import patient_data_routes
 from routes.views.patient_data_answer_routes import patient_data_answer_source_routes
 from routes.views.patient_timeline_routes import patient_timeline_entry_source_routes
@@ -74,12 +75,12 @@ def create_app(
     static_files_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
     if os.path.exists(static_files_path):
         app.mount("/static", StaticFiles(directory=os.path.join(static_files_path, "static")), name="static")
-        
+
         # Mount assets directory for Vite-generated assets like /assets/index-abc123.js
         assets_path = os.path.join(static_files_path, "static", "assets")
         if os.path.exists(assets_path):
             app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
-        
+
         # Add a route for the root URL to serve index.html
         @app.get("/")
         async def serve_root():
@@ -87,7 +88,7 @@ def create_app(
             if os.path.exists(index_path):
                 return FileResponse(index_path)
             return {"detail": "React app not built yet"}
-        
+
         # Add a catch-all route to serve index.html for client-side routing
         @app.get("/{full_path:path}")
         async def serve_react_app(full_path: str):
@@ -104,7 +105,7 @@ app_context = create_app_context()
 # Create Teams specific objects
 adapters = {
     agent["name"]: CloudAdapter(ConfigurationBotFrameworkAuthentication(
-        DefaultConfig(botId=agent["bot_id"]))).use(ShowTypingMiddleware())
+        DefaultConfig(botId=agent["bot_id"]))).use(ShowTypingMiddleware()).use(AccessControlMiddleware())
     for agent in app_context.all_agent_configs
 }
 bot_config = {
