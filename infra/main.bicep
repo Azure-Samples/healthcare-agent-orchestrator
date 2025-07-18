@@ -65,7 +65,7 @@ param keyVaultLocation string = resourceGroup().location
 param msiLocation string = resourceGroup().location
 param storageAccountLocation string = resourceGroup().location
 @description('By default, the AppService will only allow Teams users from the same tenant. This parameter allows you to specify additional tenant IDs to allow access to the AppService. This is a comma-separated list of tenant IDs.')
-param additionalAllowedTenantIds string
+param additionalAllowedTenantIds string = ''
 
 @description('Alternative GPT model endpoint. This only affects the reasoning model')
 param aiEndpointReasoningOverride string = ''
