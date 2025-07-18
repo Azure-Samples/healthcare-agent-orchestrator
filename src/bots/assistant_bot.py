@@ -4,12 +4,11 @@
 import asyncio
 import logging
 import os
-from typing import List
 
 from botbuilder.core import MessageFactory, TurnContext
 from botbuilder.core.teams import TeamsActivityHandler
 from botbuilder.integration.aiohttp import CloudAdapter
-from botbuilder.schema import Activity, ActivityTypes, ChannelAccount
+from botbuilder.schema import Activity, ActivityTypes
 from semantic_kernel.agents import AgentGroupChat
 
 from data_models.app_context import AppContext
@@ -84,18 +83,6 @@ class AssistantBot(TeamsActivityHandler):
         context.turn_state[CloudAdapter.BOT_CALLBACK_HANDLER_KEY] = logic
 
         return context
-
-    async def on_members_added_activity(
-        self, members_added: List[ChannelAccount], turn_context: TurnContext
-    ):
-        logger.info(
-            f"recipient_id: {turn_context.activity.recipient.id}, members_added: {[member.id for member in members_added]}")
-
-        for member in members_added:
-            if member.id != turn_context.activity.recipient.id:
-                # If the bot is added to a group chat, send a welcome message
-                welcome_message = f"Hello! I am {self.name}. How can I assist you today?"
-                await turn_context.send_activity(MessageFactory.text(welcome_message))
 
     async def on_message_activity(self, turn_context: TurnContext) -> None:
         conversation_id = turn_context.activity.conversation.id
