@@ -7,7 +7,8 @@ botbuilder-core==4.17.0
 botbuilder-dialogs==4.17.0
 botbuilder-integration-aiohttp==4.17.0
 python-dotenv==1.0.1
-semantic-kernel==1.20.0
+python-jose[cryptography]
+semantic-kernel==1.35.0
 numpy==1.26.4
 opencv-python-headless==4.11.0.86
 matplotlib==3.10.1
@@ -28,4 +29,4 @@ azure-monitor-opentelemetry-exporter==1.0.0b39
 opentelemetry-instrumentation-fastapi==0.52b1
 opentelemetry-instrumentation-logging==0.52b1
 
--r ./scenarios/${SCENARIO}/requirements.txt
+-r ./scenarios/default/requirements.txt

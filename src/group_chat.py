@@ -53,7 +53,6 @@ def create_group_chat(
         kernel = Kernel()
         kernel.add_service(
             AzureChatCompletion(
-                service_id="default",
                 deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
                 api_version="2024-10-21",
                 ad_token_provider=app_ctx.cognitive_services_token_provider
@@ -88,8 +87,7 @@ def create_group_chat(
             instructions = instructions.replace(
                 "{{aiAgents}}", "\n\t\t".join([f"- {agent['name']}: {agent["description"]}" for agent in all_agents_config]))
 
-        return (ChatCompletionAgent(service_id="default",
-                                    kernel=agent_kernel,
+        return (ChatCompletionAgent(kernel=agent_kernel,
                                     name=agent_config["name"],
                                     instructions=instructions,
                                     arguments=arguments) if not is_healthcare_agent else
