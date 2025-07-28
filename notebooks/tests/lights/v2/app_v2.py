@@ -17,7 +17,11 @@ def get_swagger_json():
     return FileResponse(swagger_path)
 
 @app.get('/Light')
-def get_lights() -> list[LightStateModel]:
+def get_lights(
+    authorization: Annotated[str | None, Header()],
+    teams_chat_id: Annotated[str | None, Header()],
+) -> list[LightStateModel]:
+    print(f"Authorization: {authorization}, Teams Chat ID: {teams_chat_id}")
     return [
         LightStateModel(
             id='123',
@@ -44,20 +48,23 @@ def set_light(id: str, csr: ChangeStateRequest, request: Request,
     async def event_generator():
         # Simulate a long-running process or event stream
         # Send 2 events with the last event turning off the light
-        for i in range(2):
+        for i in range(3):
             # If client closes connection, stop sending events
             if await request.is_disconnected():
                 break
+
+            # Simulate light state change
+            isOn = i % 2 == 1
 
             # Checks for new messages and return them to client if any
             yield LightStateModel(
                 id=id,
                 name='Lamp',
-                on=i % 2 == 0,
+                on=isOn,
                 brightness=100,
             )
 
-            print(f"Sent event {i + 1}. isOn: {i % 2 == 0}")
+            print(f"Sent event {i + 1}. isOn: {isOn}")
             await asyncio.sleep(1) # Simulate some delay
 
     return EventSourceResponse(event_generator())

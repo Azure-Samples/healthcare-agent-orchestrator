@@ -15,7 +15,11 @@ def get_swagger_json():
     return FileResponse(swagger_path)
 
 @app.get('/Light')
-def get_lights() -> list[LightStateModel]:
+def get_lights(
+    authorization: Annotated[str | None, Header()],
+    teams_chat_id: Annotated[str | None, Header()],
+) -> list[LightStateModel]:
+    print(f"Authorization: {authorization}, Teams Chat ID: {teams_chat_id}")
     return [
         LightStateModel(
             id='123',
@@ -34,7 +38,7 @@ def get_lights() -> list[LightStateModel]:
 @app.post('/Light/{id}')
 def set_light(id: str, csr: ChangeStateRequest,
     authorization: Annotated[str | None, Header()],
-    teams_chat_id: Annotated[str | None, Header()] = None
+    teams_chat_id: Annotated[str | None, Header()],
 ) -> LightStateModel:
     print(f"Authorization: {authorization}, Teams Chat ID: {teams_chat_id}")
     print(f"Setting light {id} to {csr.isOn}, brightness: {csr.brightness}, color: {csr.hex_color}, fade duration: {csr.fadeDurationInMilliseconds}")

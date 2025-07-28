@@ -28,7 +28,7 @@
     },
     "/Light/{id}": {
       "post": {
-        "summary": "Changes the state of a light.",
+        "summary": "Changes the state of a light. The response is an event stream that sends updates about the light state. Use the last event to determine the final state of the light.",
         "operationId": "change_light_state",
         "parameters": [
           {
