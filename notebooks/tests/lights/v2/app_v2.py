@@ -42,7 +42,9 @@ def set_light(id: str, csr: ChangeStateRequest, request: Request,
     print(f"Setting light {id} to {csr.isOn}, brightness: {csr.brightness}, color: {csr.hex_color}, fade duration: {csr.fadeDurationInMilliseconds}")
 
     async def event_generator():
-        for i in range(3):
+        # Simulate a long-running process or event stream
+        # Send 2 events with the last event turning off the light
+        for i in range(2):
             # If client closes connection, stop sending events
             if await request.is_disconnected():
                 break
@@ -55,6 +57,7 @@ def set_light(id: str, csr: ChangeStateRequest, request: Request,
                 brightness=100,
             )
 
+            print(f"Sent event {i + 1}. isOn: {i % 2 == 0}")
             await asyncio.sleep(1) # Simulate some delay
 
     return EventSourceResponse(event_generator())
