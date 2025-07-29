@@ -103,7 +103,7 @@ The factory function must return your tool instance. The framework will automati
        - name: <plugin_package>
          type: <function | openapi>
          openapi_document_path: <path or url (openapi only)>
-         server_url_override: <http url (openapi only)>
+         server_url_override: <url (openapi only)>
    ```
 
 ### Optimizing Agent Fields for Tool Integration
