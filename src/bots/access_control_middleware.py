@@ -68,3 +68,24 @@ class AccessControlMiddleware(Middleware):
         logger.debug(f"Allowed tenant IDs: {allowed_tenant_ids}")
 
         return allowed_tenant_ids
+
+    @staticmethod
+    def _get_allowed_user_ids() -> list[str]:
+        """
+        Retrieve additional allowed user IDs from environment variable.
+        This is a comma-separated list of user IDs.
+        """
+        deployer_object_id = os.getenv("AZURE_DEPLOYER_OBJECT_ID")
+        if deployer_object_id is None:
+            raise ValueError("AZURE_DEPLOYER_OBJECT_ID environment variable is not set.")
+
+        # Always allow the deployer object ID
+        allowed_user_ids = [deployer_object_id]
+
+        # Retrieve additional allowed user IDs from environment variable
+        additional_allowed_user_ids = os.getenv("ADDITIONAL_ALLOWED_USER_IDS")
+        if additional_allowed_user_ids:
+            allowed_user_ids.extend([user.strip() for user in additional_allowed_user_ids.split(",")])
+        logger.debug(f"Allowed user IDs: {allowed_user_ids}")
+
+        return allowed_user_ids
