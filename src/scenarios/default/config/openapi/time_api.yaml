@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info:
+  title: Time API
+  description: The Time API. A simple API to get the current time.
+  version: 1.0.0
+paths:
+  /api/current_time:
+    get:
+      operationId: get_current_time
+      summary: Get the current time in ISO 8601 format
+      responses:
+        '200':
+          description: Returns the current time in ISO 8601 format
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_time:
+                    type: string
+                    example: "2023-03-15T12:00:00Z"

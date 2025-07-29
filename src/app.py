@@ -1,8 +1,9 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-import os
 import logging
+import os
+
 from azure.identity import AzureCliCredential, ManagedIdentityCredential
 from azure.storage.blob.aio import BlobServiceClient
 from botbuilder.integration.aiohttp import CloudAdapter, ConfigurationBotFrameworkAuthentication
@@ -16,12 +17,13 @@ from starlette.routing import Mount
 from bots import AssistantBot, MagenticBot
 from bots.access_control_middleware import AccessControlMiddleware
 from bots.show_typing_middleware import ShowTypingMiddleware
-from config import DefaultConfig, load_agent_config, setup_logging, setup_app_insights_logging
+from config import DefaultConfig, load_agent_config, setup_app_insights_logging, setup_logging
 from data_models.app_context import AppContext
 from data_models.data_access import create_data_access
 from mcp_app import create_fast_mcp_app
 from routes.api.chats import chats_routes
 from routes.api.messages import messages_routes
+from routes.api.time import time_routes
 from routes.api.user import user_routes
 from routes.patient_data.patient_data_routes import patient_data_routes
 from routes.views.patient_data_answer_routes import patient_data_answer_source_routes
@@ -32,6 +34,7 @@ load_dotenv(".env")
 # Setup default logging and minimum log level severity for your environment that you want to consume
 log_level = logging.INFO
 setup_logging(log_level=log_level)
+
 
 def create_app_context():
     '''Create the application context for commonly used object used in application.'''
@@ -71,6 +74,7 @@ def create_app(
     app.include_router(patient_data_routes(app_context.blob_service_client))
     app.include_router(patient_data_answer_source_routes(app_context.data_access))
     app.include_router(patient_timeline_entry_source_routes(app_context.data_access))
+    app.include_router(time_routes())
 
     # Serve static files from the React build directory
     static_files_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")

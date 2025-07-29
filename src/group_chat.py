@@ -4,7 +4,7 @@
 import importlib
 import logging
 import os
-from typing import Tuple
+from typing import Any, Awaitable, Callable, Tuple
 
 from pydantic import BaseModel
 from semantic_kernel import Kernel
@@ -17,6 +17,7 @@ from semantic_kernel.connectors.ai.function_choice_behavior import FunctionChoic
 from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import \
     AzureChatPromptExecutionSettings
 from semantic_kernel.connectors.ai.open_ai.services.azure_chat_completion import AzureChatCompletion
+from semantic_kernel.connectors.openapi_plugin import OpenAPIFunctionExecutionParameters
 from semantic_kernel.contents.history_reducer.chat_history_truncation_reducer import ChatHistoryTruncationReducer
 from semantic_kernel.functions.kernel_function_from_prompt import KernelFunctionFromPrompt
 from semantic_kernel.kernel import Kernel, KernelArguments
@@ -28,6 +29,7 @@ from healthcare_agents import HealthcareAgent
 from healthcare_agents import config as healthcare_agent_config
 
 DEFAULT_MODEL_TEMP = 0
+DEFAULT_TOOL_TYPE = "function"
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +37,16 @@ logger = logging.getLogger(__name__)
 class ChatRule(BaseModel):
     verdict: str
     reasoning: str
+
+
+def create_auth_callback(chat_ctx: ChatContext) -> Callable[..., Awaitable[Any]]:
+    """
+    Creates an authentication callback for the plugin configuration.
+
+    :param chat_ctx: The chat context to be used in the authentication.
+    :return: A callable that returns an authentication token.
+    """
+    return lambda: {'msteams-conversation-id': chat_ctx.conversation_id, }
 
 
 def create_group_chat(
@@ -75,9 +87,32 @@ def create_group_chat(
 
         for tool in agent_config.get("tools", []):
             tool_name = tool.get("name")
-            scenario = os.environ.get("SCENARIO")
-            tool_module = importlib.import_module(f"scenarios.{scenario}.tools.{tool_name}")
-            agent_kernel.add_plugin(tool_module.create_plugin(plugin_config), plugin_name=tool_name)
+            tool_type = tool.get("type", DEFAULT_TOOL_TYPE)
+
+            # Check if the tool is already loaded
+            if tool_name in agent_kernel.plugins:
+                continue
+
+            # Add function tools
+            if tool_type == "function":
+                scenario = os.environ.get("SCENARIO")
+                tool_module = importlib.import_module(f"scenarios.{scenario}.tools.{tool_name}")
+                agent_kernel.add_plugin(tool_module.create_plugin(plugin_config), plugin_name=tool_name)
+            # Add OpenAPI tools
+            elif tool_type == "openapi":
+                openapi_document_path = tool.get("openapi_document_path")
+                server_url_override = tool.get("server_url_override")
+                agent_kernel.add_plugin_from_openapi(
+                    plugin_name=tool_name,
+                    openapi_document_path=openapi_document_path,
+                    execution_settings=OpenAPIFunctionExecutionParameters(
+                        auth_callback=create_auth_callback(chat_ctx),
+                        server_url_override=server_url_override,
+                        enable_payload_namespacing=True
+                    )
+                )
+            else:
+                raise ValueError(f"Unknown tool type: {tool_type}")
 
         temperature = agent_config.get("temperature", DEFAULT_MODEL_TEMP)
         settings = AzureChatPromptExecutionSettings(
