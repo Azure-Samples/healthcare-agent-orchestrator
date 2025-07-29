@@ -88,7 +88,7 @@ During runtime, the framework automatically discovers any plugin that exposes a 
 1. Create either:
   - Single file: `src/<SCENARIO>/tools/my_new_tool_plugin.py` with `create_plugin()` function
   - Package: `src/<SCENARIO>/tools/my_new_tool_plugin/__init__.py` with `create_plugin()` function + other files
-  - OpenAPI: an OpenAPI specification. See PatientStatus definition in `src/default/config/agents.yaml` and OpenAPI specification `src/default/config/openapi/time_api.yaml`.
+  - OpenAPI: an OpenAPI specification. See PatientStatus definition in `src/default/config/agents.yaml` and OpenAPI specification `src/default/config/openapi/time_api.yaml` as an example for adding OpenAPI service as tools.
 
 The factory function must return your tool instance. The framework will automatically discover and load properly structured tools referenced in agent configs.
 
