@@ -18,4 +18,4 @@ paths:
                 properties:
                   current_time:
                     type: string
-                    example: "2023-03-15T12:00:00Z"
+                    example: "2023-03-15T18:30:27+00:00"

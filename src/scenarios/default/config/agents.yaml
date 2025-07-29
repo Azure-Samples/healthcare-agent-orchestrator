@@ -97,7 +97,7 @@
     - name: time_plugin
       type: openapi
       openapi_document_path: scenarios/default/config/openapi/time_api.yaml
-      server_url_override: http://localhost:8000
+      server_url_override: http://localhost:8000 # Using localhost since Time API is deployed locally.
   description: |
     A PatientStatus agent. You provide current status of a patient using. **You provide**: current status of a patient. **You need**: age, staging, primary site, histology, biomarkers, treatment history, ecog performance status. This can be obtained by PatientHistory.
 
