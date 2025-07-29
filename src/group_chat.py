@@ -46,6 +46,8 @@ def create_auth_callback(chat_ctx: ChatContext) -> Callable[..., Awaitable[Any]]
     :param chat_ctx: The chat context to be used in the authentication.
     :return: A callable that returns an authentication token.
     """
+    # TODO - get key or secret from Azure Key Vault for OpenAPI services.
+    # Send the conversation ID as a header to the OpenAPI service.
     return lambda: {'msteams-conversation-id': chat_ctx.conversation_id, }
 
 
