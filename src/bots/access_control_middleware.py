@@ -6,13 +6,10 @@ from botbuilder.core import Middleware, TurnContext
 from botbuilder.schema import ActivityTypes
 from botbuilder.schema.teams import TeamsChannelAccount, TeamsChannelData
 from botframework.connector import Channels
-from opentelemetry import trace
-from opentelemetry.trace import SpanKind
 
 from errors import NotAuthorizedError
 
 logger = logging.getLogger(__name__)
-tracer = trace.get_tracer(__name__)
 
 
 class AccessControlMiddleware(Middleware):
@@ -29,73 +26,65 @@ class AccessControlMiddleware(Middleware):
             return await logic(context)
 
         # Check if the activity is from Teams channel
-        if context.activity.channel_id == Channels.ms_teams:
-            channel_data = TeamsChannelData().deserialize(
-                context.activity.channel_data
-            )
-            channel_account = TeamsChannelAccount().deserialize(
-                context.activity.from_property
-            )
-            logger.info(f"channel_account.aad_object_id: {channel_account.aad_object_id}")
-            with tracer.start_as_current_span("channel_account", kind=SpanKind.SERVER) as span:
-                span.set_attribute("aad_object_id", channel_account.aad_object_id)
-            context.send_activity(f"channel_account.aad_object_id: {channel_account.aad_object_id}")
-
-            # Check if the turn context's activity has a tenant ID
-            if channel_data and channel_data.tenant and channel_data.tenant.id:
-                tenant_id = channel_data.tenant.id
-                if tenant_id in self._get_allowed_tenant_ids():
-                    return await logic()
-                else:
-                    raise NotAuthorizedError(
-                        f"Access denied for tenant {tenant_id}."
-                    )
-            else:
-                raise NotAuthorizedError("No tenant ID found in channel data.")
-        else:
+        if context.activity.channel_id != Channels.ms_teams:
             raise NotAuthorizedError(
                 f"Activity is not from Teams channel. Channel ID: {context.activity.channel_id}"
             )
 
+        # Deserialize channel account and channel data
+        channel_account = TeamsChannelAccount().deserialize(
+            context.activity.from_property
+        )
+        channel_data = TeamsChannelData().deserialize(
+            context.activity.channel_data
+        )
+
+        # Check if the turn context's activity has a user ID
+        if not channel_account or not channel_account.aad_object_id:
+            raise NotAuthorizedError("No user ID found in channel account.")
+
+        # Check if the turn context's activity has a tenant ID
+        if not channel_data or not channel_data.tenant or not channel_data.tenant.id:
+            raise NotAuthorizedError("No tenant ID found in channel data.")
+
+        # Check if the user is allowed
+        user_id = channel_account.aad_object_id
+        is_user_allowed = user_id in self._get_allowed_ids(
+            "AZURE_DEPLOYER_OBJECT_ID", "ADDITIONAL_ALLOWED_USER_IDS")
+        if not is_user_allowed:
+            raise NotAuthorizedError(
+                f"Access denied for user {user_id}."
+            )
+
+        # Check if the tenant is allowed
+        tenant_id = channel_data.tenant.id
+        is_tenant_allowed = tenant_id in self._get_allowed_ids(
+            "MicrosoftAppTenantId", "ADDITIONAL_ALLOWED_TENANT_IDS")
+        if not is_tenant_allowed:
+            raise NotAuthorizedError(
+                f"Access denied for tenant {tenant_id}."
+            )
+
+        return await logic()
+
     @staticmethod
-    def _get_allowed_tenant_ids() -> list[str]:
+    def _get_allowed_ids(default_allowed_id_name: str, additional_allowed_ids_name: str) -> list[str]:
         """
-        Retrieve additional allowed tenant IDs from environment variable.
-        This is a comma-separated list of tenant IDs.
+        Helper method to retrieve allowed IDs from environment variables.
+        Always includes the default allowed ID and appends any additional IDs.
         """
-        # Get the app's tenant ID
-        app_tenant_id = os.getenv("MicrosoftAppTenantId")
-        if app_tenant_id is None:
-            raise ValueError("MicrosoftAppTenantId environment variable is not set.")
+        # Get the default allowed ID
+        default_allowed_id = os.getenv(default_allowed_id_name)
+        if default_allowed_id is None:
+            raise ValueError(f"{default_allowed_id_name} environment variable is not set.")
 
-        # Always allow the app's tenant ID
-        allowed_tenant_ids = [app_tenant_id]
+        # Always allow the default ID
+        allowed_ids = [default_allowed_id]
 
-        # Retrieve additional allowed tenant IDs from environment variable
-        additional_allowed_tenant_ids = os.getenv("ADDITIONAL_ALLOWED_TENANT_IDS")
-        if additional_allowed_tenant_ids:
-            allowed_tenant_ids.extend([tenant.strip() for tenant in additional_allowed_tenant_ids.split(",")])
-        logger.debug(f"Allowed tenant IDs: {allowed_tenant_ids}")
+        # Retrieve additional allowed IDs from environment variable
+        additional_allowed_ids = os.getenv(additional_allowed_ids_name)
+        if additional_allowed_ids:
+            allowed_ids.extend([id.strip() for id in additional_allowed_ids.split(",")])
+        logger.debug(f"Allowed IDs: {allowed_ids}")
 
-        return allowed_tenant_ids
-
-    @staticmethod
-    def _get_allowed_user_ids() -> list[str]:
-        """
-        Retrieve additional allowed user IDs from environment variable.
-        This is a comma-separated list of user IDs.
-        """
-        deployer_object_id = os.getenv("AZURE_DEPLOYER_OBJECT_ID")
-        if deployer_object_id is None:
-            raise ValueError("AZURE_DEPLOYER_OBJECT_ID environment variable is not set.")
-
-        # Always allow the deployer object ID
-        allowed_user_ids = [deployer_object_id]
-
-        # Retrieve additional allowed user IDs from environment variable
-        additional_allowed_user_ids = os.getenv("ADDITIONAL_ALLOWED_USER_IDS")
-        if additional_allowed_user_ids:
-            allowed_user_ids.extend([user.strip() for user in additional_allowed_user_ids.split(",")])
-        logger.debug(f"Allowed user IDs: {allowed_user_ids}")
-
-        return allowed_user_ids
+        return allowed_ids

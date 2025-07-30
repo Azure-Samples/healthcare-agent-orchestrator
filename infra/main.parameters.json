@@ -91,6 +91,9 @@
     "additionalAllowedTenantIds": {
       "value": "${ADDITIONAL_ALLOWED_TENANT_IDS}"
     },
+    "additionalAllowedUserIds": {
+      "value": "${ADDITIONAL_ALLOWED_USER_IDS}"
+    },
     "graphRagSubscriptionKey": {
       "value": "${GRAPH_RAG_SUBSCRIPTION_KEY}"
     },
