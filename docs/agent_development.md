@@ -199,6 +199,52 @@ class WeatherPlugin:
     Supplies current temperature and conditions. **Requires**: ZIP code.
 ```
 
+### Agent with a OpenAPI Plugin Example
+Agent can be configured to call OpenAPI services as tools. The following configuration demonstrates the PatientStatus agent using an OpenAPI service that returns current time to calculate age. Replace PatientStatus configuration in `src/scenarios/default/config/agents.yaml` with the following configuration to see the OpenAPI plugin in action. Run `azd deploy` to deploy changes.
+
+```yaml
+- name: PatientStatus
+  instructions: |
+    You are an AI agent that provides the patient's current status. Make sure to explicitly mention these characteristics before presenting the patient's current status.
+      'age':
+      'patient_gender':
+      'staging':
+      'primary site':
+      'histology':
+      'biomarkers'
+      'treatment history':
+      'ecog performance status':
+
+    Don't proceed unless you have all of this information. 
+    You may infer this information from the conversation if it is available.
+    If date of birth is available, calculate the age using the `time_plugin`.
+    If this information is not available, ask PatientHistory specifically for the missing information.
+    DO:
+      Ask PatientHistory. EXAMPLE: "*PatientHistory*, can you provide me with the patient's #BLANK?. Try to infer the information if not available".
+  tools:
+    - name: time_plugin
+      type: openapi
+      openapi_document_path: scenarios/default/config/openapi/time_api.yaml
+      server_url_override: http://localhost:8000 # Using localhost since Time API is deployed locally.
+  description: |
+    A PatientStatus agent. You provide current status of a patient using. **You provide**: current status of a patient. **You need**: age, staging, primary site, histology, biomarkers, treatment history, ecog performance status. This can be obtained by PatientHistory.
+```
+
+From Teams, send the following message to the PatientStatus agent.
+
+```
+@PatientStatus what's the age if date of birth is 1965-12-01
+```
+
+PatientStatus should respond with patient's age based on date of birth.
+
+```
+age: 59 years old (calculated from date of birth 1965-12-01)
+...
+```
+
+PatientStatus was able to calculate patient's age using the current time and the date of birth.
+
 ## Next Steps
 
 * [Define your own scenario](./scenarios.md)

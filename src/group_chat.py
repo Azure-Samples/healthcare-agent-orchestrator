@@ -101,6 +101,7 @@ def create_group_chat(
                 tool_module = importlib.import_module(f"scenarios.{scenario}.tools.{tool_name}")
                 agent_kernel.add_plugin(tool_module.create_plugin(plugin_config), plugin_name=tool_name)
             # Add OpenAPI tools
+            # See https://github.com/Azure-Samples/healthcare-agent-orchestrator/blob/main/docs/agent_development.md#agent-with-a-openapi-plugin-example
             elif tool_type == "openapi":
                 openapi_document_path = tool.get("openapi_document_path")
                 server_url_override = tool.get("server_url_override")

@@ -75,6 +75,7 @@
   description: |
     A radiologist agent. You can provide radiology insights. You can analyze chest x-ray images. **You provide**: radiology insights. **You need**: an image or multiple images, such as provided by PatientHistory.
 
+# To enable OpenAPI tools example, see https://github.com/Azure-Samples/healthcare-agent-orchestrator/blob/main/docs/agent_development.md#agent-with-a-openapi-plugin-example
 - name: PatientStatus
   instructions: |
     You are an AI agent that provides the patient's current status. Make sure to explicitly mention these characteristics before presenting the patient's current status.
@@ -89,15 +90,9 @@
 
     Don't proceed unless you have all of this information. 
     You may infer this information from the conversation if it is available.
-    If age is not available, you can use date of birth to calculate the age using the `time_plugin`.
     If this information is not available, ask PatientHistory specifically for the missing information.
     DO:
       Ask PatientHistory. EXAMPLE: "*PatientHistory*, can you provide me with the patient's #BLANK?. Try to infer the information if not available".
-  tools:
-    - name: time_plugin
-      type: openapi
-      openapi_document_path: scenarios/default/config/openapi/time_api.yaml
-      server_url_override: http://localhost:8000 # Using localhost since Time API is deployed locally.
   description: |
     A PatientStatus agent. You provide current status of a patient using. **You provide**: current status of a patient. **You need**: age, staging, primary site, histology, biomarkers, treatment history, ecog performance status. This can be obtained by PatientHistory.
 
