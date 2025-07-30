@@ -4,12 +4,15 @@ from typing import Awaitable, Callable
 
 from botbuilder.core import Middleware, TurnContext
 from botbuilder.schema import ActivityTypes
-from botbuilder.schema.teams import TeamsChannelData
+from botbuilder.schema.teams import TeamsChannelAccount, TeamsChannelData
 from botframework.connector import Channels
+from opentelemetry import trace
+from opentelemetry.trace import SpanKind
 
 from errors import NotAuthorizedError
 
 logger = logging.getLogger(__name__)
+tracer = trace.get_tracer(__name__)
 
 
 class AccessControlMiddleware(Middleware):
@@ -30,6 +33,13 @@ class AccessControlMiddleware(Middleware):
             channel_data = TeamsChannelData().deserialize(
                 context.activity.channel_data
             )
+            channel_account = TeamsChannelAccount().deserialize(
+                context.activity.from_property
+            )
+            logger.info(f"channel_account.aad_object_id: {channel_account.aad_object_id}")
+            with tracer.start_as_current_span("channel_account", kind=SpanKind.SERVER) as span:
+                span.set_attribute("aad_object_id", channel_account.aad_object_id)
+            context.send_activity(f"channel_account.aad_object_id: {channel_account.aad_object_id}")
 
             # Check if the turn context's activity has a tenant ID
             if channel_data and channel_data.tenant and channel_data.tenant.id:
