@@ -1,3 +1,5 @@
+# This file is part of the OpenAPI plugin example.
+# See https://github.com/Azure-Samples/healthcare-agent-orchestrator/blob/main/docs/agent_development.md#agent-with-a-openapi-plugin-example
 openapi: 3.1.0
 info:
   title: Time API
