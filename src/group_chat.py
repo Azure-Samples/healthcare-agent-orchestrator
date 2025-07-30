@@ -48,7 +48,7 @@ def create_auth_callback(chat_ctx: ChatContext) -> Callable[..., Awaitable[Any]]
     """
     # TODO - get key or secret from Azure Key Vault for OpenAPI services.
     # Send the conversation ID as a header to the OpenAPI service.
-    return lambda: {'msteams-conversation-id': chat_ctx.conversation_id, }
+    return lambda: {'conversation-id': chat_ctx.conversation_id, }
 
 
 def create_group_chat(
