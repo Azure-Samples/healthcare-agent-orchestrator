@@ -64,10 +64,10 @@ param keyVaultLocation string = resourceGroup().location
 @description('Location to deploy Managed Identity')
 param msiLocation string = resourceGroup().location
 param storageAccountLocation string = resourceGroup().location
-@description('By default, the AppService will only allow Teams users from the same tenant. This parameter allows you to specify additional tenant IDs to allow access to the AppService. This is a comma-separated list of tenant IDs.')
-param additionalAllowedTenantIds string = ''
-@description('By default, the AppService will only allow Teams user who deployed the app service. This parameter allows you to specify additional user IDs to allow access to the AppService. User ID can be looked up in Microsoft Entra. This is a comma-separated list of user IDs.')
-param additionalAllowedUserIds string = ''
+@description('By default, all tenant IDs are allowed. If a comma-separated list of tenant IDs is provided, only those tenant IDs and the tenant ID of the AppService will be allowed to access the AppService. Use "*" to allow all tenant IDs.')
+param additionalAllowedTenantIds string = '*'
+@description('By default, all users are allowed. If a comma-separated list of user IDs is provided, only those user IDs and the user ID of the deployer will be allowed to access the AppService. User ID can be looked up in Microsoft Entra. Use "*" to allow all users.')
+param additionalAllowedUserIds string = '*'
 
 @description('Alternative GPT model endpoint. This only affects the reasoning model')
 param aiEndpointReasoningOverride string = ''

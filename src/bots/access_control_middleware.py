@@ -9,6 +9,8 @@ from botframework.connector import Channels
 
 from errors import NotAuthorizedError
 
+ALLOW_ALL_IDS = ["*"]
+
 logger = logging.getLogger(__name__)
 
 
@@ -49,8 +51,9 @@ class AccessControlMiddleware(Middleware):
 
         # Check if the user is allowed
         user_id = channel_account.aad_object_id
-        is_user_allowed = user_id in self._get_allowed_ids(
+        allowed_user_ids = self._get_allowed_ids(
             "AZURE_DEPLOYER_OBJECT_ID", "ADDITIONAL_ALLOWED_USER_IDS")
+        is_user_allowed = user_id in allowed_user_ids or allowed_user_ids == ALLOW_ALL_IDS
         if not is_user_allowed:
             raise NotAuthorizedError(
                 f"Access denied for user {user_id}."
@@ -58,8 +61,9 @@ class AccessControlMiddleware(Middleware):
 
         # Check if the tenant is allowed
         tenant_id = channel_data.tenant.id
-        is_tenant_allowed = tenant_id in self._get_allowed_ids(
+        allowed_tenant_ids = self._get_allowed_ids(
             "MicrosoftAppTenantId", "ADDITIONAL_ALLOWED_TENANT_IDS")
+        is_tenant_allowed = tenant_id in allowed_tenant_ids or allowed_tenant_ids == ALLOW_ALL_IDS
         if not is_tenant_allowed:
             raise NotAuthorizedError(
                 f"Access denied for tenant {tenant_id}."
@@ -78,13 +82,14 @@ class AccessControlMiddleware(Middleware):
         if default_allowed_id is None:
             raise ValueError(f"{default_allowed_id_name} environment variable is not set.")
 
-        # Always allow the default ID
-        allowed_ids = [default_allowed_id]
-
         # Retrieve additional allowed IDs from environment variable
         additional_allowed_ids = os.getenv(additional_allowed_ids_name)
-        if additional_allowed_ids:
-            allowed_ids.extend([id.strip() for id in additional_allowed_ids.split(",")])
-        logger.debug(f"Allowed IDs: {allowed_ids}")
+        if additional_allowed_ids is None:
+            return [default_allowed_id]
 
-        return allowed_ids
+        if additional_allowed_ids == "*":
+            # If the additional allowed IDs is "*", allow all IDs
+            return ALLOW_ALL_IDS
+
+        # Allow the default ID and split additional IDs by comma
+        return [default_allowed_id] + [id.strip() for id in additional_allowed_ids.split(",")]

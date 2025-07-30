@@ -25,8 +25,8 @@ param fhirServiceEndpoint string = ''
 param fabricUserDataFunctionEndpoint string = ''
 param appServiceSubnetId string
 param additionalAllowedIps string = ''
-param additionalAllowedTenantIds string = ''
-param additionalAllowedUserIds string = ''
+param additionalAllowedTenantIds string
+param additionalAllowedUserIds string
 
 var botIdsArray = [
   for (msi, index) in msis: {
