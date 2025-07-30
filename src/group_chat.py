@@ -91,10 +91,6 @@ def create_group_chat(
             tool_name = tool.get("name")
             tool_type = tool.get("type", DEFAULT_TOOL_TYPE)
 
-            # Check if the tool is already loaded
-            if tool_name in agent_kernel.plugins:
-                continue
-
             # Add function tools
             if tool_type == "function":
                 scenario = os.environ.get("SCENARIO")
