@@ -9,7 +9,7 @@ To restrict access to agents, access control can be configured using environment
 - **ADDITIONAL_ALLOWED_TENANT_IDS**: A comma-separated list of tenant IDs to allow.
 - **ADDITIONAL_ALLOWED_USER_IDS**: A comma-separated list of user IDs to allow.
 
-If user is not authorized to access an agent, the agent will respond with `You are not authorized to access this agent.`.
+If user is not authorized to access an agent, the agent will respond with `You are not authorized to access this agent.`. Check AppService log for the reason of denied access.
 
 > [!IMPORTANT]
 > The user who deploys Healthcare Agent Orchestrator and the tenant where it's deployed are always allowed.
