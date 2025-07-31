@@ -9,7 +9,7 @@ Consult the main [README](../README.md) for general information about the projec
 - [Evaluation](./evaluation.md): Methods for measuring and improving agent performance
 - [Infrastructure](./infra.md): Additional infrastructure information including how to enable secure file downloads with SSO authentication
 - [Network Architecture](./network.md) for network configuration and security
-
+- [Access Control](./access_control.md) Restrict access to deployed agents.
 
 ## Developer Documentation
 - [Agent Development](./agent_development.md): Creating and customizing specialized healthcare agents
