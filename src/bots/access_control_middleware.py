@@ -25,7 +25,7 @@ class AccessControlMiddleware(Middleware):
     ):
         # Skip middleware for non-message activities or installation updates
         if context.activity.type not in [ActivityTypes.message, ActivityTypes.installation_update]:
-            return await logic(context)
+            return await logic()
 
         # Check if the activity is from Teams channel
         if context.activity.channel_id != Channels.ms_teams:
