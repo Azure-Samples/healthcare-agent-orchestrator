@@ -102,6 +102,8 @@ If you've identified single region for deployment, you can proceed to authentica
 | GPU_INSTANCE_TYPE | GPU SKU for model deployment | Defaults to `Standard_NC24ads_A100_v4` |
 | CLINICAL_NOTES_SOURCE | Source of clinical notes used by agents. Accepted values: `blob`, `fhir`, `fabric`. | Defaults to `blob` |
 | ADDITIONAL_ALLOWED_IPS | Additional IP addresses/ranges for App Service access (comma-separated string format) | Defaults to empty string |
+| ADDITIONAL_ALLOWED_TENANT_IDS | Tenant IDs allowed to access agents (See [Access Control](docs/access_control.md)) | Defaults to "*"
+| ADDITIONAL_ALLOWED_USER_IDS | User IDs allowed to access agetns (See [Access Control](docs/access_control.md)) | Defaults to "*"
 
 First, authenticate with Azure services:
 ```sh
