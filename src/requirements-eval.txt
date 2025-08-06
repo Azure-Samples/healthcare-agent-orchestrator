@@ -7,3 +7,4 @@ nltk==3.9.1
 jupyter>=1.0.0
 ipykernel>=6.0.0
 notebook>=6.0.0
+azure-cli>=2.76.0

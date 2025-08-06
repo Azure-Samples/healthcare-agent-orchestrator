@@ -19,10 +19,15 @@ This guide helps you set up Jupyter to run the notebooks in this repository.
    pip install -r requirements-eval.txt
    ```
 
-2. **Set up Jupyter kernel for VS Code:**
+1. **Set up Jupyter kernel for VS Code:**
 
    ```bash
    python -m ipykernel install --user --name "healthcare-agent-orchestrator" --display-name "Healthcare Agent Orchestrator"
+
+1. **az login in venv:**
+   ```bash
+   az login
+   ```
 
 ## Running Notebooks
 
