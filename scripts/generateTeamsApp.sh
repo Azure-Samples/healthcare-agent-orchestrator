@@ -37,8 +37,8 @@ fi
 # Ensure the output directory is created
 mkdir -p "$output"
 
-scriptDirectory=$(dirname "$(readlink -f "$0")")
-rootDirectory=$(dirname "$scriptDirectory")
+scriptDirectory="$(cd "$(dirname "$0")" && pwd)"
+rootDirectory="$(dirname "$scriptDirectory")"
 
 azure_bots=$(azd env get-value AZURE_BOTS)
 
