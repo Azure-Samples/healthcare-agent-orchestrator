@@ -10,47 +10,34 @@ This guide helps you set up Jupyter to run the notebooks in this repository.
     source .venv/bin/activate
     ```
 
-1. **Install dependencies:**
+1. **Install dependencies**
 
    ```bash
    cd src
    export SCENARIO=default
    pip install -r requirements.txt
    pip install -r requirements-eval.txt
+   pip install -r requirements-notebooks.txt
    ```
 
-1. **Set up Jupyter kernel for VS Code:**
+1. **(optional) Set up Jupyter kernel for VS Code**
 
    ```bash
    python -m ipykernel install --user --name "healthcare-agent-orchestrator" --display-name "Healthcare Agent Orchestrator"
 
-1. **az login in venv:**
+1. **az login**
    ```bash
    az login
    ```
 
 ## Running Notebooks
 
-### Option 1: VS Code (Recommended)
+### VS Code
 
 1. Open the project in VS Code
 2. Install the Jupyter extension if not already installed
 3. Open any `.ipynb` file in the `notebooks/` directory
-4. Select the "Healthcare Agent Orchestrator" kernel when prompted
-
-### Option 2: Jupyter Lab/Notebook
-
-1. Make sure your environment is activated (if using one):
-
-   ```bash
-   source .venv/bin/activate  # or your preferred venv path
-   ```
-
-2. Start Jupyter:
-
-   ```bash
-   jupyter notebook notebooks/
-   ```
+4. Select either the .venv or "Healthcare Agent Orchestrator" kernel when prompted
 
 ## Troubleshooting
 
