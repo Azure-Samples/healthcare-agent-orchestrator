@@ -21,3 +21,5 @@ src/public/output_data
 infra/config
 data
 .env.production
+
+notebooks/evaluations/simulated_chats

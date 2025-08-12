@@ -1,8 +1,8 @@
 aiohttp==3.12.14
 aiohttp-compress==0.2.1
-azure-core==1.31.0
+azure-core>=1.32.0
 azure-identity==1.19.0
-azure-storage-blob==12.25.0
+azure-storage-blob>=12.26.0
 botbuilder-core==4.17.0
 botbuilder-dialogs==4.17.0
 botbuilder-integration-aiohttp==4.17.0
@@ -16,7 +16,7 @@ docxtpl==0.19.1
 autogen-core==0.4.9
 autogen-agentchat==0.4.9
 autogen-ext[openai]==0.4.9
-azure-keyvault-secrets==4.9.0
+azure-keyvault-secrets==4.7.0
 git+https://github.com/modelcontextprotocol/python-sdk.git@58c5e7223c40b2ec682fd7674545e8ceadd7cb20 # streamable transport just landed in main, no pypi release yet
 uvicorn[standard]==0.34.1
 uvicorn-worker==0.3.0
