@@ -13,7 +13,6 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 import yaml
 
-logger = logging.getLogger(__name__)
 formatter = logging.Formatter(
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
@@ -59,16 +58,26 @@ def setup_app_insights_logging(credential, log_level=logging.DEBUG) -> None:
 
 
 def setup_logging(log_level=logging.DEBUG) -> None:
+    root = logging.getLogger()
+    root.setLevel(log_level)
+
+    # Update console handler if already exists
+    console_handlers = [h for h in root.handlers if isinstance(h, logging.StreamHandler)]
+    if console_handlers:
+        primary = console_handlers[0]
+        primary.setLevel(log_level)
+        primary.setFormatter(formatter)
+        return
+
     # Create a logging handler to write logging records, in OTLP format, to the exporter.
-    console_handler = logging.StreamHandler()
+    console = logging.StreamHandler()
 
     # Add filters to the handler to only process records from semantic_kernel.
-    # console_handler.addFilter(logging.Filter("semantic_kernel"))
-    console_handler.setFormatter(formatter)
+    # console.addFilter(logging.Filter("semantic_kernel"))
+    console.setLevel(log_level)
+    console.setFormatter(formatter)
 
-    logger = logging.getLogger()
-    logger.addHandler(console_handler)
-    logger.setLevel(log_level)
+    root.addHandler(console)
 
 
 def load_agent_config(scenario: str) -> dict:
