@@ -10,7 +10,7 @@
     "developer": {
         "name": "Microsoft",
         "mpnId": "",
-        "websiteUrl": "https://microsoft.comg",
+        "websiteUrl": "https://microsoft.com",
         "privacyUrl": "https://microsoft.com",
         "termsOfUseUrl": "https://microsoft.com"
     },
@@ -80,5 +80,9 @@
         "privateChannels",
         "sharedChannels"
     ],
-    "configurableTabs": []
+    "configurableTabs": [],
+    "webApplicationInfo": {
+        "id": "",
+        "resource": ""
+    }
 }
