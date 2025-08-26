@@ -177,9 +177,11 @@ Examples:
         Returns a short plain-text summary.
         """
         system_prompt = (
-            "Summarize the following chat in 3-6 crisp bullets. "
-            "Focus only on patient context (ID(s), key requests, agent progress, next actions). "
-            "Avoid boilerplate. Keep it under ~80 words."
+            "Summarize the following patient-specific conversation in 3-6 crisp bullets. "
+            "Focus ONLY on the current active patient (ignore any references to other patients). "
+            "Include: patient ID mentioned, key medical requests, agent actions completed, and immediate next steps. "
+            "Be specific and avoid generic phrases. Keep under 80 words total. "
+            "If multiple patients are mentioned, focus only on the most recent/active patient."
         )
         chat = ChatHistory()
         chat.add_system_message(system_prompt)

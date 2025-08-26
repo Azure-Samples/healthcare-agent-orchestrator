@@ -91,24 +91,71 @@ class PatientContextService:
         service_duration = time.time() - service_start_time
         timing: TimingInfo = {"analyzer": round(analyzer_duration, 4), "service": round(service_duration, 4)}
 
-        # Generate LLM-based chat summary instead of excerpt
+        # Generate patient-specific LLM-based chat summary
         chat_summary = None
-        history_text = "\n".join(
-            str(getattr(m, "role", "")) + ": " + (m.content if isinstance(m.content, str) else str(m.content or ""))
-            for m in chat_ctx.chat_history.messages
-            if not (m.role == AuthorRole.SYSTEM and isinstance(m.content, str) and m.content.startswith(PATIENT_CONTEXT_PREFIX))
-        )[:8000]
+        if chat_ctx.patient_id:
+            # Find messages since the last patient context switch to current patient
+            patient_specific_messages = []
+            found_current_patient_context = False
 
-        if history_text.strip():
-            try:
-                chat_summary = await self.analyzer.summarize_text(history_text)
-                logger.info(f"🏥 SERVICE SUMMARY - Generated chat summary: {len(chat_summary)} chars")
-            except Exception as e:
-                logger.warning(f"🏥 SERVICE SUMMARY - Failed to summarize: {e}")
-                chat_summary = "Chat summary unavailable"
+            # Go through messages in reverse to find current patient's conversation segment
+            for message in reversed(chat_ctx.chat_history.messages):
+                # Check if this is a system message with patient context JSON
+                if (message.role == AuthorRole.SYSTEM and
+                    isinstance(message.content, str) and
+                        message.content.startswith(PATIENT_CONTEXT_PREFIX)):
+                    try:
+                        json_content = message.content[len(PATIENT_CONTEXT_PREFIX):].strip()
+                        payload = json.loads(json_content)
+                        message_patient_id = payload.get("patient_id")
+
+                        if message_patient_id == chat_ctx.patient_id:
+                            # Found a system message for current patient, mark the start
+                            found_current_patient_context = True
+                            continue
+                        elif found_current_patient_context and message_patient_id != chat_ctx.patient_id:
+                            # Found a system message for a different patient, stop collecting
+                            break
+                    except Exception as e:
+                        logger.warning(f"🏥 SERVICE SUMMARY - Failed to parse system message JSON: {e}")
+                        continue
+                else:
+                    # Regular message - include it if we're in current patient's context
+                    if found_current_patient_context:
+                        patient_specific_messages.append(message)
+
+            # If no patient context switch found, include recent messages (fallback)
+            if not found_current_patient_context:
+                logger.info(f"🏥 SERVICE SUMMARY - No patient context switch found, using recent messages")
+                patient_specific_messages = list(chat_ctx.chat_history.messages[-10:])  # Last 10 messages
+
+            # Create summary from patient-specific messages only
+            if patient_specific_messages:
+                patient_specific_messages.reverse()  # Back to chronological order
+                history_text = "\n".join(
+                    str(getattr(m, "role", "")) + ": " + (m.content if isinstance(m.content, str) else str(m.content or ""))
+                    for m in patient_specific_messages
+                    if not (m.role == AuthorRole.SYSTEM and isinstance(m.content, str) and m.content.startswith(PATIENT_CONTEXT_PREFIX))
+                )[:8000]
+
+                if history_text.strip():
+                    try:
+                        # LLM still does the summarization, but with patient-specific input
+                        chat_summary = await self.analyzer.summarize_text(history_text)
+                        logger.info(
+                            f"🏥 SERVICE SUMMARY - Generated patient-specific summary for {chat_ctx.patient_id}: {len(chat_summary)} chars")
+                    except Exception as e:
+                        logger.warning(f"🏥 SERVICE SUMMARY - Failed to summarize: {e}")
+                        chat_summary = f"Chat summary for {chat_ctx.patient_id} unavailable"
+                else:
+                    logger.info(f"🏥 SERVICE SUMMARY - No relevant text found for patient {chat_ctx.patient_id}")
+                    chat_summary = f"No recent activity for {chat_ctx.patient_id}"
+            else:
+                logger.info(f"🏥 SERVICE SUMMARY - No messages found for patient {chat_ctx.patient_id}")
+                chat_summary = f"New patient context for {chat_ctx.patient_id}"
 
         token_counts = {
-            "history_estimate": self._estimate_tokens(history_text),
+            "history_estimate": self._estimate_tokens(chat_summary) if chat_summary else 0,
             "summary_estimate": self._estimate_tokens(chat_summary) if chat_summary else 0,
         }
 

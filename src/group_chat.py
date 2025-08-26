@@ -159,7 +159,11 @@ def create_group_chat(
             - **Default to {facilitator}**: Always default to {facilitator}. If no other participant is specified, {facilitator} goes next.
             - **Use best judgment**: If the rules are unclear, use your best judgment to determine who should go next, for the natural flow of the conversation.
             
-        **Output**: Give the full reasoning for your choice and the verdict. The reasoning should include careful evaluation of each rule with an explanation. The verdict should be the name of the participant who should go next.
+        **IMPORTANT**: You must respond with valid JSON only. No other text, no code blocks, no explanations outside the JSON.
+        
+        **Output Format**: {{"verdict": "agent_name", "reasoning": "explanation"}}
+        
+        The verdict must be exactly one of: {", ".join([agent["name"] for agent in all_agents_config])}
 
         History:
         {{{{$history}}}}
@@ -172,8 +176,6 @@ def create_group_chat(
         prompt=f"""
         Determine if the conversation should end based on the most recent message only.
         IMPORTANT: In the History, any leading "*AgentName*:" indicates the SPEAKER of the message, not the addressee.
-
-        Reply with your full reasoning and a verdict that is exactly "yes" or "no".
 
         You are part of a group chat with several AI agents and a user.
         The agent names are:
@@ -193,14 +195,16 @@ def create_group_chat(
         If you are uncertain, return "yes".
         Ignore any debug/metadata like "PC_CTX" or JSON blobs when deciding.
 
+        **IMPORTANT**: You must respond with valid JSON only. No other text, no code blocks, no explanations outside the JSON.
+        
+        **Output Format**: {{"verdict": "yes_or_no", "reasoning": "explanation"}}
+        
+        The verdict must be exactly "yes" or "no".
+
         EXAMPLES:
-        - "User, can you confirm the correct patient ID?" => "yes"
-        - "*ReportCreation*: Please compile the patient timeline. Let's proceed with *ReportCreation*." => "no" (ReportCreation is an agent)
-        - "*ReportCreation*, please proceed ..." => "no" (ReportCreation is an agent)
-        - "If you have any further questions or need assistance, feel free to ask." => "yes"
-        - "Let's proceed with Radiology." => "no" (Radiology is an agent)
-        - "*PatientStatus*, please use ..." => "no" (PatientStatus is an agent)
-        - "*Orchestrator*: Patient context is set to \"patient_4\". Please let us know how we can assist you with this patient today." => "yes"
+        - "User, can you confirm the correct patient ID?" => {{"verdict": "yes", "reasoning": "Asks user a direct question"}}
+        - "*ReportCreation*: Please compile the patient timeline." => {{"verdict": "no", "reasoning": "Command to specific agent ReportCreation"}}
+        - "If you have any further questions, feel free to ask." => {{"verdict": "yes", "reasoning": "Invites user to respond"}}
 
         History:
         {{{{$history}}}}
@@ -211,18 +215,26 @@ def create_group_chat(
 
     def evaluate_termination(result):
         logger.info(f"Termination function result: {result}")
-        rule = ChatRule.model_validate_json(str(result.value[0]))
-        return rule.verdict == "yes"
+        try:
+            rule = ChatRule.model_validate_json(str(result.value[0]))
+            should_terminate = rule.verdict == "yes"
+            logger.info(f"Termination function parsed successfully: {should_terminate}")
+            return should_terminate
+        except Exception as e:
+            logger.error(f"Termination function parsing error: {e}. Raw result: {result}")
+            return False  # Fallback to continue conversation
 
     def evaluate_selection(result):
         logger.info(f"Selection function result: {result}")
-        rule = ChatRule.model_validate_json(str(result.value[0]))
-        # Record next agent hint
         try:
-            _set_pc_ctx_agent_field("next", rule.verdict)
+            rule = ChatRule.model_validate_json(str(result.value[0]))
+            selected_agent = rule.verdict if rule.verdict in [agent["name"]
+                                                              for agent in all_agents_config] else facilitator
+            logger.info(f"Selection function parsed successfully: {selected_agent}")
+            return selected_agent
         except Exception as e:
-            logger.info(f"Failed to set next agent in PC_CTX: {e}")
-        return rule.verdict if rule.verdict in [agent["name"] for agent in all_agents_config] else facilitator
+            logger.error(f"Selection function parsing error: {e}. Raw result: {result}")
+            return facilitator  # Fallback to facilitator
 
     chat = AgentGroupChat(
         agents=agents,
@@ -244,7 +256,7 @@ def create_group_chat(
             result_parser=evaluate_termination,
             agent_variable_name="agents",
             history_variable_name="history",
-            maximum_iterations=8,
+            maximum_iterations=20,
             # Termination only looks at the last message
             history_reducer=ChatHistoryTruncationReducer(
                 target_count=1, auto_reduce=True
