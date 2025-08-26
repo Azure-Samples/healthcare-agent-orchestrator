@@ -112,22 +112,26 @@ class PatientContextService:
                         if message_patient_id == chat_ctx.patient_id:
                             # Found a system message for current patient, mark the start
                             found_current_patient_context = True
-                            continue
+                            # This is the start of the last session for this patient.
+                            # The messages collected so far are the correct ones. Stop.
+                            break
                         elif found_current_patient_context and message_patient_id != chat_ctx.patient_id:
                             # Found a system message for a different patient, stop collecting
                             break
                     except Exception as e:
                         logger.warning(f"🏥 SERVICE SUMMARY - Failed to parse system message JSON: {e}")
                         continue
-                else:
-                    # Regular message - include it if we're in current patient's context
-                    if found_current_patient_context:
-                        patient_specific_messages.append(message)
 
-            # If no patient context switch found, include recent messages (fallback)
+                # Only collect messages once we are in the context of the current patient.
+                if found_current_patient_context:
+                    patient_specific_messages.append(message)
+
+            # If no patient context switch found, it's a new patient.
             if not found_current_patient_context:
-                logger.info(f"🏥 SERVICE SUMMARY - No patient context switch found, using recent messages")
-                patient_specific_messages = list(chat_ctx.chat_history.messages[-10:])  # Last 10 messages
+                logger.info(
+                    f"🏥 SERVICE SUMMARY - No prior patient context found for {chat_ctx.patient_id}, treating as new.")
+                # Ensure message list is empty so we generate a "New patient" summary
+                patient_specific_messages = []
 
             # Create summary from patient-specific messages only
             if patient_specific_messages:

@@ -159,11 +159,7 @@ def create_group_chat(
             - **Default to {facilitator}**: Always default to {facilitator}. If no other participant is specified, {facilitator} goes next.
             - **Use best judgment**: If the rules are unclear, use your best judgment to determine who should go next, for the natural flow of the conversation.
             
-        **IMPORTANT**: You must respond with valid JSON only. No other text, no code blocks, no explanations outside the JSON.
-        
-        **Output Format**: {{"verdict": "agent_name", "reasoning": "explanation"}}
-        
-        The verdict must be exactly one of: {", ".join([agent["name"] for agent in all_agents_config])}
+        Provide your reasoning and then the verdict. The verdict must be exactly one of: {", ".join([agent["name"] for agent in all_agents_config])}
 
         History:
         {{{{$history}}}}
@@ -194,17 +190,13 @@ def create_group_chat(
         Commands addressed to "you" or "User" => "yes".
         If you are uncertain, return "yes".
         Ignore any debug/metadata like "PC_CTX" or JSON blobs when deciding.
-
-        **IMPORTANT**: You must respond with valid JSON only. No other text, no code blocks, no explanations outside the JSON.
         
-        **Output Format**: {{"verdict": "yes_or_no", "reasoning": "explanation"}}
-        
-        The verdict must be exactly "yes" or "no".
+        Provide your reasoning and then the verdict. The verdict must be exactly "yes" or "no".
 
         EXAMPLES:
-        - "User, can you confirm the correct patient ID?" => {{"verdict": "yes", "reasoning": "Asks user a direct question"}}
-        - "*ReportCreation*: Please compile the patient timeline." => {{"verdict": "no", "reasoning": "Command to specific agent ReportCreation"}}
-        - "If you have any further questions, feel free to ask." => {{"verdict": "yes", "reasoning": "Invites user to respond"}}
+        - "User, can you confirm the correct patient ID?" => verdict: "yes" (Asks user a direct question)
+        - "*ReportCreation*: Please compile the patient timeline." => verdict: "no" (Command to specific agent ReportCreation)
+        - "If you have any further questions, feel free to ask." => verdict: "yes" (Invites user to respond)
 
         History:
         {{{{$history}}}}
