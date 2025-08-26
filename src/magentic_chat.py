@@ -24,7 +24,7 @@ def create_magentic_chat(chat: AgentGroupChat, app_context: AppContext, input_fu
     agent_config = app_context.all_agent_configs
     az_model_client = AzureOpenAIChatCompletionClient(
         azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
-        model="gpt-4o",
+        model=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
         api_version="2024-10-21",
         azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
         azure_ad_token_provider=app_context.cognitive_services_token_provider,

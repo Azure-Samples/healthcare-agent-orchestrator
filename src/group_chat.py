@@ -118,7 +118,7 @@ def create_group_chat(
         kernel.add_service(
             AzureChatCompletion(
                 service_id="default",
-                deployment_name="gpt-5-chat",
+                deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
                 api_version="2025-01-01-preview",
                 ad_token_provider=app_ctx.cognitive_services_token_provider
             )
@@ -164,7 +164,6 @@ def create_group_chat(
             else:
                 raise ValueError(f"Unknown tool type: {tool_type}")
 
-        temperature = agent_config.get("temperature", DEFAULT_MODEL_TEMP)
         settings = AzureChatPromptExecutionSettings(
             function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42)
         arguments = KernelArguments(settings=settings)

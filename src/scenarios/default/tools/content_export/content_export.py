@@ -204,7 +204,7 @@ class ContentExportPlugin:
 
         # Generate timeline
         # https://devblogs.microsoft.com/semantic-kernel/using-json-schema-for-structured-output-in-python-for-openai-models/
-        settings = AzureChatPromptExecutionSettings(temperature=0.0, response_format=ClinicalSummary)
+        settings = AzureChatPromptExecutionSettings(response_format=ClinicalSummary)
         chat_completion_service = self.kernel.get_service(service_id="default")
         chat_resp = await chat_completion_service.get_chat_message_content(chat_history=chat_history, settings=settings)
 
