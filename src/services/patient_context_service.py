@@ -96,7 +96,6 @@ class PatientContextService:
         if chat_ctx.patient_id:
             # Find messages since the last patient context switch to current patient
             patient_specific_messages = []
-            found_current_patient_context = False
 
             # Go through messages in reverse to find current patient's conversation segment
             for message in reversed(chat_ctx.chat_history.messages):
@@ -109,29 +108,15 @@ class PatientContextService:
                         payload = json.loads(json_content)
                         message_patient_id = payload.get("patient_id")
 
-                        if message_patient_id == chat_ctx.patient_id:
-                            # Found a system message for current patient, mark the start
-                            found_current_patient_context = True
-                            # This is the start of the last session for this patient.
-                            # The messages collected so far are the correct ones. Stop.
-                            break
-                        elif found_current_patient_context and message_patient_id != chat_ctx.patient_id:
-                            # Found a system message for a different patient, stop collecting
+                        # If we find a context message for a *different* patient,
+                        # that's the boundary of the current patient's conversation.
+                        if message_patient_id != chat_ctx.patient_id:
                             break
                     except Exception as e:
                         logger.warning(f"🏥 SERVICE SUMMARY - Failed to parse system message JSON: {e}")
                         continue
 
-                # Only collect messages once we are in the context of the current patient.
-                if found_current_patient_context:
-                    patient_specific_messages.append(message)
-
-            # If no patient context switch found, it's a new patient.
-            if not found_current_patient_context:
-                logger.info(
-                    f"🏥 SERVICE SUMMARY - No prior patient context found for {chat_ctx.patient_id}, treating as new.")
-                # Ensure message list is empty so we generate a "New patient" summary
-                patient_specific_messages = []
+                patient_specific_messages.append(message)
 
             # Create summary from patient-specific messages only
             if patient_specific_messages:
@@ -145,7 +130,7 @@ class PatientContextService:
                 if history_text.strip():
                     try:
                         # LLM still does the summarization, but with patient-specific input
-                        chat_summary = await self.analyzer.summarize_text(history_text)
+                        chat_summary = await self.analyzer.summarize_text(history_text, chat_ctx.patient_id)
                         logger.info(
                             f"🏥 SERVICE SUMMARY - Generated patient-specific summary for {chat_ctx.patient_id}: {len(chat_summary)} chars")
                     except Exception as e:

@@ -171,17 +171,16 @@ Examples:
 
         # Add this method to the PatientContextAnalyzer class (around line 100)
 
-    async def summarize_text(self, text: str, max_tokens: int = 200) -> str:
+    async def summarize_text(self, text: str, patient_id: str, max_tokens: int = 200) -> str:
         """
         Summarize the given chat text into a few concise bullets focused on patient context.
         Returns a short plain-text summary.
         """
         system_prompt = (
-            "Summarize the following patient-specific conversation in 3-6 crisp bullets. "
-            "Focus ONLY on the current active patient (ignore any references to other patients). "
-            "Include: patient ID mentioned, key medical requests, agent actions completed, and immediate next steps. "
-            "Be specific and avoid generic phrases. Keep under 80 words total. "
-            "If multiple patients are mentioned, focus only on the most recent/active patient."
+            f"Summarize the following conversation in 3-6 crisp bullets focusing SPECIFICALLY on patient '{patient_id}'. "
+            f"Include: key medical requests for {patient_id}, agent actions completed for {patient_id}, and immediate next steps for {patient_id}. "
+            f"IGNORE any mentions of other patients - focus ONLY on {patient_id}. "
+            f"Be specific and avoid generic phrases. Keep under 80 words total."
         )
         chat = ChatHistory()
         chat.add_system_message(system_prompt)
