@@ -34,7 +34,7 @@ class PatientContextAnalyzer:
             raise ValueError("No deployment name for patient context analyzer.")
         self.api_version = api_version or os.getenv("AZURE_OPENAI_API_VERSION") or "2024-10-21"
 
-        logger.info(f"🔧 ANALYZER INIT - Deployment: {self.deployment_name} | API Version: {self.api_version}")
+        logger.info(f"PatientContextAnalyzer initialized with deployment: {self.deployment_name}")
 
         self._kernel = Kernel()
         self._kernel.add_service(
@@ -45,158 +45,133 @@ class PatientContextAnalyzer:
                 ad_token_provider=token_provider,
             )
         )
-        logger.info(f"🔧 ANALYZER INIT COMPLETE - Kernel and service configured")
 
     async def analyze(
-        self,
-        user_text: str,
-        prior_patient_id: Optional[str],
-        known_patient_ids: list[str],
+        self, user_text: str, prior_patient_id: Optional[str], known_patient_ids: list[str]
     ) -> tuple[AnalyzerAction, Optional[str], float]:
-        """
-        Returns (action, patient_id, duration_sec)
-        patient_id is only non-null for ACTIVATE_NEW | SWITCH_EXISTING | UNCHANGED
-        """
         start_time = time.time()
-        logger.info(f"🔍 ANALYZER START - Input: '{user_text}' | Prior: {prior_patient_id} | Known: {known_patient_ids}")
 
-        if not user_text:
+        logger.debug(f"Analyzing user input for patient context | Prior: {prior_patient_id}")
+
+        if not user_text or not user_text.strip():
             duration = time.time() - start_time
-            logger.info(f"🔍 ANALYZER RESULT - Empty input | Action: NONE | Duration: {duration:.4f}s")
+            logger.debug(f"Empty input received | Duration: {duration:.4f}s")
             return "NONE", None, duration
 
+        # Existing system prompt and LLM call logic...
         system_prompt = f"""
-You manage patient context for a medical chat application.
+You are a patient context analyzer for healthcare conversations.
 
-Inputs:
-- prior_patient_id: {prior_patient_id if prior_patient_id else "null"}
-- known_patient_ids: {known_patient_ids}
+TASK: Analyze user input and decide the appropriate patient context action.
 
-Rules:
-1. If user clearly asks to clear/reset/remove the patient context -> action "CLEAR", patient_id null.
-2. If user mentions a patient ID anywhere in their message:
-   - Extract the most specific patient identifier (e.g., "patient_4", "patient_123", etc.)
-   - If identical to prior_patient_id -> "UNCHANGED"
-   - If in known_patient_ids and different -> "SWITCH_EXISTING"
-   - If not in known_patient_ids -> "ACTIVATE_NEW"
-3. Normalize variants like "patient 6" or "patient id patient_6" to "patient_6". Be tolerant of typos like "patiend id".
-4. Ignore vague references without an ID.
-5. Output STRICT JSON ONLY. No extra text, no code fences:
-{{
-  "action": "<ONE OF: NONE | CLEAR | ACTIVATE_NEW | SWITCH_EXISTING | UNCHANGED>",
-  "patient_id": "<extracted_id_or_null>"
-}}
+ACTIONS:
+- NONE: No patient context needed (general questions, greetings, system commands)
+- CLEAR: User wants to clear/reset patient context
+- ACTIVATE_NEW: User mentions a new patient ID not in known_patient_ids
+- SWITCH_EXISTING: User wants to switch to a different known patient
+- UNCHANGED: Continue with current patient context
 
-Examples:
-- "switch to patient id patient_5" -> {{"action": "ACTIVATE_NEW", "patient_id": "patient_5"}}
-- "switch to patient with patient id patient_4" -> {{"action": "ACTIVATE_NEW", "patient_id": "patient_4"}}
-- "switch to patient 6" -> {{"action": "ACTIVATE_NEW", "patient_id": "patient_6"}}
-- "clear patient context" -> {{"action": "CLEAR", "patient_id": null}}
-""".strip()
+CURRENT STATE:
+- Prior patient ID: {prior_patient_id}
+- Known patient IDs: {known_patient_ids}
 
-        # Build chat history per current SK API
-        chat = ChatHistory()
-        # chat.add_message(AuthorRole.SYSTEM, system_prompt)
-        # chat.add_message(AuthorRole.USER, user_text)
+RULES:
+1. Extract patient_id ONLY if action is ACTIVATE_NEW or SWITCH_EXISTING
+2. Patient IDs are typically "patient_X" format or explicit medical record numbers
+3. For CLEAR/NONE/UNCHANGED, set patient_id to null
+4. Prioritize explicit patient mentions over implicit context
 
-        chat.add_system_message(system_prompt)
-        chat.add_user_message(user_text)
+RESPONSE FORMAT (JSON only):
+{{"action": "ACTION_NAME", "patient_id": "extracted_id_or_null", "reasoning": "brief_explanation"}}
 
-        logger.info(f"🔍 ANALYZER LLM CALL - Using chat_history with system prompt length: {len(system_prompt)}")
+USER INPUT: {user_text}
+"""
 
         try:
-            svc = self._kernel.get_service("default")
-            logger.info(f"🔍 ANALYZER LLM CALL - Service retrieved: {type(svc).__name__}")
+            chat_history = ChatHistory()
+            chat_history.add_system_message(system_prompt)
+            chat_history.add_user_message(user_text)
 
-            settings = PromptExecutionSettings(
-                service_id="default",
-                temperature=0.0,
-                top_p=0.0,
-                max_tokens=200,
-                # If model supports it, enforce JSON mode:
-                response_format={"type": "json_object"},
+            svc = self._kernel.get_service("default")
+            llm_start = time.time()
+
+            results = await svc.get_chat_message_contents(
+                chat_history=chat_history,
+                settings=PromptExecutionSettings(
+                    max_tokens=150,
+                    temperature=0.1,
+                    response_format={"type": "json_object"}
+                ),
             )
 
-            llm_start = time.time()
-            result = await svc.get_chat_message_content(chat_history=chat, settings=settings)
             llm_duration = time.time() - llm_start
-            logger.info(f"🔍 ANALYZER LLM CALL COMPLETE - LLM call took: {llm_duration:.4f}s")
 
-            # Normalize result to a single string
-            if isinstance(result, list):
-                content = "".join([(getattr(c, "content", "") or "") for c in result])
-            else:
-                content = getattr(result, "content", "") or ""
+            if not results:
+                raise ValueError("No LLM response received")
 
-            content = content.strip()
-            logger.info(f"🔍 ANALYZER LLM RESPONSE - Raw content: '{content}'")
-
+            content = results[0].content
             if not content:
+                logger.warning("Empty LLM response content")
                 duration = time.time() - start_time
-                logger.warning("🔍 ANALYZER LLM RESPONSE - Empty content")
                 return "NONE", None, duration
-
-            # Strip accidental code fences
-            if content.startswith("```"):
-                content = content.strip("`")
-                if "\n" in content:
-                    content = content.split("\n", 1)[1].strip()
 
             try:
-                data = json.loads(content)
+                parsed = json.loads(content)
+                action = parsed.get("action", "NONE")
+                pid = parsed.get("patient_id")
+
+                # Validation
+                valid_actions = ["NONE", "CLEAR", "ACTIVATE_NEW", "SWITCH_EXISTING", "UNCHANGED"]
+                if action not in valid_actions:
+                    logger.error(f"Invalid action from LLM: {action}")
+                    action = "NONE"
+                    pid = None
+
+                duration = time.time() - start_time
+                logger.info(
+                    f"Patient context analysis complete | Action: {action} | Patient: {pid} | Duration: {duration:.4f}s")
+                return action, pid, duration
+
             except json.JSONDecodeError as je:
+                logger.error(f"Failed to parse LLM JSON response: {je}")
                 duration = time.time() - start_time
-                logger.error(f"🔍 ANALYZER JSON ERROR - Failed to parse JSON: {je} | Content: '{content}'")
                 return "NONE", None, duration
-
-            action = (data.get("action") or "").strip().upper()
-            pid = data.get("patient_id")
-            if pid is not None:
-                pid = str(pid).strip()
-
-            if action not in {"NONE", "CLEAR", "ACTIVATE_NEW", "SWITCH_EXISTING", "UNCHANGED"}:
-                duration = time.time() - start_time
-                logger.error(f"🔍 ANALYZER VALIDATION ERROR - Invalid action: {action}")
-                return "NONE", None, duration
-
-            duration = time.time() - start_time
-            logger.info(f"🔍 ANALYZER RESULT SUCCESS - Action: {action} | Patient ID: {pid} | Duration: {duration:.4f}s")
-            return action, pid, duration
 
         except Exception as e:
             duration = time.time() - start_time
-            logger.error(
-                f"🔍 ANALYZER ERROR - Exception: {type(e).__name__}: {e} | Duration: {duration:.4f}s", exc_info=True)
+            logger.error(f"Patient context analysis failed: {e} | Duration: {duration:.4f}s")
             return "NONE", None, duration
 
-        # Add this method to the PatientContextAnalyzer class (around line 100)
-
-    async def summarize_text(self, text: str, patient_id: str, max_tokens: int = 200) -> str:
-        """
-        Summarize the given chat text into a few concise bullets focused on patient context.
-        Returns a short plain-text summary.
-        """
-        system_prompt = (
-            f"Summarize the following conversation in 3-6 crisp bullets focusing SPECIFICALLY on patient '{patient_id}'. "
-            f"Include: key medical requests for {patient_id}, agent actions completed for {patient_id}, and immediate next steps for {patient_id}. "
-            f"IGNORE any mentions of other patients - focus ONLY on {patient_id}. "
-            f"Be specific and avoid generic phrases. Keep under 80 words total."
-        )
-        chat = ChatHistory()
-        chat.add_system_message(system_prompt)
-        chat.add_user_message(text[:8000])  # cap input for safety
-
+    async def summarize_text(self, text: str, patient_id: str) -> str:
+        """Generate a patient-specific summary of conversation text."""
         try:
+            system_prompt = f"""
+You are summarizing a healthcare conversation for patient {patient_id}.
+
+Create a concise summary focusing on:
+- Key medical information discussed
+- Treatment decisions or recommendations
+- Important patient updates
+- Relevant test results or findings
+
+Keep the summary under 200 words and patient-focused.
+
+TEXT TO SUMMARIZE:
+{text}
+"""
+
+            chat_history = ChatHistory()
+            chat_history.add_system_message(system_prompt)
+            chat_history.add_user_message("Please summarize this conversation.")
+
             svc = self._kernel.get_service("default")
-            settings = PromptExecutionSettings(
-                service_id="default",
-                temperature=0.0,
-                top_p=0.0,
-                max_tokens=max_tokens,
+            results = await svc.get_chat_message_contents(
+                chat_history=chat_history,
+                settings=PromptExecutionSettings(max_tokens=300, temperature=0.3),
             )
-            result = await svc.get_chat_message_content(chat_history=chat, settings=settings)
-            content = getattr(result, "content", "") or ""
-            return content.strip()
+
+            return results[0].content if results and results[0].content else f"Summary unavailable for {patient_id}"
+
         except Exception as e:
-            logger.warning(f"🔍 ANALYZER SUMMARY ERROR - {e}")
-            return ""
+            logger.warning(f"Failed to generate summary: {e}")
+            return f"Summary generation failed for {patient_id}"

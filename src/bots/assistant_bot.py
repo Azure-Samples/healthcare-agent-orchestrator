@@ -115,23 +115,11 @@ class AssistantBot(TeamsActivityHandler):
             return
 
         # Decide & apply patient context BEFORE building group chat
-        # decision = await self.patient_context_service.decide_and_apply(raw_user_text, chat_ctx)
-        # Decide & apply patient context BEFORE building group chat
-        # Decide & apply patient context BEFORE building group chat
-        logger.info(f"🤖 BOT CONTEXT START - About to call patient context service")
-        logger.info(f"🤖 BOT CONTEXT - Conversation: {conversation_id} | Input: '{raw_user_text}'")
-        logger.info(f"🤖 BOT CONTEXT - Current patient before service: {getattr(chat_ctx, 'patient_id', None)}")
-        logger.info(
-            f"🤖 BOT CONTEXT - Known patients before service: {list(getattr(chat_ctx, 'patient_contexts', {}).keys())}")
+        logger.info(f"Processing patient context for conversation: {conversation_id}")
 
         decision, timing = await self.patient_context_service.decide_and_apply(raw_user_text, chat_ctx)
 
-        logger.info(f"🤖 BOT CONTEXT COMPLETE - Decision: {decision} | Timing: {timing}")
-        logger.info(f"🤖 BOT CONTEXT - Current patient after service: {getattr(chat_ctx, 'patient_id', None)}")
-        logger.info(
-            f"🤖 BOT CONTEXT - Known patients after service: {list(getattr(chat_ctx, 'patient_contexts', {}).keys())}")
-        logger.info(f"🤖 BOT CONTEXT - Total chat messages: {len(chat_ctx.chat_history.messages)}")
-        logger.info(f"Patient context decision: {decision} | Input: '{raw_user_text}' | Timing: {timing}")
+        logger.info(f"Patient context decision: {decision} | Patient: {chat_ctx.patient_id} | Timing: {timing}")
 
         agents = self.all_agents
         if len(chat_ctx.chat_history.messages) == 0:
@@ -149,7 +137,7 @@ class AssistantBot(TeamsActivityHandler):
                     await context.send_activity(typing_activity)
                     return True
                 except Exception as e:
-                    logger.info(f"Failed to send typing activity to {agent['name']}: {e}")
+                    logger.debug(f"Failed to send typing activity to {agent['name']}: {e}")
                     return False
 
             part_of_conversation = await asyncio.gather(*(is_part_of_conversation(agent) for agent in self.all_agents))
@@ -158,7 +146,6 @@ class AssistantBot(TeamsActivityHandler):
         (chat, chat_ctx) = create_group_chat(self.app_context, chat_ctx, participants=agents)
 
         # Add user message after context decision (no extra tagging here)
-        # chat_ctx.chat_history.add_user_message(f"{self.name}: {raw_user_text}")
         user_with_ctx = self._append_pc_ctx(f"{self.name}: {raw_user_text}", chat_ctx)
         chat_ctx.chat_history.add_user_message(user_with_ctx)
 
@@ -288,19 +275,16 @@ class AssistantBot(TeamsActivityHandler):
         return None
 
     def _append_pc_ctx(self, base: str, chat_ctx: ChatContext) -> str:
-        logger.info(f"📋 PC_CTX APPEND START - Base message length: {len(base)}")
+        """Append patient context information to the message for display."""
 
         # Avoid double-tagging
         if "\nPC_CTX" in base or "\n*PT_CTX:*" in base:
-            logger.info(f"📋 PC_CTX APPEND - Already has PC_CTX, skipping")
             return base
 
         # Get the actual injected system patient context JSON
         json_payload = self._get_system_patient_context_json(chat_ctx)
-        logger.info(f"📋 PC_CTX APPEND - Retrieved JSON payload: {json_payload}")
 
         if not json_payload:
-            logger.info(f"📋 PC_CTX APPEND - No JSON payload found, not appending context.")
             return base
 
         # Format the JSON payload into a simple, readable Markdown string
@@ -330,14 +314,12 @@ class AssistantBot(TeamsActivityHandler):
             # Only add the block if there's something to show besides the header
             if len(lines) > 2:
                 formatted_text = "\n".join(lines)
-                result = f"{base}{formatted_text}"
-                logger.info(f"📋 PC_CTX APPEND - Successfully formatted as text, final length: {len(result)}")
-                return result
+                logger.debug(f"Appended patient context to message | Patient: {obj.get('patient_id')}")
+                return f"{base}{formatted_text}"
             else:
-                logger.info(f"📋 PC_CTX APPEND - No relevant data to display.")
                 return base
 
         except json.JSONDecodeError as e:
-            logger.warning(f"📋 PC_CTX APPEND - JSON decode error: {e}, using raw payload")
+            logger.warning(f"Failed to parse patient context JSON: {e}")
             # Fallback to raw if JSON is malformed, but keep it simple
             return f"{base}\n\n---\n*PT_CTX (raw):* `{json_payload}`"

@@ -206,26 +206,24 @@ def create_group_chat(
     agents = [_create_agent(agent) for agent in all_agents_config]
 
     def evaluate_termination(result):
-        logger.info(f"Termination function result: {result}")
         try:
             rule = ChatRule.model_validate_json(str(result.value[0]))
             should_terminate = rule.verdict == "yes"
-            logger.info(f"Termination function parsed successfully: {should_terminate}")
+            logger.debug(f"Termination decision: {should_terminate}")
             return should_terminate
         except Exception as e:
-            logger.error(f"Termination function parsing error: {e}. Raw result: {result}")
+            logger.error(f"Termination function error: {e}")
             return False  # Fallback to continue conversation
 
     def evaluate_selection(result):
-        logger.info(f"Selection function result: {result}")
         try:
             rule = ChatRule.model_validate_json(str(result.value[0]))
             selected_agent = rule.verdict if rule.verdict in [agent["name"]
                                                               for agent in all_agents_config] else facilitator
-            logger.info(f"Selection function parsed successfully: {selected_agent}")
+            logger.debug(f"Selected agent: {selected_agent}")
             return selected_agent
         except Exception as e:
-            logger.error(f"Selection function parsing error: {e}. Raw result: {result}")
+            logger.error(f"Selection function error: {e}")
             return facilitator  # Fallback to facilitator
 
     chat = AgentGroupChat(
