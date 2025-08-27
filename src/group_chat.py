@@ -248,7 +248,7 @@ def create_group_chat(
             result_parser=evaluate_termination,
             agent_variable_name="agents",
             history_variable_name="history",
-            maximum_iterations=20,
+            maximum_iterations=30,
             # Termination only looks at the last message
             history_reducer=ChatHistoryTruncationReducer(
                 target_count=1, auto_reduce=True

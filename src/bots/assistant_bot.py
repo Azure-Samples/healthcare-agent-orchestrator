@@ -341,31 +341,3 @@ class AssistantBot(TeamsActivityHandler):
             logger.warning(f"📋 PC_CTX APPEND - JSON decode error: {e}, using raw payload")
             # Fallback to raw if JSON is malformed, but keep it simple
             return f"{base}\n\n---\n*PT_CTX (raw):* `{json_payload}`"
-
-    def _append_pc_ctx_old(self, base: str, chat_ctx: ChatContext) -> str:
-        logger.info(f"📋 PC_CTX APPEND START - Base message length: {len(base)}")
-
-        # Avoid double-tagging
-        if "\nPC_CTX" in base:
-            logger.info(f"📋 PC_CTX APPEND - Already has PC_CTX, skipping")
-            return base
-
-        # Get the actual injected system patient context JSON
-        json_payload = self._get_system_patient_context_json(chat_ctx)
-        logger.info(f"📋 PC_CTX APPEND - Retrieved JSON payload: {json_payload}")
-
-        if not json_payload:
-            logger.info(f"📋 PC_CTX APPEND - No JSON payload found, adding empty marker")
-            return base + "\nPC_CTX <em>(empty)</em>"
-
-        # Pretty-print the actual system JSON
-        try:
-            obj = json.loads(json_payload)
-            pretty = json.dumps(obj, indent=2)
-            result = f"{base}\nPC_CTX\n<pre><code class='language-json'>{pretty}</code></pre>"
-            logger.info(f"📋 PC_CTX APPEND - Successfully formatted JSON, final length: {len(result)}")
-            return result
-        except json.JSONDecodeError as e:
-            logger.warning(f"📋 PC_CTX APPEND - JSON decode error: {e}, using raw payload")
-            # Fallback to raw if JSON is malformed
-            return f"{base}\nPC_CTX {json_payload}"
