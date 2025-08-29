@@ -146,17 +146,16 @@ USER INPUT: {user_text}
         """Generate a patient-specific summary of conversation text."""
         try:
             system_prompt = f"""
-You are summarizing a healthcare conversation for patient {patient_id}.
+You are a clinical summarization assistant. Your ONLY task is to summarize the provided text for patient '{patient_id}'.
 
-Create a concise summary focusing on:
-- Key medical information discussed
-- Treatment decisions or recommendations
-- Important patient updates
-- Relevant test results or findings
+**CRITICAL RULES:**
+1.  **FOCUS EXCLUSIVELY ON `{patient_id}`**: Ignore all information, notes, or mentions related to any other patient.
+2.  **DO NOT BLEND PATIENTS**: If the text mentions other patients (e.g., 'patient_4', 'patient_12'), you must NOT include them in the summary.
+3.  **BE CONCISE**: Create a short, bulleted list of 3-5 key points.
+4.  **NO FABRICATION**: If there is no relevant information for `{patient_id}` in the text, respond with "No specific information was discussed for patient {patient_id} in this segment."
 
-Keep the summary under 200 words and patient-focused.
-
-TEXT TO SUMMARIZE:
+Summarize the following text:
+---
 {text}
 """
 

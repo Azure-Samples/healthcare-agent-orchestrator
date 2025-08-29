@@ -152,21 +152,47 @@ class PatientContextService:
         chat_ctx.patient_id = None  # retain historical contexts for potential reuse
 
     def _remove_system_message(self, chat_ctx: ChatContext):
-        original_count = len(chat_ctx.chat_history.messages)
+        """
+        Removes only the system message(s) for the *currently active* patient.
+        This preserves the system messages from other patients, which act as crucial
+        boundaries for the conversation history slicing logic.
+        """
+        if not chat_ctx.patient_id:
+            # If there's no active patient, there's nothing to remove.
+            return
 
-        chat_ctx.chat_history.messages = [
-            m
-            for m in chat_ctx.chat_history.messages
-            if not (
+        current_patient_id = chat_ctx.patient_id
+        messages_to_keep = []
+        removed_count = 0
+
+        for m in chat_ctx.chat_history.messages:
+            if (
                 m.role == AuthorRole.SYSTEM
                 and isinstance(m.content, str)
                 and m.content.startswith(PATIENT_CONTEXT_PREFIX)
-            )
-        ]  # type: ignore
+            ):
+                try:
+                    # Extract patient_id from the message payload
+                    json_content = m.content[len(PATIENT_CONTEXT_PREFIX):].strip()
+                    payload = json.loads(json_content)
+                    message_patient_id = payload.get("patient_id")
 
-        removed_count = original_count - len(chat_ctx.chat_history.messages)
+                    # If the message is for the current patient, we skip it (i.e., remove it)
+                    if message_patient_id == current_patient_id:
+                        removed_count += 1
+                        continue
+                except (json.JSONDecodeError, KeyError):
+                    # If parsing fails, keep the message to be safe
+                    pass
+
+            # Keep all other messages
+            messages_to_keep.append(m)
+
         if removed_count > 0:
-            logger.debug(f"Removed {removed_count} patient context system messages")
+            logger.debug(
+                f"Removed {removed_count} prior context system message(s) for current patient '{current_patient_id}'.")
+
+        chat_ctx.chat_history.messages = messages_to_keep
 
     def _ensure_system_message(self, chat_ctx: ChatContext, timing: TimingInfo,
                                chat_summary: str | None = None,

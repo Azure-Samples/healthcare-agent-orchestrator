@@ -36,7 +36,7 @@
   facilitator: true
   description: |
     Your role is to moderate the discussion, present the order of participants, and facilitate the conversation.
-  
+    
 - name: PatientHistory
   instructions: |
     You are an AI agent tasked with loading and presenting patient data. Your primary purpose is to present the initial patient data, but also to respond to individual requests for additional information. 
