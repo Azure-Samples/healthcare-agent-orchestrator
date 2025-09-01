@@ -174,3 +174,31 @@ Summarize the following text:
         except Exception as e:
             logger.warning(f"Failed to generate summary: {e}")
             return f"Summary generation failed for {patient_id}"
+
+    # Add this method to the PatientContextAnalyzer class
+
+    def reset_kernel(self):
+        """Reset the kernel and service instance to prevent LLM state contamination between patients."""
+        try:
+            if hasattr(self, '_kernel') and self._kernel:
+                # Store current configuration
+                current_deployment = self.deployment_name
+                current_api_version = self.api_version
+
+                # Create fresh kernel instance
+                self._kernel = Kernel()
+
+                # Re-add the service with same configuration
+                self._kernel.add_service(
+                    AzureChatCompletion(
+                        service_id="default",
+                        deployment_name=current_deployment,
+                        api_version=current_api_version,
+                        ad_token_provider=None,  # Adjust if you use token provider
+                    )
+                )
+
+                logger.info("Kernel reset to prevent patient context contamination")
+
+        except Exception as e:
+            logger.warning(f"Error during kernel reset: {e}")

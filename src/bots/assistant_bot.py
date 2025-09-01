@@ -302,11 +302,17 @@ class AssistantBot(TeamsActivityHandler):
                 ids_str = ", ".join(f"`{p}`{' (active)' if p == active_id else ''}" for p in obj["all_patient_ids"])
                 lines.append(f"- **Session Patients:** {ids_str}")
 
-            if obj.get("chat_summary"):
-                # Clean up summary for display
-                summary = obj['chat_summary'].replace('\n', ' ').strip()
-                if summary:
+            summary_raw = obj.get("chat_summary", "")
+            if summary_raw and summary_raw.strip():
+                # Check if it's the default "no specific information" message
+                if "No specific information was discussed" in summary_raw:
+                    lines.append(f"- **Summary:** *Building patient context...*")
+                else:
+                    # Clean up summary for display
+                    summary = summary_raw.replace('\n', ' ').strip()
                     lines.append(f"- **Summary:** *{summary}*")
+            else:
+                lines.append(f"- **Summary:** *Building patient context...*")
 
             if not obj.get("patient_id"):
                 lines.append("- *No active patient.*")

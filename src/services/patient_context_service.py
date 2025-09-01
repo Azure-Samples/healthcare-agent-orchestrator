@@ -60,9 +60,13 @@ class PatientContextService:
         elif action == "UNCHANGED":
             decision = "UNCHANGED"
 
-        # Log state changes only if they occurred
         if original_patient_id != chat_ctx.patient_id:
-            logger.info(f"Patient context changed: '{original_patient_id}' -> '{chat_ctx.patient_id}'")
+            logger.warning(
+                f"Patient context changed: '{original_patient_id}' -> '{chat_ctx.patient_id}'. "
+                "Resetting analyzer kernel to prevent context leak."
+            )
+            if hasattr(self.analyzer, "reset_kernel"):
+                self.analyzer.reset_kernel()
 
         service_duration = time.time() - service_start_time
         timing: TimingInfo = {"analyzer": round(analyzer_duration, 4), "service": round(service_duration, 4)}
