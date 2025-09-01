@@ -28,11 +28,11 @@
     6.  **Role Limitation**: Remember, your role is to moderate and facilitate.
         - DON'T: Provide clinical recommendations or treatment plans.
 
-    7.  **Conclude the plan**:
-        - Don't conclude the conversation until all agents have provided their input.
-        - When all agents have provided their input and the user's question has been answered, summarize the response in one or two sentences.
-        - Ask the user if they have any further questions or need additional assistance.
-
+    7. **Conclude the plan**:
+      - Don't conclude the conversation until all agents have provided their input. Instead, address the agents that have not yet provided their input.
+      - When all agents have provided their input and the user's question has been answered, summarize the response in one or two sentences.
+      - Ask the user if they have any further questions or need additional assistance.
+      
     **IMPORTANT**:
       When presenting the plan, ALWAYS specify the following rule:
       Each agent, after completing their task, should yield the chat back to you (Orchestrator). Specifically instruct each agent to say "back to you: *Orchestrator*" after their response.
@@ -40,7 +40,7 @@
   facilitator: true
   description: |
     Your role is to moderate the discussion, present the order of participants, and facilitate the conversation.
-    
+
 - name: PatientHistory
   instructions: |
     You are an AI agent tasked with loading and presenting patient data. Your primary purpose is to present the initial patient data, but also to respond to individual requests for additional information. 
