@@ -1,0 +1,41 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order
+- Goal: Analyze the latest CT and CXR images for patient_4 with the imaging tool, compare AI-generated findings to the radiologist’s report, and summarize discrepancies or additional findings.
+- Proposed order of participants and responsibilities:
+  1. PatientHistory — provide the patient timeline and prior imaging/report context for patient_4 (dates of studies, prior findings that affect comparison).
+  2. Radiology — use the imaging tool to analyze the provided CT and chest x‑ray images, produce AI-generated findings, and compare them against the radiologist’s report; list any discrepancies or extra findings.
+  3. Orchestrator (me) — gather both inputs, summarize discrepancies in 1–2 sentences, and ask the user for any follow-ups.
+
+Important rule to follow: Each agent, after completing their task, should yield the chat back to me by ending their response with: back to you: Orchestrator
+
+What I need from you, User
+- User, please upload or provide:
+  - The latest CT images (DICOM or image files) for patient_4
+  - The latest chest x‑ray (CXR) images for patient_4
+  - The radiologist’s written report(s) for those studies
+  - Dates of the imaging studies and any immediate prior comparator imaging (if available)
+  - Any specific areas of concern you want emphasized (e.g., lung nodules, pleural effusion, lines/tubes, metastatic disease)
+
+Requests to agents now
+
+- PatientHistory, proceed with: patient_4. Provide the patient timeline relevant to imaging interpretation: cancer type (if applicable), staging, prior imaging dates & findings, recent treatments that might affect imaging (e.g., surgery, radiation, chemo), and any baseline imaging to compare against. If you need any missing details to assemble this timeline, state what you need. After your response, end with: back to you: Orchestrator
+
+- Radiology, before you can run image analysis: list exactly what image files and report metadata you need (file formats, series, and whether prior comparative studies are required). Once you have the images and reports (from the User), you will:
+  1. Run the imaging tool on the CT and CXR.
+  2. Produce AI-generated findings for each modality.
+  3. Compare those findings to the radiologist’s written report and highlight discrepancies or additional findings.
+  4. Provide confidence levels and any image limitations (e.g., motion artifact, incomplete series).
+  After completing, end with: back to you: Orchestrator
+
+Confirm
+- User, can you provide the images and radiology report (and the dates/comparators) so Radiology can proceed? If you want PatientHistory to add anything else, tell me now.
+
+Once PatientHistory and the User supply the requested info, I will instruct Radiology to run the analysis.
+
+---
+

@@ -1,0 +1,29 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and participants — what I will do and in what order
+- I (Orchestrator) will moderate and collect the information needed, then ask our agents in a specified order to provide the pieces required to identify suitable active clinical trials.
+- Order of participants and why:
+  1. PatientHistory — to produce the patient timeline and the specific patient data we need (age, primary site, histology, stage, biomarkers incl. KRAS variant, prior treatments, ECOG, comorbidities). (ClinicalTrials and PatientStatus depend on this.)
+  2. PatientStatus — to synthesize the current status (age, stage, primary site, histology, biomarkers, treatment history, ECOG) into the eligibility profile used to search trials.
+  3. ClinicalTrials — to search for and list active trials matching the eligibility profile and geographic constraints, including trial phase and contact information.
+- After each agent completes their task they must yield back to me by saying exactly: "back to you: Orchestrator".
+- I will not provide clinical recommendations or treatment plans — only facilitate finding trials and presenting information.
+
+What I need from you first
+- User, can you provide me with the following for patient_4?
+  1. Geographic location (city, state/province, country) and whether the patient is willing to travel for trials (max distance or willingness to travel nationally/internationally).
+  2. Specific KRAS mutation variant (e.g., G12C, G12D, G13D, etc.). If you only know "KRAS-mutant," please say so.
+  3. ECOG performance status (0, 1, 2, etc.), or functional status if ECOG is not available.
+  4. Any trial restrictions (e.g., unable to accept immunotherapy, prior exposure to a particular agent, etc.).
+
+If you do not have those details, PatientHistory can attempt to provide the patient timeline/details, but PatientHistory needs the patient ID to proceed.
+
+Now I will ask the PatientHistory agent to provide the patient timeline and specifics for patient_4 so we can proceed.
+- PatientHistory, proceed with patient_4: please provide the patient timeline and the following details — age, primary cancer site, histology, stage (AJCC/TNM if available), biomarker panel including the exact KRAS variant, complete treatment history (lines, agents, dates), ECOG performance status, current meds and major comorbidities, and any prior clinical trial participation. After your response, say "back to you: Orchestrator".
+
+---
+

@@ -1,0 +1,52 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and participant order
+
+I will moderate a multi-agent preparation for a tumor-board review of Patient ID: patient_4. The planned order of participants and their roles:
+1) PatientHistory — assemble the patient timeline and all relevant history/notes.
+2) Radiology — review available imaging or imaging reports (CT, CXR, PET).
+3) PatientStatus — synthesize current status (age, stage, primary site, histology, biomarkers, prior treatments, ECOG).
+4) ClinicalGuidelines — provide guideline-based options (requires PatientStatus).
+5) ClinicalTrials — identify relevant trials (requires PatientStatus).
+6) MedicalResearch — supply recent literature if requested (keyword/topic needed).
+7) ReportCreation — generate a tumor-board word document using all compiled information.
+
+Important rule: After each agent completes their task they must yield back to me and explicitly say "back to you: Orchestrator".
+
+Next step — gather information
+
+PatientHistory, proceed with patient_4. Provide the full patient timeline and available data including:
+- Demographics (age, sex)
+- Presenting problem and diagnosis date(s)
+- Primary tumor site and histology/pathology report(s)
+- Staging (clinical/pathologic)
+- Biomarkers/molecular testing (EGFR, ALK, PD-L1, etc. — list results or note if not done)
+- Prior treatments (surgery, chemo, radiation, targeted therapy, immunotherapy) with dates and responses/toxicities
+- Recent labs (CBC, CMP, relevant tumor markers)
+- Performance status (ECOG)
+- Comorbidities and social history (smoking, alcohol, living situation)
+- Recent imaging reports (CT chest/abdomen/pelvis, PET-CT, brain MRI, X-rays) and dates
+- Any pathology images/reports or biopsy notes
+- Any clinical questions or decisions requested for the tumor board (e.g., resectability, next-line therapy, clinical trial consideration)
+Also tell me what you still need from the user to complete the timeline.
+
+User, can you provide any of the following for patient_4 if available?
+- Pathology report(s) or pathology slides
+- Imaging files (DICOMs) or imaging reports (CT, PET, MRI, X-ray) and dates
+- Recent lab results and ECOG performance status
+- Any prior oncology notes or treatment summaries
+- Specific tumor-board objectives or questions (e.g., treatment recommendation vs. trial enrollment)
+Please upload documents or paste key excerpts. If you cannot upload, provide the key values/text.
+
+Radiology — note: you will need imaging files or imaging reports. If the user can only provide reports, state whether you can proceed on reports alone or require images.
+
+PatientHistory, once you provide the timeline, I will call Radiology and PatientStatus in sequence. Confirm when ready and list any missing items required from the user.
+
+Do you (PatientHistory) need anything else to begin? back to you: Orchestrator.
+
+---
+

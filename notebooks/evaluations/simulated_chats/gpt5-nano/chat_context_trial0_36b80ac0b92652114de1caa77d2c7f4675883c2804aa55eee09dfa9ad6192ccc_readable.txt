@@ -1,0 +1,51 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan to prepare the tumor board packet for Patient ID: patient_4
+
+Proposed order of participants and tasks:
+1) PatientHistory
+   - Provide patient timeline, cancer type and histology, biomarkers, prior therapies, and any known staging notes.
+   - Output will feed into subsequent steps (Radiology, PatientStatus).
+   - Instruction to agent: “back to you: Orchestrator”
+
+2) Radiology
+   - Review available imaging (CT/MRI/PET) relevant to the case and summarize key findings (locoregional disease, metastases, radiologic staging implications).
+   - Input will come from PatientHistory data; produce imaging findings for the packet.
+   - Instruction to agent: “back to you: Orchestrator”
+
+3) PatientStatus
+   - Provide current status: age, staging, primary site, histology, biomarkers, treatment history, ECOG/PS, and any comorbidities impacting therapy choices.
+   - Will rely on PatientHistory for baseline details.
+   - Instruction to agent: “back to you: Orchestrator”
+
+4) ClinicalGuidelines
+   - Based on patient status, offer guideline-concordant treatment considerations and potential sequencing.
+   - Instruction to agent: “back to you: Orchestrator”
+
+5) ClinicalTrials
+   - Identify active or appropriate clinical trials for which the patient may be eligible.
+   - Instruction to agent: “back to you: Orchestrator”
+
+6) MedicalResearch
+   - Provide relevant up-to-date research pointers, novel approaches, or recent consensus statements related to the cancer type and biomarkers.
+   - Instruction to agent: “back to you: Orchestrator”
+
+7) ReportCreation
+   - Assemble a tumor board packet: patient timeline, clinical summary, medical history, social history, cancer type, ct findings, imaging findings, pathology, current treatment plan considerations, and clinical trial opportunities.
+   - Output suitable for a tumor board review.
+   - Instruction to agent: “back to you: Orchestrator”
+
+8) Final Synthesis
+   - Summarize inputs from all agents into a concise plan for the tumor board discussion and note any data gaps to resolve.
+   - Instruction to agent: “back to you: Orchestrator”
+   
+Important: I will not proceed to the next step until the current step’s agent has completed and returned with “back to you: Orchestrator.”
+
+User, please confirm this plan or provide any changes you’d like. If you confirm, I will initiate with PatientHistory for patient_4.
+
+---
+

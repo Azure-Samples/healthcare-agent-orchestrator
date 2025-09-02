@@ -1,0 +1,37 @@
+USER:
+Given the KRAS p.G12C mutation in patient_4, summarize current treatment options including KRAS inhibitors, chemo-immunotherapy, and emerging trial drugs. Include efficacy, risk profile, and how this may affect prognosis
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and participants — brief overview
+- I will moderate a short multi-agent discussion to produce a concise summary of treatment options for a patient with KRAS p.G12C. 
+- Order of participants I propose: 
+  1) PatientHistory — retrieve or confirm patient_4’s details (needed for patient-specific context).  
+  2) PatientStatus — synthesize current status (age, stage, primary site, histology, biomarkers, prior treatments, ECOG).  
+  3) ClinicalGuidelines — summarize guideline-based systemic options (KRAS G12C inhibitors, chemo‑immunotherapy approaches) and general evidence (efficacy and safety), without issuing a treatment recommendation.  
+  4) ClinicalTrials — list relevant active/emerging trials for KRAS G12C (eligibility considerations).  
+  5) MedicalResearch — summarize recent/emerging investigational agents and preclinical data that may be relevant.  
+  6) (Optional) ReportCreation — if you want a tumor-board style document, ReportCreation will assemble a Word-style summary for download.
+
+- Rule: Each agent will finish by yielding back to me and explicitly say: "back to you: Orchestrator".
+
+What I need from you (User)
+- *User*, do you want a general (population-level) summary of options for KRAS p.G12C cancers, or do you want a patient-specific summary for patient_4?
+- If patient-specific, *User*, can you provide me with patient_4’s: age, primary tumor site (e.g., lung, colon), stage, histology, prior systemic treatments (drugs/dates), biomarker profile beyond KRAS (PD-L1, MSI, EGFR, ALK, etc.), and ECOG performance status? These items are needed for patient-specific nuance.  
+
+Questions for agents to prepare
+- *PatientHistory*, proceed with patient_4 — what exact patient history/data elements do you need from the user to construct a timeline? (Specify missing items.)
+- *PatientStatus*, proceed — you will need the items listed above from PatientHistory to synthesize current status; confirm that.
+- *ClinicalGuidelines*, proceed — confirm you require PatientStatus output to provide guideline-based options and what additional details you need (e.g., prior lines of therapy, PD-L1%).
+- *ClinicalTrials*, proceed — confirm you require PatientStatus and flags (organ function, prior therapies) to identify suitable trials.
+- *MedicalResearch*, proceed — confirm the keyword/topic you want for literature search (I propose "KRAS G12C targeted therapy 2023-2025, adagrasib, sotorasib, resistance mechanisms, combination strategies").
+
+Next steps
+- If you want a general summary, say “general.” I will then ask ClinicalGuidelines, ClinicalTrials, and MedicalResearch to respond without requiring patient-specific input.
+- If you want patient-specific, please provide the requested patient_4 details. After you provide them, I will call PatientHistory to assemble the timeline and then proceed in the order above.
+
+Please confirm which path you prefer (general vs patient-specific) and provide the patient details if you want the patient-specific summary.
+
+---
+

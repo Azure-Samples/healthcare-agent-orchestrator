@@ -1,0 +1,44 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here’s the plan to generate the requested diagnostic summary and export it as a Word document, along with the order of participants. Each agent, after completing their task, should yield the chat back to me (Orchestrator) by saying: “back to you: Orchestrator”.
+
+Proposed order and purpose:
+1) PatientHistory
+- Purpose: Retrieve the full chart for Patient ID: patient_4, including demographics, cancer primary site and histology, stage at diagnosis, biomarker/molecular results, treatment history, ECOG performance status, relevant pathology, and all imaging records/reports (CT, X-ray, etc.). If available, provide actual chest X-ray image files for review.
+- What PatientHistory needs: Patient ID (provided: patient_4).
+- Action: PatientHistory, confirm you can pull the complete record for patient_4 and list the data elements you will return. After responding, say “back to you: Orchestrator”.
+
+2) PatientStatus
+- Purpose: Summarize the current clinical status (age, primary site, histology, stage at diagnosis and current stage if available, biomarkers, treatment history/response, ECOG).
+- What PatientStatus needs: age, staging, primary site, histology, biomarkers, treatment history, ECOG performance status (to be supplied by PatientHistory).
+- Action: PatientStatus, confirm that once PatientHistory provides these fields, you can generate a concise status summary for patient_4. After responding, say “back to you: Orchestrator”.
+
+3) Radiology
+- Purpose: Provide radiology insights on the latest imaging findings. If chest X-ray images are available, perform image analysis; otherwise, synthesize from the most recent imaging reports (e.g., CT) provided by PatientHistory.
+- What Radiology needs: Imaging files (preferably chest X-ray images) and/or most recent radiology reports (from PatientHistory).
+- Action: Radiology, confirm acceptable image formats and that you can analyze chest X-rays and summarize CT findings from reports if no images are available. After responding, say “back to you: Orchestrator”.
+
+4) ClinicalTrials
+- Purpose: Provide a brief, relevant snapshot of open clinical trials that match the patient’s status for inclusion in the tumor board document (optional but commonly included in tumor board packets).
+- What ClinicalTrials needs: PatientStatus summary (from PatientStatus).
+- Action: ClinicalTrials, confirm you can generate a brief list of trial options once PatientStatus is available. After responding, say “back to you: Orchestrator”.
+
+5) ReportCreation
+- Purpose: Assemble a formatted Word document suitable for tumor board, including: patient timeline, clinical summary, medical and social history, cancer type, CT and X-ray findings, pathology findings, biomarker status, stage at diagnosis, treatment history to date, and a brief clinical trials snapshot if approved.
+- What ReportCreation needs: Outputs from PatientHistory, PatientStatus, Radiology, and (if approved) ClinicalTrials.
+- Action: ReportCreation, confirm you can generate a .docx and provide a downloadable file or share link once the inputs are supplied. After responding, say “back to you: Orchestrator”.
+
+User, please confirm:
+- Confirm we should proceed with this plan for Patient ID: patient_4.
+- Do you want a short “Relevant Clinical Trials” section included in the document? Yes/No.
+- If you have any external imaging (e.g., recent chest X-ray files) not in the record, would you like to upload them for Radiology to review?
+- Any formatting preferences for the Word document (e.g., institutional template, logo placeholders, specific section order)?
+
+Once you confirm, I will instruct PatientHistory to begin.
+
+---
+

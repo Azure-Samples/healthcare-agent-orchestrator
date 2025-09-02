@@ -1,0 +1,46 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order of participants
+
+Goal: Generate a comprehensive diagnostic summary for Patient ID: patient_4 (including biomarker status, stage at diagnosis, treatment history, and latest imaging findings) and export the report as a formatted Word document suitable for tumor board presentation.
+
+Planned order of participants and responsibilities
+1. PatientHistory — Retrieve and provide the patient timeline and clinical data needed (demographics, primary site, histology/pathology reports, biomarkers, stage at diagnosis, full treatment history, social history, and copies or text of imaging reports). PatientHistory, please provide this information for patient_4. After your response, say "back to you: Orchestrator".
+2. PatientStatus — Synthesize current clinical status (age, staging, primary site, histology, biomarkers, treatment history, ECOG). PatientStatus will need the data from PatientHistory. PatientStatus, after PatientHistory provides data, proceed to summarize the current status and then say "back to you: Orchestrator".
+3. Radiology — Provide radiology insights and the latest imaging findings. Radiology will need either the image files (CT/PET/x-ray) or the imaging reports provided by PatientHistory (or uploaded by the User). Radiology, wait for the images/reports and then analyze and return findings; after your response, say "back to you: Orchestrator".
+4. ClinicalTrials — Provide relevant clinical trial options (if requested). ClinicalTrials will need the synthesized PatientStatus. ClinicalTrials, after PatientStatus responds, proceed and then say "back to you: Orchestrator".
+5. ReportCreation — Produce a formatted Word document suitable for tumor board presentation including timeline, clinical summary, medical & social history, pathology, imaging findings, biomarker status, staging, treatment history, and available clinical trials (if included). ReportCreation will need everything from PatientHistory, PatientStatus, Radiology, and ClinicalTrials (if used). ReportCreation, after assembling the document, return the Word file and then say "back to you: Orchestrator".
+6. MedicalResearch (optional) — Provide research/background references on any specified topics. MedicalResearch, await a keyword or topic (e.g., specific biomarker, drug, or trial) and then say "back to you: Orchestrator".
+
+IMPORTANT operational rule: Each agent, after completing their task, should yield the chat back to me (Orchestrator) by explicitly saying: "back to you: Orchestrator".
+
+Requests and required input
+
+User, please confirm:
+- Do you consent to including full patient identifiers and PHI in the tumor board Word document? If not, should the document use de-identified identifiers only?
+- Do you have imaging files (CT, PET-CT, X-ray) for patient_4 to upload? If yes, please upload the image files (DICOM preferred) or at minimum the imaging reports and dates. User, can you provide the most recent imaging files or the imaging report for the latest study and its date?
+
+PatientHistory, proceed with patient_4:
+- Provide: full patient timeline, age at presentation, sex, primary cancer site, histology and pathology summary (including IHC), biomarker status (EGFR, ALK, ROS1, BRAF, NTRK, PD-L1 TPS, MSI, mismatch repair, etc. — state which tests were performed and the results), stage at diagnosis (TNM + stage group and date), complete treatment history (surgery dates, lines of systemic therapy with agents, start/stop dates, radiotherapy dates/doses), ECOG performance status at baseline and current, recent labs relevant to staging/treatment, and copies/text of pathology and imaging reports available. After your response, say "back to you: Orchestrator".
+
+Radiology:
+- Stand by to analyze imaging once PatientHistory or the User provides imaging files or imaging reports. After your analysis, end with "back to you: Orchestrator".
+
+Next steps once we receive PatientHistory output and any uploaded images:
+- I will route the information to PatientStatus to synthesize current clinical status.
+- Then Radiology will review imaging/reports to provide imaging findings.
+- ClinicalTrials can be queried if you want trial options included.
+- ReportCreation will produce the Word document for tumor board.
+
+User, please provide:
+1) Confirmation about PHI inclusion and whether you will upload images.
+2) Any additional preferences for the tumor board report (e.g., one-page summary + detailed appendix, preferred margins/headers, whether to include suggested trials).
+
+PatientHistory, please begin with the requested data for patient_4. After your response, say "back to you: Orchestrator".
+
+---
+

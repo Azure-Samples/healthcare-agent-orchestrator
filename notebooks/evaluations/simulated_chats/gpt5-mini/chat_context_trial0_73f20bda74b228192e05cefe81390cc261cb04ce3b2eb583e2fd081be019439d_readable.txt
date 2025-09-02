@@ -1,0 +1,46 @@
+USER:
+Can you scan all pathology and molecular testing to see if these biomarkers are present
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order of participants
+- Goal: scan all pathology and molecular testing to identify whether specified biomarkers are present in the patient’s reports.
+- Proposed order of participants:
+  1. PatientHistory — retrieve the patient timeline and the pathology / molecular test reports.
+  2. PatientStatus — summarize current patient status (useful context for which biomarkers are most relevant).
+  3. MedicalResearch — (optional) provide brief notes on the biomarkers found if you want interpretation or references.
+  4. ReportCreation — (optional) compile a short summary document of the results for tumor board review.
+
+Important rule to note: after each agent completes their task they should yield the chat back to me (Orchestrator) and explicitly say "back to you: Orchestrator".
+
+Before we proceed I need some input from you and will ask the agents what they need.
+
+User, please provide the following so we can begin:
+1. The patient ID you want us to scan (so PatientHistory can locate the correct notes): User, can you provide me with the patient’s ID?
+2. Upload the pathology and molecular test reports (PDFs, images, or text). If you cannot upload files, paste the relevant report text here.
+3. Which biomarkers do you specifically want us to check? If you don’t have a specific list, do you want us to scan for a standard oncology panel (examples below)? Common biomarkers often checked in solid tumors include:
+   - EGFR, ALK, ROS1, BRAF, KRAS, MET, HER2, NTRK, RET
+   - PD-L1 (IHC), MSI status, Tumor Mutational Burden (TMB)
+   - BRCA1/2 (germline/tumor), other HRR genes
+   - Any specific somatic or germline panel results you expect
+   Please confirm the list or add/remove items.
+
+Questions to the agents (so they can prepare)
+- PatientHistory, proceed with: what do you need from the user to retrieve pathology/molecular reports and the patient timeline? (I expect you’ll need patient ID and the uploaded reports or access to the medical record).
+  - After your response, say: back to you: Orchestrator
+
+- PatientStatus, proceed with: to prepare a short patient status summary, what specific data elements do you need (I anticipate: age, staging, primary tumor site, histology, biomarkers known, prior treatments, ECOG)? Please list anything else you require.
+  - After your response, say: back to you: Orchestrator
+
+Next steps after I have your reply (User)
+- Once you provide the patient ID and upload or paste the pathology/molecular reports and confirm which biomarkers to scan, I will:
+  1. Ask PatientHistory to extract pathology and molecular test findings.
+  2. Have PatientStatus create a brief context summary.
+  3. Return the extracted biomarker findings to you for confirmation.
+  4. If you request, MedicalResearch can provide brief literature references on any biomarker found, and ReportCreation can compile a document for tumor board.
+
+Please provide the patient ID and upload the reports (or paste the text), and confirm which biomarkers to scan.
+
+---
+

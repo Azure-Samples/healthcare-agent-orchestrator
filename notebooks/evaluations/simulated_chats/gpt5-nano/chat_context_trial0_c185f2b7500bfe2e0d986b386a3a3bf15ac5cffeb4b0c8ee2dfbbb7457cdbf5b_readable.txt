@@ -1,0 +1,54 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan to prepare tumor board for Patient ID: patient_4
+
+Plan and expected order of participants (each agent, after completing their task, should yield back to you: "back to you: Orchestrator")
+
+1) PatientHistory
+- Task: Retrieve patient timeline and history (clinical notes, prior diagnoses, treatments, surgeries, comorbidities) for patient_4.
+- Rationale: Provides the foundational context, including cancer type, staging, biomarkers if available, and treatment history.
+- Output to expect: patient timeline and key history points.
+
+2) Radiology
+- Task: Review available imaging relevant to the case (e.g., CT/MRI/PET as documented in the patient record). Provide radiology insights and summarize ct/scan findings.
+- Rationale: Imaging findings are essential for staging and evaluating response or progression.
+- Output to expect: imaging findings and interpretation.
+
+3) PatientStatus
+- Task: Compile current patient status using data from PatientHistory (age, primary site, histology, biomarkers, ECOG status, current treatments, prior lines of therapy, staging).
+- Rationale: Gives a concise snapshot for decision-making.
+- Output to expect: current status summary.
+
+4) ClinicalGuidelines
+- Task: Provide evidence-based treatment recommendations aligned with the patient’s status.
+- Rationale: Helps frame options in the context of guidelines.
+- Output to expect: treatment recommendations (note: this will be presented as guidance, not a clinical plan).
+
+5) ClinicalTrials
+- Task: Identify and summarize relevant clinical trials matching the patient’s status.
+- Rationale: Explore trial options that may be appropriate.
+- Output to expect: list of applicable trials with eligibility notes.
+
+6) MedicalResearch
+- Task: Provide recent research and literature related to the patient’s cancer type, biomarker(s), or treatment plan.
+- Rationale: Contextualizes options with current evidence.
+- Output to expect: short literature summary and key takeaways.
+
+7) ReportCreation
+- Task: Assemble a comprehensive tumor board document (timeline, clinical summary, medical history, social history, cancer type, imaging findings, pathology findings, current treatment plan, and potential clinical trials).
+- Rationale: Produce a board-ready document for discussion.
+- Output to expect: a complete tumor board report.
+
+What I need from you to begin:
+- Confirm that you approve proceeding with this plan for patient_4.
+- Are there any special focal points you want the board to emphasize (e.g., recurrence risk, biomarker-directed therapy, eligibility for specific trials, quality of life considerations)?
+- If you have any available documents or data you want included now (recent imaging, pathology reports, labs, ECOG status, etc.), please provide or specify where I can access them.
+
+User, please confirm the plan and provide any additional instructions or data you want included. Once you confirm, I will initiate the tasks in the specified order and each agent will report back in turn, ending their response with "back to you: Orchestrator."
+
+---
+

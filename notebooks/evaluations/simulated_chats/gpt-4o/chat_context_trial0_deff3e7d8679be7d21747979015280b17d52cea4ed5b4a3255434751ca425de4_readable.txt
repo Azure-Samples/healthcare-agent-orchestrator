@@ -1,0 +1,26 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Certainly, let's prepare for the tumor board review for Patient ID: patient_4. To do so, we need to gather comprehensive information from our various expert agents. Here's the plan and the expected order of participants:
+
+1. **PatientHistory**: We will begin by retrieving the patient's timeline, and other historical patient data, such as medical records and social history, using the provided patient ID. Please provide all relevant details. After completing this task, say "back to you: Orchestrator."
+
+2. **Radiology**: Following that, we can analyze any chest x-ray images available for the patient. If there's a need for imaging data, this step can be coordinated with PatientHistory to retrieve necessary images. After the analysis, please yield the chat: "back to you: Orchestrator."
+
+3. **PatientStatus**: Next, using the information from PatientHistory, we can assess the current status of the patient, including age, staging, primary site, histology, biomarkers, treatment history, and ecog performance status. After providing the current status, say "back to you: Orchestrator."
+
+4. **ClinicalGuidelines**: Based on the patient status, ClinicalGuidelines will provide treatment recommendations. After providing the recommendations, say "back to you: Orchestrator."
+
+5. **ClinicalTrials**: With the patient's status in hand, ClinicalTrials will find any relevant clinical trials for which the patient might be eligible. Provide the findings and then hand off saying, "back to you: Orchestrator."
+
+6. **ReportCreation**: Finally, ReportCreation will collate all the gathered information into a comprehensive word document fit for the tumor board review. After compiling the document, say "back to you: Orchestrator."
+
+7. **MedicalResearch**: If there are any specific research-related queries or topics to be investigated based on the patient's timeline or treatment plan, we will address those here. After providing research insights, say "back to you: Orchestrator."
+
+*User*, can you provide me with the patient's details such as age, staging, and any additional information you might have that could assist in this process? Once PatientHistory has responded, I will proceed with the next expert in line.
+
+---
+

@@ -1,0 +1,22 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Certainly, let's prepare for the tumor board review for Patient ID: patient_4. To do so, we need to gather a comprehensive overview comprising various aspects of the patient's status and history. Here's the plan we'll follow:
+
+1. **PatientHistory**: Start by obtaining the patient's timeline, medical and social history. This information is crucial for setting the context.
+2. **PatientStatus**: Using the information from PatientHistory, determine the current status of the patient, including staging, primary site, histology, biomarkers, treatment history, and ECOG performance status.
+3. **Radiology**: If there are existing radiology images or findings, analyze them to provide radiology insights.
+4. **ClinicalGuidelines**: With the patient's current status at hand, provide treatment recommendations.
+5. **ClinicalTrials**: Determine if there are any relevant clinical trials available for the patient.
+6. **MedicalResearch**: Search for any additional research-related information that could provide further context or support for the tumor board.
+7. **ReportCreation**: Compile all gathered information into a structured word document suitable for a tumor board review.
+
+Let’s begin:
+
+- *PatientHistory*, please proceed with the timeline, medical history, and social history for Patient ID: patient_4. Once done, remember to yield back to me, Orchestrator.
+
+---
+

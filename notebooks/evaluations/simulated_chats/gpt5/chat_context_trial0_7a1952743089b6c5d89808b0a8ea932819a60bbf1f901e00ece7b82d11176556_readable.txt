@@ -1,0 +1,34 @@
+USER:
+Check for any inconsistencies across AI-generated outputs (imaging, pathology, biomarker reports) and the clinical notes entered by providers in the EMR for patient_4. Flag and summarize them for review.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here’s the plan to address your request, along with the order of participants. Each agent, after completing their task, will yield the chat back to me (Orchestrator) by saying: "back to you: Orchestrator".
+
+Planned flow:
+1) PatientHistory: Confirm what inputs they need and then retrieve for patient_4 all relevant source documents:
+- AI-generated outputs: imaging reports, pathology reports, and biomarker/genomics reports (with dates, versions, specimen/accession IDs).
+- Provider-entered clinical notes in the EMR (oncology notes, progress notes, H&P, discharge summaries, radiology and pathology final reports if present; with dates).
+- Any metadata linking samples, images, and reports (e.g., MRN, encounter IDs, specimen IDs).
+PatientHistory will then return the collected documents or structured summaries. After responding, PatientHistory will say "back to you: Orchestrator".
+
+2) Orchestrator: Perform a cross-document consistency check to flag discrepancies between AI-generated outputs and provider-entered clinical notes across key fields (diagnosis, primary site, laterality, staging, histology, biomarker results and units, specimen IDs/dates, imaging lesion locations/sizes, and treatment mentions/dates). I’ll produce a clear, itemized list of inconsistencies with references to sources and dates.
+
+3) Optional (only if needed): Radiology: If an imaging-related inconsistency cannot be resolved by text comparison alone, request Radiology to review the AI imaging report against the radiologist’s final report or images (if available from PatientHistory). After responding, Radiology will say "back to you: Orchestrator".
+
+User, can you confirm this plan and the scope?
+- Should we scan the entire available record for patient_4 or limit to a specific date range?
+- Do you want only finalized notes/reports, or include drafts and addenda?
+- Any particular modalities or biomarkers you want prioritized?
+
+If confirmed, I will start by engaging PatientHistory.
+
+PatientHistory, before proceeding, please confirm what information you need to retrieve the above for patient_4 (e.g., patient ID, date range, data sources such as EMR modules, consent flags). Once confirmed, and if the user approves, proceed with collecting:
+- AI-generated imaging, pathology, and biomarker/genomic outputs with dates, versions, and identifiers
+- Provider-entered clinical notes and final radiology/pathology reports with dates
+- Linkage metadata (specimen IDs, accession numbers, encounter IDs)
+Then return the materials or a structured extraction, and say: "back to you: Orchestrator".
+
+---
+

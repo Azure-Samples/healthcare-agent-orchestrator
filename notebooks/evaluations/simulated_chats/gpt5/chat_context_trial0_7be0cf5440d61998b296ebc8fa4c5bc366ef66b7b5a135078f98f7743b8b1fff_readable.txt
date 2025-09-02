@@ -1,0 +1,25 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order of participants:
+- We will:
+  1) Ask PatientHistory to retrieve key details for patient_4 (age, tumor type/primary site, stage, histology, KRAS mutation status and specific variant, other biomarkers, treatment history, ECOG performance status, and geographic location).
+  2) Have PatientStatus assemble a concise patient status summary from those details.
+  3) Ask ClinicalTrials to identify active, eligible trials based on that status, including trial phase and contact info.
+- Each agent, after completing their task, should yield the chat back to me (Orchestrator) by saying: “back to you: Orchestrator”.
+
+User, please confirm that you’d like me to proceed with this plan.
+
+If yes:
+- PatientHistory, proceed with retrieving and summarizing for patient_4: age, primary site and tumor type, stage, histology, KRAS mutation status (including specific variant such as G12C/G12D/etc.), other relevant biomarkers (e.g., EGFR, ALK, BRAF, MSI/MMR, PD-L1), prior and current treatment history (systemic therapies, surgeries, radiation), ECOG performance status, and current geographic location (city/state or country), along with any relevant recent imaging/pathology. Then say: “back to you: Orchestrator”.
+
+User, if any of the above items are not in the record, can you provide them? Specifically:
+- User, can you provide me with the patient’s current city/state (or country) for geographic filtering, preferred travel radius (in miles/km), and willingness to travel?
+- User, can you confirm the exact KRAS variant (e.g., G12C, G12D, G12V) and testing date if known?
+- User, can you confirm the most recent ECOG performance status?
+
+---
+

@@ -1,0 +1,33 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order of participants:
+- Step 1: Gather and confirm required inputs
+  - I will confirm what each agent needs and collect any missing information.
+- Step 2: PatientHistory
+  - Retrieve the complete record for patient_4 (timeline, tumor type, stage, histology, KRAS mutation status and other biomarkers, treatment history, age, ECOG, and geographic location).
+- Step 3: PatientStatus
+  - Synthesize a concise patient status profile needed for trial matching.
+- Step 4: ClinicalTrials
+  - Identify active, recruiting clinical trials that match patient_4’s tumor type, stage, KRAS mutation status, treatment history, and geographic location. Provide NCT ID, trial phase, brief rationale for eligibility, trial locations, and site contact information.
+- Step 5: Summary back to you
+  - I will summarize the findings for quick review.
+
+Important rule for all agents:
+- Each agent, after completing their task, should yield the chat back to me (Orchestrator) by saying: “back to you: Orchestrator”.
+
+User, please confirm this plan and provide:
+- Patient’s preferred geographic location (city/state/country) and maximum travel distance.
+- Any location constraints (e.g., country-only, specific institutions, tele-trials acceptable).
+- Any trial phase preferences (e.g., Phase 1/2/3) or exclusions.
+- Permission to search public registries (e.g., ClinicalTrials.gov) for the most current listings.
+
+Next, I’ll check with each agent about what they need, then proceed.
+
+PatientHistory, proceed with confirming the inputs you need to retrieve the full record for “patient_4”. After confirming, I will provide them to you. Remember to end with: “back to you: Orchestrator”.
+
+---
+

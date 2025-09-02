@@ -1,0 +1,32 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan to prepare the tumor board packet for Patient ID: patient_4
+
+Purpose and order of participants:
+- We will gather complete patient information, summarize current status, extract imaging insights, identify clinical trials, and compile a tumor board-ready document.
+- Each agent, after completing their task, should yield the chat back to me (Orchestrator) by saying: "back to you: Orchestrator".
+
+Proposed sequence:
+1) PatientHistory: Retrieve the full patient timeline and chart data for patient_4 (demographics, medical and social history, pathology, biomarkers, staging, ECOG, prior and current treatments, and links/files to imaging and reports).
+2) Radiology: Review available imaging (especially chest X-ray/CT). If images are available, provide interpretations; if only reports exist, summarize key findings.
+3) PatientStatus: Summarize current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG performance status) based on PatientHistory.
+4) ClinicalTrials: Provide relevant active clinical trials based on PatientStatus, with key eligibility and site info.
+5) ReportCreation: Produce a tumor board Word document including: patient timeline, clinical summary, medical and social history, cancer type, CT and X-ray findings, pathology findings, documented treatment-to-date, and relevant clinical trials. We will list “outstanding questions for tumor board” rather than making any treatment recommendations.
+
+Optional:
+6) MedicalResearch: If you want a brief literature summary (e.g., on biomarkers or modalities relevant to this case), we can add this as an appendix.
+
+User, please confirm:
+- Do you approve this plan and order?
+- Do you want the optional MedicalResearch appendix included?
+- Do you have any preferences for ClinicalTrials search (e.g., geographic region, maximum travel distance, sponsor types)?
+- If you have any imaging files not already in the chart, can you provide them now?
+
+If approved, I will begin with PatientHistory for patient_4.
+
+---
+

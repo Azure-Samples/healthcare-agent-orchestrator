@@ -1,0 +1,640 @@
+USER:
+Retrieve the list of all clinical trials this patient is eligible for.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+I’m the Orchestrator. I will coordinate the agents to retrieve the list of clinical trials this patient is eligible for. Here’s the plan and order of participants:
+
+- Step 1: ClinicalTrials — I will first ask ClinicalTrials what specific information they need to determine eligibility, so we only gather what’s necessary. Each agent, after completing their task, should yield the chat back to me by saying “back to you: Orchestrator.”
+- Step 2: PatientStatus — I will then ask PatientStatus to confirm the exact data elements they require to build a complete patient status summary (which ClinicalTrials will use). Each agent must say “back to you: Orchestrator” after responding.
+- Step 3: PatientHistory — With your patient ID, I’ll ask PatientHistory to retrieve the patient’s timeline and all relevant details (age, staging, primary site, histology, biomarkers, prior treatments, ECOG). Each agent must say “back to you: Orchestrator” after responding.
+- Step 4: PatientStatus — I will provide those details to PatientStatus to produce the current patient status. Each agent must say “back to you: Orchestrator” after responding.
+- Step 5: ClinicalTrials — I will provide the finalized patient status to ClinicalTrials to retrieve the list of eligible clinical trials. Each agent must say “back to you: Orchestrator” after responding.
+
+Optional: If trial matching would benefit from location/travel preferences, I can collect that from you as well to refine the list.
+
+User, can you provide me with the patient’s ID? If available, please also share the patient’s location (city/state or country) and travel radius preferences to help narrow trial options.
+
+Please confirm this plan, and I’ll proceed.
+
+---
+
+USER:
+ClinicalTrials: Please confirm the minimum data elements you require to assess eligibility for patient-level trial matching. Provide an explicit list of fields and any accepted value sets or formats, and include a structured template (JSON preferred) we can populate. Also indicate which fields are mandatory vs optional and any tolerances (e.g., ranges, unknown/NA allowed). Specifically, please clarify needs for:
+
+- Disease characterization: primary tumor site, histology/subtype, stage (AJCC/FIGO/etc.), sites of disease, measurable disease per RECIST (yes/no).
+- Molecular/biomarkers: specific genes/alterations (e.g., EGFR, ALK, BRAF, MSI/MMR, PD-L1, TMB), fusion partners, variant classes, copy number thresholds, IHC scores, FISH cutoffs, assay requirements, sample recency.
+- Treatment history: prior systemic regimens with lines and dates, prior targeted/immunotherapy exposure, prior radiation/surgery, prior transplant/CAR-T, prior trial participation, refractory/relapsed status, washout periods.
+- Performance/functional status: ECOG or Karnofsky, weight/BMI if dosing constraints apply.
+- Organ function and key labs (with thresholds you use): ANC, platelets, hemoglobin, creatinine/CrCl, AST/ALT, bilirubin, albumin, INR/PTT, QTc, LVEF (if relevant).
+- Comorbidities/exclusions: CNS metastases and status (treated/untreated, symptomatic), seizures, autoimmune disease, active infections (HBV/HCV/HIV) and viral loads/serologies, interstitial lung disease/pneumonitis, bleeding risk/anticoagulation, cardiac arrhythmias, uncontrolled hypertension, pregnancy/lactation, fertility/contraception requirements.
+- Concomitant meds and restrictions: strong CYP inducers/inhibitors, steroids, QT-prolonging agents, immunosuppression.
+- Demographics: age, sex, reproductive potential, race/ethnicity if needed for specific trials, smoking status (if relevant).
+- Logistics: patient location (city/state/country), maximum travel radius, tele-trial/home phlebotomy acceptance, language needs.
+- Timing constraints: days since last therapy/surgery/radiation, steroid use timelines, washouts for biologics/IO/RT, wound healing windows.
+- Additional requirements: archival vs fresh biopsy availability, consent capacity, tissue/ctDNA availability, imaging frequency tolerance.
+
+If you have a preferred schema, please provide it. If not, I propose a compact JSON structure capturing these elements. Also confirm whether you can filter by geography (e.g., by state) so we can later address: “Which clinical trials are recruiting patients in California?”
+
+Please respond with the precise field list, accepted values/ranges, and any examples, then say “back to you: Orchestrator.”
+
+---
+
+ASSISTANT (agent id: ClinicalTrials):
+Below is the minimum data we need to run algorithmic trial matching, followed by a fuller schema you can use to maximize match precision. I’ve listed accepted values/formats, tolerances, and which fields are mandatory vs optional. A compact, ready-to-populate JSON template is included at the end, along with a “required_minimum_for_matching” list.
+
+Core mandatory fields for initial automated matching (must be provided)
+- Demographics:
+  - age: integer in years (e.g., 63)
+- Disease characterization:
+  - primary_site: free text or ICD-O topography (e.g., “lung”, “C34.9”)
+  - histology: free text or ICD-O-3/WHO (e.g., “adenocarcinoma”, “8140/3”)
+  - stage: AJCC/FIGO/etc. string (e.g., “AJCC 8th IVB”, “FIGO IIIC1”, “recurrent/metastatic”)
+- Performance:
+  - ecog: integer 0–4
+- Treatment history:
+  - first_line_treatment: regimen name(s) and dates (e.g., “carboplatin+pemetrexed+pembrolizumab”, 2022-01 to 2022-07)
+  - second_line_treatment: regimen name(s) and dates or “none”
+- Biomarkers:
+  - biomarkers: array; if none/unknown use [] or [{"gene":"NA","status":"unknown"}]
+
+Strongly recommended (increases match accuracy; many trials require these)
+- Disease details:
+  - measurable_disease_recist: yes/no/unknown (RECIST 1.1 default)
+  - sites_of_disease: array (e.g., ["lung","liver","bone"])
+- Biomarkers:
+  - PD-L1: value with scale (TPS or CPS), assay (e.g., 22C3), and date
+  - MSI/MMR: “MSI-H”, “MSS”, “dMMR”, “pMMR”
+  - TMB: numeric mut/Mb, assay and date
+  - HER2: IHC 0/1+/2+/3+; ISH/FISH ratio and/or copy number
+  - Specific alterations: HGVS or simplified (e.g., EGFR exon 19 del, ALK fusion EML4-v1, BRAF V600E, MET exon14 skipping, KRAS G12C, NTRK fusion, RET fusion, ROS1 fusion, BRCA1/2 P/LP)
+  - Assay metadata: source (tumor/ctDNA), vendor/platform (e.g., FoundationOne, Tempus), report date, tissue site, sample age (months)
+- Treatment history:
+  - all prior systemic regimens with line numbers, start/stop dates, best response (per RECIST if available), reason for discontinuation
+  - prior IO (PD-1/PD-L1/CTLA-4), prior targeted agents by target (EGFR, ALK, HER2, KRAS G12C, PARP, VEGF/VEGFR, CDK4/6, PI3K, etc.)
+  - prior radiation (sites, doses, dates), prior major surgeries and dates
+  - prior cellular therapy (ASCT, allo-SCT, CAR-T), prior investigational agents or trial IDs, refractory/relapsed status
+- Performance/functional:
+  - Karnofsky (0–100) if ECOG unavailable
+  - weight (kg), height (cm), BMI or BSA if dosing constraints apply
+- Organ function and key labs (most common default thresholds we apply for prescreening; individual trials vary):
+  - ANC: ≥ 1.5 × 10^9/L (some allow ≥ 1.0)
+  - Platelets: ≥ 100 × 10^9/L (some allow ≥ 75)
+  - Hemoglobin: ≥ 9.0 g/dL (transfusion permitted per-protocol)
+  - Creatinine: ≤ 1.5 × ULN or CrCl/eGFR ≥ 50–60 mL/min
+  - AST/ALT: ≤ 2.5 × ULN (≤ 5 × ULN if liver mets)
+  - Total bilirubin: ≤ 1.5 × ULN (≤ 3 × ULN or per Gilbert’s)
+  - Albumin: ≥ 3.0 g/dL (phase 1 often ≥ 2.8–3.0)
+  - INR/PTT: ≤ 1.5 × ULN unless on therapeutic anticoagulation
+  - QTc: ≤ 470 ms (men ≤ 450 ms typical); method (Fridericia/Bazett)
+  - LVEF: ≥ 50% if cardiotoxic agents involved; echo/MUGA date
+  - Lab recency: within 14 days typical; up to 28 days acceptable for early prescreen
+- Comorbidities/exclusions:
+  - CNS metastases: none/treated-stable/untreated/symptomatic; steroids dose (prednisone mg/day or equivalent), seizure control
+  - Autoimmune disease: type, activity, systemic therapy use
+  - Infections: HBV/HCV/HIV status; HBV DNA/HCV RNA copies; CD4 count if HIV; on antivirals? yes/no
+  - ILD/pneumonitis history; pulmonary fibrosis
+  - Bleeding risk/anticoagulation (warfarin/DOAC), recent major bleed
+  - Cardiac: arrhythmias, heart failure (NYHA), MI within 6 months, uncontrolled hypertension
+  - Metabolic: uncontrolled diabetes, significant hepatic/renal impairment
+  - Pregnancy/lactation; reproductive potential; contraception agreement
+- Concomitant meds/restrictions:
+  - strong CYP3A/2D6/2C8 inhibitors/inducers; P-gp substrates; QT-prolonging agents
+  - systemic steroids (dose and indication), immunosuppressants, herbal supplements (e.g., St. John’s wort)
+- Logistics and geography:
+  - location: city, state/province, country; ZIP/postal code
+  - max_travel_radius_km: integer
+  - tele-trial/home services acceptable: yes/no
+  - language needs and availability of caregiver/translator
+- Timing constraints:
+  - days since last chemotherapy, IO, targeted therapy, RT, surgery, major procedure
+  - washouts: biologics (typically ≥ 28 days), IO (≥ 28 days), TKIs (≥ 5 half-lives or 7–14 days), RT (≥ 7–14 days focal; ≥ 28 days wide-field), surgery/wound healing (≥ 14–28 days)
+  - steroid taper timeline
+- Additional requirements:
+  - archival_tissue_available: yes/no; blocks/slides; site/date
+  - fresh_biopsy_feasible: yes/no; safe target lesion: yes/no
+  - ctDNA feasible: yes/no
+  - consent capacity and caregiver support
+  - imaging cadence tolerance (e.g., q6–8 weeks)
+
+Accepted values and formats
+- Dates: ISO 8601 (YYYY-MM-DD); use null if unknown
+- Booleans: true/false; allow "unknown" string where indicated
+- Enums:
+  - ecog: 0,1,2,3,4
+  - measurable_disease_recist: "yes","no","unknown"
+  - msi_mmr: "MSI-H","MSS","dMMR","pMMR","unknown"
+  - pd_l1_scale: "TPS","CPS","IC" (for some tumor types), or "unknown"
+  - sex_at_birth: "female","male","intersex","unknown"
+  - reproductive_potential: "yes","no","unknown"
+  - cns_status: "none","treated_stable","untreated","symptomatic","unknown"
+  - infection_status: "negative","positive","unknown"
+  - anticoagulation: "none","prophylactic","therapeutic"
+  - assay_source: "tumor","ctDNA","other"
+  - stage_system: "AJCC","FIGO","AnnArbor","DurieSalmon","Rai","Other"
+- Units:
+  - labs in conventional units noted above; if SI units used, include units explicitly
+- Tolerances for unknown/NA:
+  - For initial matching, unknown is acceptable for most recommended fields; mandatory fields listed above must be provided
+  - We apply conservative filters when values are unknown (e.g., may exclude QTc-restricted trials if QTc unknown)
+
+Geography filtering
+- Yes. We can filter by country, state/province, city, ZIP/postal-code radius, or by specific site names. Example: “United States, California” or ZIP radius “94103 + 100 miles”. If you later ask “Which trials are recruiting patients in California?”, we can restrict to that geography.
+
+Compact JSON template (populate and return). Include null or "unknown" where appropriate.
+
+{
+  "demographics": {
+    "age": 63,
+    "sex_at_birth": "female",
+    "gender_identity": "female",
+    "reproductive_potential": "no",
+    "race": "optional",
+    "ethnicity": "optional",
+    "smoking_status": "never/former/current/unknown"
+  },
+  "disease": {
+    "primary_site": "lung",
+    "histology": "adenocarcinoma",
+    "icdo_topography": "C34.9",
+    "icdo_morphology": "8140/3",
+    "stage_system": "AJCC",
+    "stage": "IVB",
+    "measurable_disease_recist": "yes",
+    "sites_of_disease": ["lung","liver"],
+    "diagnosis_date": "2022-01-15"
+  },
+  "biomarkers": [
+    {
+      "gene": "EGFR",
+      "alteration": "exon19del",
+      "variant_hgvs_c": "c.2235_2249del",
+      "variant_hgvs_p": "p.E746_A750del",
+      "variant_class": "SNV/indel/fusion/amp",
+      "copy_number": null,
+      "fusion_partner": null,
+      "assay_source": "tumor",
+      "assay_vendor": "FoundationOne CDx",
+      "report_date": "2022-02-01",
+      "tissue_site": "lung",
+      "sample_recency_months": 6
+    },
+    {
+      "gene": "PD-L1",
+      "pd_l1_value": 60,
+      "pd_l1_scale": "TPS",
+      "assay_vendor": "22C3 pharmDx",
+      "report_date": "2022-02-01"
+    },
+    {
+      "gene": "MSI",
+      "msi_mmr": "MSS",
+      "assay_vendor": "Tempus xT",
+      "report_date": "2022-02-01"
+    },
+    {
+      "gene": "TMB",
+      "tmb_value_mut_per_mb": 5.2,
+      "assay_vendor": "Tempus xT",
+      "report_date": "2022-02-01"
+    },
+    {
+      "gene": "ERBB2",
+      "ihc_score": "0/1+/2+/3+",
+      "fish_ratio": null,
+      "copy_number": null,
+      "assay_vendor": "IHC/FISH",
+      "report_date": "2022-02-01"
+    }
+  ],
+  "treatment_history": {
+    "first_line_treatment": {
+      "regimen": "carboplatin+pemetrexed+pembrolizumab",
+      "start_date": "2022-02-15",
+      "end_date": "2022-07-30",
+      "best_response": "PR",
+      "reason_for_stop": "progression"
+    },
+    "second_line_treatment": {
+      "regimen": "osimertinib",
+      "start_date": "2022-08-10",
+      "end_date": "2023-05-15",
+      "best_response": "SD",
+      "reason_for_stop": "progression"
+    },
+    "systemic_regimens": [
+      {
+        "line_number": 1,
+        "regimen": "carboplatin+pemetrexed+pembrolizumab",
+        "start_date": "2022-02-15",
+        "end_date": "2022-07-30",
+        "best_response": "PR"
+      },
+      {
+        "line_number": 2,
+        "regimen": "osimertinib",
+        "start_date": "2022-08-10",
+        "end_date": "2023-05-15",
+        "best_response": "SD"
+      }
+    ],
+    "radiation": [
+      { "site": "thoracic", "dose_gy": 30, "fractions": 10, "end_date": "2022-12-01" }
+    ],
+    "surgery": [
+      { "procedure": "lung wedge resection", "date": "2022-01-20" }
+    ],
+    "cellular_therapy": {
+      "transplant": null,
+      "car_t": null
+    },
+    "trial_participation": [
+      { "trial_id": "NCT01234567", "start_date": "2023-06-01", "end_date": "2023-10-01", "agent": "investigational EGFR TKI" }
+    ],
+    "refractory_relapsed_status": "relapsed/refractory/na"
+  },
+  "performance_status": {
+    "ecog": 1,
+    "karnofsky": 80,
+    "weight_kg": 68.5,
+    "height_cm": 165,
+    "bmi": 25.2
+  },
+  "labs": {
+    "collection_date": "2024-04-01",
+    "anc_10e9_per_L": 2.1,
+    "platelets_10e9_per_L": 180,
+    "hemoglobin_g_per_dL": 10.2,
+    "creatinine_mg_per_dL": 0.9,
+    "creatinine_clearance_mL_per_min": 70,
+    "ast_u_per_L": 32,
+    "alt_u_per_L": 28,
+    "total_bilirubin_mg_per_dL": 0.8,
+    "albumin_g_per_dL": 3.6,
+    "inr": 1.1,
+    "ptt_seconds": 30,
+    "qtc_ms": 440,
+    "qtc_method": "Fridericia",
+    "lvef_percent": 60
+  },
+  "comorbidities": {
+    "cns_status": "treated_stable",
+    "on_cns_steroids_prednisone_mg_per_day": 5,
+    "seizure_controlled": true,
+    "autoimmune_disease": [{ "condition": "psoriasis", "on_systemic_immunosuppression": false }],
+    "infections": {
+      "hbv_status": "negative",
+      "hbv_dna_iu_per_mL": null,
+      "hcv_status": "negative",
+      "hcv_rna_iu_per_mL": null,
+      "hiv_status": "negative",
+      "cd4_count_per_uL": null,
+      "on_antivirals": false
+    },
+    "ild_pneumonitis_history": false,
+    "bleeding_risk": "none",
+    "anticoagulation": "none",
+    "cardiac_arrhythmia": false,
+    "heart_failure_nyha": null,
+    "uncontrolled_hypertension": false,
+    "diabetes_uncontrolled": false,
+    "pregnant": false,
+    "lactating": false,
+    "contraception_agreement": true
+  },
+  "concomitant_meds": {
+    "cyp3a_inhibitors": [],
+    "cyp3a_inducers": [],
+    "qtc_prolonging_agents": [],
+    "anticoagulants": [],
+    "systemic_steroids_mg_pred_eq_per_day": 0,
+    "immunosuppressants": [],
+    "herbals": []
+  },
+  "logistics": {
+    "location_city": "San Francisco",
+    "location_state": "CA",
+    "location_country": "USA",
+    "postal_code": "94103",
+    "max_travel_radius_km": 160,
+    "teletrial_ok": true,
+    "language_needs": "English"
+  },
+  "timing": {
+    "last_chemo_date": "2024-03-10",
+    "last_io_date": "2023-05-15",
+    "last_tki_date": "2023-05-15",
+    "last_radiation_end_date": "2022-12-01",
+    "last_major_surgery_date": "2022-01-20",
+    "steroid_taper_end_date": "2023-02-01"
+  },
+  "additional_requirements": {
+    "archival_tissue_available": true,
+    "archival_tissue_details": "FFPE block, lung primary, 2022-01",
+    "fresh_biopsy_feasible": true,
+    "safe_target_lesion_for_biopsy": true,
+    "ctdna_feasible": true,
+    "consent_capacity": true,
+    "imaging_cadence_tolerance_weeks": 8
+  },
+  "required_minimum_for_matching": [
+    "demographics.age",
+    "disease.primary_site",
+    "disease.histology",
+    "disease.stage",
+    "performance_status.ecog",
+    "treatment_history.first_line_treatment",
+    "treatment_history.second_line_treatment",
+    "biomarkers"
+  ]
+}
+
+Notes
+- If a field is not applicable or unknown, use null or "unknown" as shown. For initial matching, we must have every item in required_minimum_for_matching.
+- Lab thresholds are prescreen defaults and may be relaxed or tightened per protocol; if your labs don’t meet these, we will still return trials whose criteria you meet.
+- We can incorporate tumor-specific required biomarkers (e.g., EGFR/ALK for NSCLC, IDH1/2 for glioma, BRAF for melanoma/CRC) if you annotate “must_have” markers; otherwise we infer from disease context.
+
+If you prefer a formal JSON Schema with required lists and type constraints, I can provide Draft-07 on request.
+
+back to you: Orchestrator.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+I’m the Orchestrator. We’ve received ClinicalTrials’ required data schema and template. Here’s the plan and order to move forward to retrieve eligible clinical trials for this patient:
+
+- Step 2: PatientStatus — I will ask PatientStatus to confirm the exact fields, formats, and tolerances they require to build the patient status summary that ClinicalTrials will use. Each agent must yield the chat back to me by saying “back to you: Orchestrator.”
+- Step 3: PatientHistory — Once you provide the patient ID, I will ask PatientHistory to retrieve all required elements (age, primary site, histology, stage, biomarkers, treatment history, ECOG, and any additional details needed by PatientStatus/ClinicalTrials). Each agent must say “back to you: Orchestrator.”
+- Step 4: PatientStatus — I will provide the retrieved data to PatientStatus to produce the current patient status object in the agreed JSON format. Each agent must say “back to you: Orchestrator.”
+- Step 5: ClinicalTrials — I will then pass the finalized patient status to ClinicalTrials to generate the list of eligible trials, optionally filtered by geography and logistics. Each agent must say “back to you: Orchestrator.”
+
+PatientStatus, proceed with:
+- Confirm your minimal mandatory fields to construct the “patient status” artifact for trial matching, your accepted value sets/formats, and tolerances for unknown/NA.
+- Provide a concise JSON template aligned to ClinicalTrials’ required_minimum_for_matching (age, primary_site, histology, stage, ECOG, first_line_treatment, second_line_treatment, biomarkers), plus any additional fields you strongly recommend (e.g., measurable disease, sites of disease, key labs, comorbidities) and their formats.
+- Indicate any recency requirements (e.g., labs within X days), and default handling if multiple conflicting values are present.
+- Confirm you can ingest ICD-O topography/morphology or free text for disease characterization and how you prefer staging (system + value).
+
+Please end your response with “back to you: Orchestrator.”
+
+User, can you provide me with the patient’s ID so I can pull the chart via PatientHistory? Additionally, please share:
+- Patient’s location (city/state/country) and maximum travel radius (km or miles) for site filtering
+- Any logistics preferences (tele-trial/home services acceptable: yes/no; language needs)
+- Optional: any immediate exclusions we should consider (e.g., unwilling to undergo biopsy, no blood transfusions)
+
+Once you confirm, I’ll proceed with Steps 3–5.
+
+---
+
+USER:
+PatientStatus: Please confirm the following to enable construction of a patient status artifact compatible with ClinicalTrials’ matching schema:
+
+1) Minimal mandatory fields you require, with accepted values/formats and tolerances for unknown:
+- Demographics: age (integer years)
+- Disease characterization: primary_site (free text or ICD-O topography), histology (free text or ICD-O-3/WHO), stage (system + value; e.g., “AJCC 8th IVB” or system: AJCC, stage: IVB)
+- Performance: ECOG (0–4)
+- Treatment history: first_line_treatment (regimen, start/end dates), second_line_treatment (regimen/dates or “none”)
+- Biomarkers: array; allow [] or [{"gene":"NA","status":"unknown"}] if unknown
+Please list any additional “must-haves” from your perspective beyond ClinicalTrials’ required_minimum_for_matching.
+
+2) Provide a concise JSON template aligned to ClinicalTrials’ required_minimum_for_matching, plus any strongly recommended fields you use to enhance precision (e.g., measurable_disease_recist, sites_of_disease, key labs with thresholds, CNS status, infections, organ function, comorbidities). For each added field, include accepted value sets (enums), formats (ISO 8601 dates, units), and whether null/unknown is acceptable.
+
+3) Recency requirements:
+- Specify freshness windows you apply (e.g., labs within 14–28 days, imaging within 6–8 weeks, echo/QTc within X months).
+- State how you handle multiple or conflicting values (e.g., prefer most recent; tie-break on higher data quality/source; conservative default if discordant).
+
+4) Coding flexibility:
+- Confirm you can ingest disease characterization as ICD-O topography/morphology or free text.
+- Indicate your preferred staging representation: do you want “stage_system” + “stage_value” fields (e.g., "AJCC" + "IVB") or a single composite string?
+- Note any tumor-type-specific fields you auto-infer (e.g., EGFR/ALK for NSCLC) versus those you require explicitly.
+
+Please end your response with “back to you: Orchestrator.”
+
+---
+
+ASSISTANT (agent id: PatientStatus):
+PatientStatus here. Confirming requirements and providing a concise, interoperable template aligned to ClinicalTrials’ schema.
+
+1) Minimal mandatory fields I require (for a complete PatientStatus artifact used in trial matching), with accepted values and tolerances
+- Demographics
+  - age: integer years, 0–120; required; unknown not allowed for matching
+  - patient_gender (aka sex_at_birth): "female","male","intersex","unknown"; required by PatientStatus; unknown allowed but may limit certain matches
+- Disease characterization
+  - primary_site: free text or ICD-O topography (e.g., "lung" or "C34.9"); required; unknown not allowed
+  - histology: free text or ICD-O-3/WHO (e.g., "adenocarcinoma" or "8140/3"); required; unknown not allowed
+  - stage: provide either composite string (e.g., "AJCC 8th IVB") or structured fields stage_system + stage_value; required; unknown not allowed
+    - stage_system: "AJCC","FIGO","AnnArbor","DurieSalmon","Rai","Other"
+    - stage_value: free text (e.g., "IVB","recurrent/metastatic")
+- Performance
+  - ecog: integer 0–4; required; unknown not allowed
+- Treatment history
+  - first_line_treatment: required; unknown not allowed
+    - regimen: free text (e.g., "carboplatin+pemetrexed+pembrolizumab")
+    - start_date, end_date: ISO 8601 (YYYY-MM-DD); end_date may be null if ongoing
+  - second_line_treatment: required; may be {"regimen":"none"} if none given
+    - same fields as above; or "none"
+- Biomarkers
+  - biomarkers: array of objects; required; allow [] or [{"gene":"NA","status":"unknown"}] if unknown
+  - Accepted formats include gene/alteration or clinical assays (PD-L1, MSI/MMR, TMB, HER2, fusions, copy number), with assay metadata when available
+
+Additional PatientStatus “must-haves” beyond ClinicalTrials’ required_minimum_for_matching
+- patient_gender (sex_at_birth) as above. All other additions below are strongly recommended but not strict must-haves.
+
+2) Concise JSON template (aligned to ClinicalTrials’ minimum, plus strongly recommended fields)
+Notes:
+- Dates ISO 8601. Booleans true/false. Use null or "unknown" where indicated.
+- Enums shown below template.
+
+{
+  "demographics": {
+    "age": null,
+    "patient_gender": "female/male/intersex/unknown",
+    "reproductive_potential": "yes/no/unknown"
+  },
+  "disease": {
+    "primary_site": null,
+    "histology": null,
+    "stage_system": "AJCC/FIGO/AnnArbor/DurieSalmon/Rai/Other",
+    "stage_value": "e.g., IVB or recurrent/metastatic",
+    "stage_composite": "optional e.g., 'AJCC 8th IVB'",
+    "measurable_disease_recist": "yes/no/unknown",
+    "sites_of_disease": ["optional e.g., lung","liver","bone"],
+    "diagnosis_date": "YYYY-MM-DD or null"
+  },
+  "biomarkers": [
+    {
+      "gene": "e.g., EGFR/ALK/BRCA1/PD-L1/MSI/TMB/HER2",
+      "alteration": "e.g., exon19del, V600E, fusion, amp; or 'NA'",
+      "variant_hgvs_c": "optional",
+      "variant_hgvs_p": "optional",
+      "variant_class": "SNV/indel/fusion/amp/loh/ihc/fish/other/unknown",
+      "copy_number": null,
+      "fusion_partner": "optional",
+      "pd_l1_value": null,
+      "pd_l1_scale": "TPS/CPS/IC/unknown",
+      "msi_mmr": "MSI-H/MSS/dMMR/pMMR/unknown",
+      "tmb_value_mut_per_mb": null,
+      "ihc_score": "0/1+/2+/3+",
+      "fish_ratio": null,
+      "assay_source": "tumor/ctDNA/other/unknown",
+      "assay_vendor": "optional",
+      "report_date": "YYYY-MM-DD or null",
+      "tissue_site": "optional",
+      "sample_recency_months": null
+    }
+  ],
+  "treatment_history": {
+    "first_line_treatment": {
+      "regimen": null,
+      "start_date": null,
+      "end_date": null,
+      "best_response": "CR/PR/SD/PD/NE/unknown",
+      "reason_for_stop": "progression/toxicity/completed/other/unknown"
+    },
+    "second_line_treatment": {
+      "regimen": "none or regimen string",
+      "start_date": null,
+      "end_date": null,
+      "best_response": "CR/PR/SD/PD/NE/unknown",
+      "reason_for_stop": "progression/toxicity/completed/other/unknown"
+    },
+    "systemic_regimens": [
+      {
+        "line_number": 1,
+        "regimen": "optional",
+        "start_date": "YYYY-MM-DD",
+        "end_date": "YYYY-MM-DD or null",
+        "best_response": "CR/PR/SD/PD/NE/unknown"
+      }
+    ],
+    "radiation": [
+      { "site": "optional", "dose_gy": null, "fractions": null, "end_date": "YYYY-MM-DD or null" }
+    ],
+    "surgery": [
+      { "procedure": "optional", "date": "YYYY-MM-DD or null" }
+    ],
+    "trial_participation": [
+      { "trial_id": "optional", "agent": "optional", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD or null" }
+    ],
+    "refractory_relapsed_status": "relapsed/refractory/na/unknown"
+  },
+  "performance_status": {
+    "ecog": null,
+    "karnofsky": null,
+    "weight_kg": null,
+    "height_cm": null,
+    "bmi": null
+  },
+  "labs": {
+    "collection_date": "YYYY-MM-DD or null",
+    "anc_10e9_per_L": null,
+    "platelets_10e9_per_L": null,
+    "hemoglobin_g_per_dL": null,
+    "creatinine_mg_per_dL": null,
+    "creatinine_clearance_mL_per_min": null,
+    "ast_u_per_L": null,
+    "alt_u_per_L": null,
+    "total_bilirubin_mg_per_dL": null,
+    "albumin_g_per_dL": null,
+    "inr": null,
+    "ptt_seconds": null,
+    "qtc_ms": null,
+    "qtc_method": "Fridericia/Bazett/unknown",
+    "lvef_percent": null,
+    "lvef_date": "YYYY-MM-DD or null"
+  },
+  "comorbidities": {
+    "cns_status": "none/treated_stable/untreated/symptomatic/unknown",
+    "on_cns_steroids_prednisone_mg_per_day": null,
+    "seizure_controlled": true,
+    "autoimmune_disease": [
+      { "condition": "optional", "on_systemic_immunosuppression": true }
+    ],
+    "infections": {
+      "hbv_status": "negative/positive/unknown",
+      "hbv_dna_iu_per_mL": null,
+      "hcv_status": "negative/positive/unknown",
+      "hcv_rna_iu_per_mL": null,
+      "hiv_status": "negative/positive/unknown",
+      "cd4_count_per_uL": null,
+      "on_antivirals": true
+    },
+    "ild_pneumonitis_history": false,
+    "bleeding_risk": "none/low/high/unknown",
+    "anticoagulation": "none/prophylactic/therapeutic",
+    "cardiac_arrhythmia": false,
+    "heart_failure_nyha": "I/II/III/IV/unknown/null",
+    "uncontrolled_hypertension": false,
+    "diabetes_uncontrolled": false,
+    "pregnant": false,
+    "lactating": false,
+    "contraception_agreement": true
+  },
+  "timing": {
+    "last_chemo_date": "YYYY-MM-DD or null",
+    "last_io_date": "YYYY-MM-DD or null",
+    "last_tki_date": "YYYY-MM-DD or null",
+    "last_radiation_end_date": "YYYY-MM-DD or null",
+    "last_major_surgery_date": "YYYY-MM-DD or null",
+    "steroid_taper_end_date": "YYYY-MM-DD or null"
+  }
+}
+
+Strongly recommended fields and accepted values
+- measurable_disease_recist: "yes","no","unknown"
+- sites_of_disease: array of strings; use anatomic sites
+- Key lab thresholds (used for prescreen): ANC ≥ 1.5 × 10^9/L (some 1.0), platelets ≥ 100 × 10^9/L (some 75), Hgb ≥ 9 g/dL, CrCl ≥ 50–60 mL/min, AST/ALT ≤ 2.5 × ULN (≤ 5 × ULN with liver mets), bilirubin ≤ 1.5 × ULN (≤ 3 × ULN or per Gilbert’s), albumin ≥ 3.0 g/dL, INR/PTT ≤ 1.5 × ULN unless anticoagulated, QTc ≤ 470 ms (men often ≤ 450), LVEF ≥ 50% where relevant
+- cns_status: "none","treated_stable","untreated","symptomatic","unknown"
+- infections: HBV/HCV/HIV "negative","positive","unknown" with viral loads where available
+- anticoagulation: "none","prophylactic","therapeutic"
+- assay_source: "tumor","ctDNA","other","unknown"
+- pd_l1_scale: "TPS","CPS","IC","unknown"
+- msi_mmr: "MSI-H","MSS","dMMR","pMMR","unknown"
+- variant_class: "SNV","indel","fusion","amp","loh","ihc","fish","other","unknown"
+
+Unknown/NA tolerances
+- Mandatory fields listed above must be provided (age, patient_gender, primary_site, histology, stage, ecog, first_line_treatment, second_line_treatment, biomarkers). Where allowed, "unknown" is accepted but may reduce matches.
+- All recommended fields may be null/"unknown" and we will apply conservative prescreening.
+
+3) Recency requirements and conflict resolution
+- Labs: prefer within 14 days of intended screening; accept up to 28 days for prescreen.
+- Imaging for disease assessment: within 6–8 weeks.
+- QTc (ECG): within 30 days.
+- Echocardiogram/MUGA (LVEF): within 3 months (6 months acceptable if clinically stable and protocol allows).
+- Viral serologies (HBV/HCV/HIV): within 3 months (or per protocol).
+- Biomarker report dates: prefer within 6–12 months; older allowed if clinically still representative and no intervening therapy likely to change status; fresh biopsy feasibility noted if older/discordant.
+- ECOG/Karnofsky: assessed within 14 days.
+
+Conflict handling
+- We select the most recent value by default.
+- If materially discordant values exist, we apply conservative logic for safety/eligibility (e.g., use the less favorable lab relative to thresholds), and retain both values with timestamps.
+- Source quality tie-breakers: central lab > CLIA-certified local > research-only; for genomic calls, tissue-based negative overrides ctDNA negative for exclusionary markers; any validated positive supersedes older negatives unless a high-quality confirmatory negative exists post-therapy that plausibly abrogates the alteration (rare).
+- For PD-L1/TMB/MSI, we prefer the assay most commonly accepted by protocols (e.g., 22C3 for PD-L1 TPS, validated NGS for TMB/MSI) and the most recent sample.
+
+4) Coding flexibility and staging preference
+- Disease coding: can ingest ICD-O topography/morphology or free text; both are supported.
+- Staging representation: preferred as structured fields stage_system + stage_value; we also accept a single composite string and will parse when possible. If both are provided and conflict, we prioritize structured fields and the most recent staging date if supplied.
+- Tumor-type-specific fields: we do not require them explicitly, but we auto-infer relevance (e.g., EGFR/ALK/ROS1/MET/RET/NTRK/KRAS G12C for NSCLC; IDH1/2, 1p/19q for glioma; BRAF for melanoma/CRC; BRCA1/2, HRD for certain tumors). If provided, we will use them to expand or narrow matching accordingly.
+
+This specification will allow us to construct a PatientStatus artifact fully compatible with ClinicalTrials’ matching engine while meeting PatientStatus completeness requirements.
+
+back to you: Orchestrator.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+I’m the Orchestrator. We now have ClinicalTrials’ and PatientStatus’ schemas and requirements. Here’s the plan and order to retrieve the eligible clinical trials for this patient:
+
+- Step 3: PatientHistory — After you provide the patient ID, I will instruct PatientHistory to pull the full chart and extract all fields needed for PatientStatus and ClinicalTrials (age, primary site, histology/subtype, stage and system, measurable disease status, sites of disease, biomarkers, treatment history with dates/lines/responses, ECOG, key labs, comorbidities/exclusions, concomitant meds, timing constraints, and logistics if available). Each agent must end with “back to you: Orchestrator.”
+- Step 4: PatientStatus — I will provide those details to PatientStatus to construct a complete PatientStatus artifact aligned to the agreed JSON template and recency/format rules. Each agent must end with “back to you: Orchestrator.”
+- Step 5: ClinicalTrials — I will pass the finalized PatientStatus to ClinicalTrials to generate the list of eligible trials, with optional geography/logistics filters. Each agent must end with “back to you: Orchestrator.”
+
+User, can you provide me with the patient’s ID so I can proceed with PatientHistory? Additionally, please share:
+- Patient’s location (city/state/country) and maximum travel radius (miles or km) for site filtering
+- Any logistics preferences (tele-trial/home services acceptable: yes/no; language needs)
+- Optional exclusions (e.g., unwilling to undergo biopsy, no blood transfusions, no phase 1)
+
+Once you confirm and provide the ID, I will proceed to Step 3.
+
+---
+

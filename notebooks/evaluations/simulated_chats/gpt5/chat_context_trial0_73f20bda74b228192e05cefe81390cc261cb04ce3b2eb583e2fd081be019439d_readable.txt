@@ -1,0 +1,28 @@
+USER:
+Can you scan all pathology and molecular testing to see if these biomarkers are present
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here’s the plan and order of participants to fulfill your request to scan pathology and molecular testing for specified biomarkers:
+
+Plan
+- Step 1: PatientHistory will retrieve all available pathology and molecular testing records for the patient. This includes surgical pathology, cytology, IHC panels, FISH, PCR, NGS (tissue and ctDNA), and any biomarker/companion diagnostic reports, plus dates and specimen sources. Each agent, after completing their task, should yield the chat back to me (Orchestrator) by saying: “back to you: Orchestrator.”
+- Step 2: Orchestrator will compile a concise biomarker summary indicating for each biomarker: present/absent/indeterminate, test method, date, specimen, and report reference.
+- Optional Step 3: If you want a formatted tumor board document afterward, we can bring in ReportCreation to generate a Word document with the biomarker section included. Each agent must end with “back to you: Orchestrator.”
+
+Before we proceed, I need a couple of items from you to get PatientHistory started and make sure we search for the right markers.
+
+User, can you provide:
+1) The patient ID (so PatientHistory can locate the records)?
+2) The list of biomarkers you want checked? If you don’t have a list, you can tell me the cancer type and I can have PatientHistory pull all reported biomarkers, and we’ll enumerate them for your review.
+3) Any date range limits (e.g., only last 12 months) or include outside/archived records?
+4) Whether you have any files to upload (PDFs/scans) that you’d like included in the scan?
+
+Next, per our process:
+- PatientHistory, before proceeding, confirm what information you need to retrieve and summarize all pathology and molecular testing. After confirming, say “back to you: Orchestrator.”
+
+Please confirm this plan. Once you provide the patient ID and the biomarker targets (or the cancer type), I’ll cue PatientHistory to begin.
+
+---
+

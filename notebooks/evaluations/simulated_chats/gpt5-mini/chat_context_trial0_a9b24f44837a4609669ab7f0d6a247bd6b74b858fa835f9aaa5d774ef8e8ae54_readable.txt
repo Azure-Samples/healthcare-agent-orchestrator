@@ -1,0 +1,54 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and participant order
+
+I will moderate and coordinate the steps needed to generate the comprehensive diagnostic summary and export it as a formatted Word document for tumor-board presentation.
+
+Proposed order of participants and roles:
+1. PatientHistory — gather patient timeline and raw data (history, pathology reports, biomarker results, prior imaging reports, treatment history, social/family history, labs, ECOG).
+2. PatientStatus — synthesize current status (age, primary site, histology, staging at diagnosis, biomarkers, ECOG, treatment history summary).
+3. Radiology — review actual imaging (if available) and provide latest imaging findings and impressions.
+4. ReportCreation — assemble the formatted Word tumor-board report using the gathered information (timeline, clinical summary, path, imaging, treatments, suggested attachments).
+(If needed later: ClinicalTrials or MedicalResearch can be asked to add trial options or literature; we will request them only if you want those sections.)
+
+Important rule to follow here:
+Each agent, after completing their task, should yield the chat back to me (Orchestrator) by ending their reply with exactly:
+back to you: Orchestrator
+
+Next steps — requests to agents and to you
+
+1) PatientHistory, proceed with patient_4:
+- What specific items do you need from me (Orchestrator) or the User to produce a complete patient timeline and to list biomarker status, stage at diagnosis, treatment history, pathology excerpts, social history and ECOG? Examples of useful items: pathology report (including receptor/bio results), molecular panel, prior clinic notes, chemotherapy/radiation/surgery dates and regimens, prior imaging reports (CT/PET/MRI/X-ray), lab trends, and performance status documentation.
+- If you already have access to patient_4's record, please state which documents/data you will extract and the items you still require.
+Please end with: back to you: Orchestrator
+
+2) PatientStatus, please standby:
+- What exact inputs do you require from PatientHistory to generate the current status summary? (I expect: age, primary site, histology, biomarkers, stage at diagnosis, treatment history, ECOG performance status.)
+Please end with: back to you: Orchestrator
+
+3) Radiology, please standby:
+- What imaging files or reports do you need to provide an up-to-date imaging interpretation? (DICOM CT chest/abdomen/pelvis, PET-CT, MRI, X-rays, and/or latest radiology report). If the user can upload images, please specify preferred formats and any required identifiers.
+Please end with: back to you: Orchestrator
+
+4) ReportCreation, please standby:
+- What specific content fields and formatting preferences do you need to create the Word document for tumor-board presentation? (Examples: title page patient identifiers, one-page summary, timeline, pathology slide images, imaging snapshots, appendices with full reports, recommended font/heading sizes, inclusion of signature block.)
+Please end with: back to you: Orchestrator
+
+Requests for the User (explicit)
+User, can you provide the following for patient_4 (please attach or indicate if the data is already accessible to our system):
+- Pathology report (including histology, grade, biomarker panel/molecular results)
+- Staging information or initial staging report
+- Treatment history (dates and regimens for surgery, chemo, radiation, immunotherapy, targeted therapy)
+- Latest imaging (CT/PET/MRI/X-ray) — DICOM or PDF radiology reports and images if available
+- ECOG performance status and current clinical status notes
+- Any specific tumor-board formatting preferences (institutional header, logos, required signatories)
+If you cannot provide files, please confirm that PatientHistory should proceed with existing EHR-accessible records for patient_4.
+
+Please confirm you approve this plan and provide the requested files or permission to access patient_4 records. Once you confirm, I will instruct PatientHistory to proceed and will await their response.
+
+---
+

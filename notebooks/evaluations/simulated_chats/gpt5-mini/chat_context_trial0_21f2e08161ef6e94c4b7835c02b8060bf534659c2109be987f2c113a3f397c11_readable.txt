@@ -1,0 +1,41 @@
+USER:
+Based on the full clinical picture of patient_4â€”including stage, biomarkers, treatment response, and recent imagingâ€”generate a short report estimating prognosis and possible progression pathways.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order
+- Purpose: collect the full clinical picture for patient_4, have experts synthesize prognosis and likely progression pathways, and produce a concise report (no treatment recommendations).
+- Order of participants and tasks:
+  1) PatientHistory — provide patient_4 timeline and available data (staging, pathology, biomarkers, treatment history, prior response, recent imaging reports). 
+  2) Radiology — review recent imaging (CT/PET/x‑ray) and summarize active disease and changes vs prior.
+  3) PatientStatus — synthesize current status (age, primary site, histology, stage, biomarkers, ECOG, treatment response).
+  4) MedicalResearch — provide evidence-based prognosis estimates and common progression pathways for this cancer phenotype.
+  5) ReportCreation — draft a short tumor‑board style prognosis/progression report.
+
+Important rule: Each agent, after completing their task, must yield back to me by ending their message with: back to you: Orchestrator
+
+Before we proceed
+- User, can you confirm that "patient_4" is the correct identifier and provide (as available) the following items for patient_4:
+  - age, sex
+  - primary cancer site and histology
+  - stage (TNM or summary stage) and date of staging
+  - full biomarker panel (e.g., PD‑L1, EGFR, ALK, ROS1, BRAF, MSI, HER2, etc. as relevant)
+  - prior and current systemic and local therapies, and dates
+  - summary of treatment response (best response, time to progression)
+  - ECOG performance status
+  - copies or summaries of recent imaging (CT/PET/x‑ray) and prior imaging for comparison
+  - key labs (CBC, creatinine, LFTs) if available
+  - any relevant comorbidities or social history affecting prognosis
+
+Questions to agents
+- PatientHistory, proceed with patient_4. What specific record access or clarifying details do you need to assemble the timeline and data above? Please list items you need from the User, then provide the timeline if you have it. End with: back to you: Orchestrator
+- Radiology, please state what imaging files or reports you need to interpret recent studies for patient_4 (DICOMs, radiology report, date of scan). End with: back to you: Orchestrator
+- PatientStatus, confirm you will synthesize current status once PatientHistory and Radiology provide their inputs. List any additional data you need (e.g., ECOG). End with: back to you: Orchestrator
+- MedicalResearch, indicate which keywords or patient phenotype details you need to produce prognosis statistics and likely progression pathways (e.g., cancer type + stage + key biomarker). End with: back to you: Orchestrator
+- ReportCreation, state the exact inputs you require to draft a short prognosis/progression report suitable for tumor board review. End with: back to you: Orchestrator
+
+User, please provide the requested patient_4 details or give permission to access the record. Once you confirm or provide data, I will instruct PatientHistory to begin.
+
+---
+

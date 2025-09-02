@@ -1,0 +1,29 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and expected order of participants
+
+Here’s how we will proceed to generate a comprehensive diagnostic summary for Patient ID: patient_4 and export it as a formatted Word document for tumor board presentation. After each step, the respective agent will return the output to you by saying “back to you: Orchestrator.” The order will be:
+
+1) PatientHistory: Provide patient timeline and history for patient_4 (needs patient_id).
+2) Radiology: Review latest imaging and summarize radiologic findings (needs imaging data from PatientHistory or direct access to images).
+3) PatientStatus: Provide current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG), derived from PatientHistory.
+4) ClinicalGuidelines: Provide treatment recommendations based on patient status (needs patient_status).
+5) ClinicalTrials: Provide information on relevant clinical trials (needs patient_status).
+6) MedicalResearch: Provide research context related to biomarkers, imaging findings, and treatment considerations (needs keyword/topic from patient timeline/status).
+7) ReportCreation: Compile a formatted Word document including: patient timeline, clinical summary, medical history, social history, cancer type, CT findings, imaging findings, pathology findings, treatment plan (via input from ClinicalGuidelines), and clinical trials. Deliver a Word document suitable for tumor board.
+
+Notes:
+- We will not provide clinical recommendations directly; we will present input from the ClinicalGuidelines agent and other sources for tumor board consideration.
+- If any required item is missing, we will prompt the relevant agent to provide it.
+
+What I need from you
+- User, please confirm that you want us to proceed with this plan to generate the diagnostic summary and export it as a Word document for tumor board presentation for Patient ID: patient_4. If you have any formatting preferences (section order, fonts, headings) or specific items you want emphasized, tell me now.
+
+Once you confirm, I will initiate with the first agent (PatientHistory) and proceed in the order above, returning each agent’s results to you as they come in.
+
+---
+

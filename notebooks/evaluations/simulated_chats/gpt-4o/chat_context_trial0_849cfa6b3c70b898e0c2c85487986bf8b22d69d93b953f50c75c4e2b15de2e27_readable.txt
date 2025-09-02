@@ -1,0 +1,17 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+To analyze the CT and CXR images for patient_4, we'll need to follow a structured plan involving several AI agents:
+
+1. **PatientHistory**: We'll first obtain the timeline and relevant images of patient_4, such as CT scans and chest X-ray findings, which will be provided.
+2. **Radiology**: This agent will perform an analysis of the images. It will compare AI-generated findings to the radiologist's report and summarize any discrepancies or additional findings.
+
+*User*, can you provide me with the patient ID for patient_4? Once provided, PatientHistory will proceed with obtaining the necessary images and timelines. After Radiology provides its input, I'll summarize the findings and address any further questions or needs you have. 
+
+Each agent, after completing their task, should yield the chat back to me by saying "back to you: Orchestrator."
+
+---
+

@@ -1,0 +1,40 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and next steps
+
+I will moderate and coordinate a multi-agent process to produce the requested diagnostic summary and a Word document suitable for a tumor board. Here is the proposed plan and order of participants:
+
+1) PatientHistory — retrieve and present the patient timeline and source data (age, primary site, histology, stage at diagnosis, biomarkers, pathology reports, treatment history, prior imaging reports). PatientHistory will provide the raw inputs we need. (Needed: patient ID — you provided patient_4 — and any additional source documents you have.)
+
+2) PatientStatus — synthesize current status from the PatientHistory output (current stage, ECOG, summary of biomarker status, treatment response, active issues). (Needs: the PatientHistory output.)
+
+3) Radiology — provide the latest imaging findings and impressions (CT, PET, X-ray). (Needs: image files or the most recent radiology report(s); can also interpret uploaded images if provided.)
+
+4) ReportCreation — assemble a formatted Word (.docx) tumor board document containing: patient timeline, clinical summary, medical and social history, cancer type, pathology findings, biomarker status, staging at diagnosis, treatment history, current clinical status, latest imaging findings (with images if provided), and recommended slides/appendix for tumor board. (Needs: patient timeline, PatientStatus summary, Radiology findings, pathology excerpts.)
+
+I will moderate each step, ensure agents ask for any missing information, and collect their outputs. Each agent, after completing their task, should yield the chat back to me by ending their response with:
+back to you: Orchestrator
+
+Actions I need from you now, User
+- *User*, please confirm that I should proceed with the above plan for Patient ID: patient_4.
+- *User*, do you have any of the following to upload or paste now? If so, please provide them:
+  - Recent radiology images (CT, PET, X-ray) or the most recent radiology report(s)
+  - Pathology report(s) including biomarker testing results (eg, IHC, FISH, NGS)
+  - Any clinical notes summarizing recent visits, ECOG performance status, or treatment responses
+  - Any tumor board presentation template or institutional header/footer to include in the Word doc
+- *User*, do you want the Word document to include patient identifiers (full name, MRN) or be de-identified for external distribution?
+
+If you confirm and/or upload reports/images, I will start by asking PatientHistory to retrieve the patient's timeline and required data.
+
+PatientHistory, proceed with patient_4
+- Please provide: patient age, sex, primary cancer site, histology, stage at diagnosis (TNM and overall stage if available), biomarker status (EGFR, ALK, ROS1, PD-L1 %, HER2, BRAF, MSI, etc. — list what's available), full treatment history (dates, agents, surgeries, radiotherapy), ECOG performance status, key comorbidities, recent lab summary if available, and copies/excerpts of pathology and radiology reports. Also list any missing items you cannot find.
+- After your response, end with: back to you: Orchestrator
+
+Please confirm you want me to proceed now and upload any documents you have.
+
+---
+

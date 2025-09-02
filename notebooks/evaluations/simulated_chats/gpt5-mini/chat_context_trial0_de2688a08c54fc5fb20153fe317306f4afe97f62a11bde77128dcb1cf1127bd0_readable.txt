@@ -1,0 +1,34 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order of participants
+- Purpose: Analyze the latest CT and CXR images for patient_4 using the imaging tool, generate AI-based imaging findings, compare those findings to the radiologist’s report, and summarize discrepancies or additional findings.
+- Order of participants and roles:
+  1. PatientHistory — provide patient_4 timeline and list available imaging studies (dates, image types) and supply the radiologist’s report if available.
+  2. Radiology — state what image files and metadata are needed, then analyze the CT and CXR images with the imaging tool and produce AI-generated findings.
+  3. Radiology — compare the AI-generated findings to the radiologist’s report and summarize discrepancies/additional findings.
+  4. Orchestrator (me) — summarize the results and ask the user if they want any follow-up.
+- Important rule: After completing their task, each agent should yield the chat back to me and explicitly say: "back to you: Orchestrator".
+
+Immediate requests (what I need from you and the agents)
+- User, please provide:
+  1. The CT and CXR images for patient_4 (DICOM preferred; if not possible, high-resolution JPEG/PNG). If there are multiple studies, indicate which is the "latest" or provide dates.
+  2. The radiologist’s written report(s) for those imaging studies.
+  3. Confirm that the patient ID is patient_4 and provide the dates of the CT and CXR studies if available.
+
+- PatientHistory, proceed with patient_4:
+  - Please provide the patient timeline and list of available imaging studies (study types and dates) and attach any available radiology report(s) for those studies.
+  - After your response, say: "back to you: Orchestrator"
+
+- Radiology, before analysis:
+  - What exact image formats, viewing access, and any metadata (contrast phase, slice thickness, window settings, series to prioritize) do you need to run the imaging tool analysis and produce AI-generated findings and a comparison to the radiologist’s report?
+  - Confirm you will perform: (a) AI-based image analysis, (b) extraction of AI findings, and (c) side-by-side comparison with the radiologist’s report once images and the report are available.
+  - After your response, say: "back to you: Orchestrator"
+
+Please provide the items asked of you (User) so PatientHistory and Radiology can proceed.
+
+---
+

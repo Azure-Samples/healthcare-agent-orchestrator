@@ -1,0 +1,24 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order of participants:
+- Purpose: Create a comprehensive diagnostic summary for Patient ID: patient_4 (including biomarker status, stage at diagnosis, treatment history, and latest imaging findings) and export it as a formatted Word document suitable for tumor board presentation.
+- Order and what each agent will do:
+  1) PatientHistory: Retrieve the complete patient timeline and all relevant clinical details for patient_4, including demographics, primary site, histology, stage at diagnosis, biomarker status, treatment history, ECOG, and all available imaging reports and images.
+     - Instruction to agent: PatientHistory, proceed with retrieving the full patient record for Patient ID: patient_4, including timeline, demographics, primary site, histology, stage at diagnosis, biomarker status, treatment history, ECOG, and all imaging reports/images. After your response, say: "back to you: Orchestrator".
+  2) PatientStatus: Summarize the current status using the details from PatientHistory (age, staging, primary site, histology, biomarkers, treatment history, ECOG).
+     - Instruction to agent: PatientStatus, proceed with generating the current status summary for patient_4 using the data from PatientHistory. After your response, say: "back to you: Orchestrator".
+  3) Radiology: Review the latest imaging. If images are available from PatientHistory, analyze them; otherwise, summarize based on the provided imaging reports.
+     - Instruction to agent: Radiology, proceed with reviewing and summarizing the latest imaging for patient_4. If images are available, analyze and report findings; if not, summarize based on the imaging reports. After your response, say: "back to you: Orchestrator".
+  4) ReportCreation: Compile a formatted Word document suitable for tumor board review, including patient timeline, clinical summary, medical history, social history, cancer type, imaging findings (CT/X-ray), pathology findings, biomarker status, stage at diagnosis, and treatment history. If treatment plan or clinical trials are not requested, include placeholders (“To be determined by tumor board”).
+     - Instruction to agent: ReportCreation, proceed with generating a Word document for patient_4 using the collected information. Provide the document as a downloadable file or base64-encoded .docx. After your response, say: "back to you: Orchestrator".
+
+Important process rule: Each agent, after completing their task, should yield the chat back to me (Orchestrator) by explicitly saying: "back to you: Orchestrator".
+
+User, can you please confirm that you approve this plan so I can proceed? If you have any specific formatting preferences for the Word document (e.g., institutional header, logo placeholder, section order, font), please let me know. Additionally, do you want us to include a section for “open questions for tumor board” or leave it out?
+
+---
+

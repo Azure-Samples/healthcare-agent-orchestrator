@@ -1,0 +1,43 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is the plan to prepare the tumor board packet for Patient ID: patient_4. After each step, the agent will yield control back to me. Each agent, after completing their task, should yield the chat back to you (Orchestrator) by saying: “back to you: Orchestrator.”
+
+Proposed order of participants and purpose:
+1) PatientHistory: Confirm what inputs they need (expected: just patient ID). Then retrieve a comprehensive patient timeline and history for patient_4, including demographics, diagnosis details, staging, histology, biomarkers, pathology summaries, treatment history, ECOG performance status, comorbidities, medications, allergies, social history, and available imaging and pathology reports/files.
+   - Instruction to agent: PatientHistory, confirm you only need the patient ID. If yes, proceed with patient_4 and include all items listed above. After completion, say “back to you: Orchestrator.”
+
+2) Radiology: Analyze any chest X-ray images provided by PatientHistory. If images are not available, note missing data. If CT/MRI findings are only available as text in reports, summarize those findings clearly as coming from report text (no new image analysis).
+   - Instruction to agent: Radiology, you need imaging files (preferably chest X-ray) or reports. Please analyze any images provided by PatientHistory and summarize key findings, and summarize CT/MRI findings from reports if present. After completion, say “back to you: Orchestrator.”
+
+3) PatientStatus: Compile the current status using data from PatientHistory (age, staging, primary site, histology, biomarkers, prior therapies, ECOG).
+   - Instruction to agent: PatientStatus, you need age, staging, primary site, histology, biomarkers, treatment history, ECOG, from PatientHistory. Create a concise current status summary. After completion, say “back to you: Orchestrator.”
+
+4) ClinicalTrials: Search and list relevant clinical trials based on PatientStatus. If location is not provided, either use a broad search or wait for location input.
+   - Instruction to agent: ClinicalTrials, you need the PatientStatus. Also note: we will provide location preferences if available. Provide trial options with key eligibility highlights. After completion, say “back to you: Orchestrator.”
+
+5) ReportCreation: Assemble a tumor board Word document including: patient timeline, clinical summary (from PatientStatus), medical history, social history, cancer type, radiology (X-ray/CT) findings, pathology findings, and clinical trials. For the “treatment plan” section, include “to be determined by tumor board” unless the user requests a general, non-directive guideline summary.
+   - Instruction to agent: ReportCreation, you need the items gathered above. Produce a well-structured Word document suitable for tumor board review. After completion, say “back to you: Orchestrator.”
+
+Optional steps (only if the user requests):
+6) MedicalResearch: Provide a brief literature summary on a specified topic (e.g., new therapies, biomarkers, or staging updates relevant to the patient’s diagnosis).
+   - Instruction to agent: MedicalResearch, you need a keyword/topic. After completion, say “back to you: Orchestrator.”
+
+7) ClinicalGuidelines: Provide a high-level, non-directive overview of guideline-based options relevant to the patient’s status (no prescriptive treatment plan).
+   - Instruction to agent: ClinicalGuidelines, you need PatientStatus. Provide a general overview without directive recommendations. After completion, say “back to you: Orchestrator.”
+
+User, can you please confirm this plan and provide the following so we can proceed efficiently?
+- Preferred trial search location(s) and willingness to travel (e.g., city/state or zip, max distance).
+- Any imaging files you want included (chest X-ray or CT). If you have files, we’ll prompt you to upload them; otherwise we’ll rely on reports from PatientHistory.
+- Any specific questions or decision points you want the tumor board to address (e.g., surgical candidacy, sequencing of therapies, biomarker testing clarification).
+- Would you like us to include:
+  - A high-level guideline overview (non-directive)?
+  - A brief literature review section from MedicalResearch?
+
+If you approve, I will start with PatientHistory for patient_4.
+
+---
+

@@ -1,0 +1,40 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and participant order
+
+I will coordinate the team to create a comprehensive diagnostic summary and then produce a formatted Word document suitable for tumor board presentation. Proposed order of contributors and rationale:
+1. PatientHistory — to provide the patient timeline, pathology, biomarkers, staging at diagnosis, treatment history, social/medical history, and any image references.
+2. PatientStatus — to synthesize current patient status (age, staging, primary site, histology, biomarkers, treatment history, ECOG) from PatientHistory.
+3. Radiology — to provide the latest imaging findings (CT, MRI, X-ray). Radiology will need image files or image reports; PatientHistory should supply those or reference them.
+4. ClinicalTrials — to list appropriate clinical trials matching the patient status (optional but useful for tumor board).
+5. ReportCreation — to assemble the tumor-board-ready Word document using the collected timeline, clinical summary, medical history, imaging and pathology findings, treatment history, and clinical trials listing.
+
+Important rule to follow: After each agent completes their task, they should yield the chat back to me (Orchestrator) by ending their reply with: back to you: Orchestrator
+
+User confirmation
+User, may I proceed with this plan to retrieve and synthesize the record for patient_4? Please confirm. If you want any additional sections included in the report (e.g., multidisciplinary recommendations, specific imaging sequences, or certain trial types), mention them now.
+
+Requests to agents
+PatientHistory, proceed with patient ID: patient_4. Please provide:
+- Complete patient timeline relevant to the cancer episode (dates of diagnosis, staging, major events)
+- Primary site and histology
+- Biomarker results (EGFR, ALK, ROS1, PD-L1, BRAF, MSI, others if available)
+- Stage at diagnosis (include TNM if available)
+- Treatment history (surgery, chemo, targeted therapy, immunotherapy, radiation — include dates and responses)
+- Latest pathology report summary
+- Latest imaging reports or image files (CT/MRI/PET/X-ray) or links — clearly label the latest study and date
+- Relevant past medical history and social history (smoking, performance status if available)
+- Any notes about ongoing clinical issues or comorbidities
+
+PatientHistory, what (if anything) do you need from the User to complete this? If you can proceed with patient_4, please provide the requested details. Then end with: back to you: Orchestrator
+
+Once PatientHistory responds, I will call PatientStatus to synthesize the current status, then Radiology for imaging interpretation, then ClinicalTrials (if desired), and finally ReportCreation to export the Word document.
+
+Please confirm you want me to proceed, User, and PatientHistory please begin with patient_4.
+
+---
+

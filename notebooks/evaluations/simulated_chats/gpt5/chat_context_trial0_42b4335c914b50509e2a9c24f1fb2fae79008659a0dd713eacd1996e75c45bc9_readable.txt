@@ -1,0 +1,36 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here’s the plan to generate your tumor board diagnostic summary for Patient ID: patient_4. I’ll coordinate the following agents in this order, and each agent will hand control back to me by saying “back to you: Orchestrator” after their response:
+
+1) PatientHistory
+- Purpose: Retrieve the comprehensive patient record, including demographics, medical and social history, cancer type, staging at diagnosis, pathology and biomarker results, ECOG performance status, treatment history, and all imaging reports/assets (CT, X-ray, etc.).
+- Next step: I will first ask PatientHistory what they need to proceed, then provide Patient ID: patient_4.
+
+2) Radiology
+- Purpose: Review the latest available imaging. If actual images (e.g., DICOM or image files) are present, Radiology will analyze them; otherwise, they will synthesize key findings from the official radiology reports and clearly note the source and date.
+- Input needed: Imaging files or, if unavailable, the official imaging report(s) from PatientHistory.
+
+3) PatientStatus
+- Purpose: Compile the current clinical status (age, primary site, histology, biomarkers, stage at diagnosis and current stage if different, treatment history summary, ECOG performance status).
+- Input needed: Data collected by PatientHistory (and Radiology’s summary for the latest imaging component).
+
+4) ClinicalTrials
+- Purpose: Identify potentially relevant clinical trials based on the compiled patient status (optional but commonly included for tumor board packets; no treatment recommendations will be made).
+- Input needed: PatientStatus output.
+
+5) ReportCreation
+- Purpose: Produce a formatted Word document suitable for a tumor board, including patient timeline, clinical summary, medical and social history, cancer type, pathology findings (including biomarkers), stage at diagnosis, treatment history, latest imaging findings, and a ClinicalTrials section if included.
+- Output: A downloadable Word document.
+
+User, can you please confirm:
+- Should I include a ClinicalTrials section in the report? (Yes/No)
+- Do you have any additional imaging files to upload, or should we use whatever is already in the record for patient_4?
+
+If you confirm, I will proceed as above. Once confirmed, I will start by asking PatientHistory what they need, then supply Patient ID: patient_4 and continue through the steps.
+
+---
+

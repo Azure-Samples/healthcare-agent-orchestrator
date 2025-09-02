@@ -1,0 +1,39 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order
+- Purpose: Collect the information needed to generate a comprehensive diagnostic summary for Patient ID: patient_4 (biomarker status, stage at diagnosis, treatment history, latest imaging findings) and export a formatted Word document suitable for tumor board review.
+- Order of participants and responsibilities:
+  1. PatientHistory — provide patient timeline, demographics, pathology reports, biomarker results, staging at diagnosis, treatment history, and any available imaging report references for patient_4.
+  2. Radiology — review any uploaded imaging (CT/PET/x-ray) or the imaging reports provided by PatientHistory and summarize latest imaging findings.
+  3. PatientStatus — consolidate age, staging, primary site, histology, biomarkers, treatment history, and ECOG to create the current patient status summary.
+  4. ReportCreation — assemble the formatted Word (.docx) tumor-board report using the timeline, clinical summary, pathology, imaging and treatment history.
+  5. (Optional) ClinicalTrials or MedicalResearch — if you want inclusion of trial options or relevant recent literature after the diagnostic summary is complete.
+
+Important rule to follow for each agent response
+- After completing their task, each agent must yield the chat back to me and include the exact text: back to you: Orchestrator
+
+What I need from you (User)
+- User, can you provide the following for patient_4:
+  - Confirm that patient_4 is the correct patient ID to use.
+  - Pathology report(s) and biomarker testing reports (PD-L1, EGFR, ALK, ROS1, BRAF, MSI/MMR, NGS panel if available).
+  - Staging at diagnosis (if documented) or the diagnostic imaging/pathology notes to determine stage.
+  - Treatment history (dates and names of systemic therapies, radiation, surgeries).
+  - Latest imaging files (DICOMs) or at minimum the radiology reports for the most recent CT, PET-CT, MRI, or X-ray.
+  - ECOG performance status (if documented).
+  - Any additional notes you want included (social history, comorbidities, clinical questions for tumor board).
+- If you cannot upload images, please at least upload the imaging reports and pathology reports.
+
+Now I will request the first input from our agents.
+
+PatientHistory, proceed with patient_4
+- Provide the patient timeline and the following patient-specific data for patient_4: full demographics (age, sex), primary cancer site and histology, stage at diagnosis, biomarker test results, complete treatment history with dates (surgery, chemo, targeted therapy, immunotherapy, radiation), latest pathology and imaging reports (or references to where they are stored). If anything is missing, explicitly list what you need from the User.
+- After your response, include: back to you: Orchestrator
+
+User, please upload or paste the available reports and confirm whether you want inclusion of clinical trials or recent literature in the final tumor board document.
+
+---
+

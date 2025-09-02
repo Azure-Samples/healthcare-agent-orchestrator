@@ -1,0 +1,51 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and expected order of participants:
+I will moderate the discussion and coordinate the following agents to generate a comprehensive diagnostic summary for Patient ID: patient_4, formatted as a Word document suitable for a tumor board presentation. After each agent completes their task, they should yield the chat back to you (Orchestrator) with the phrase “back to you: Orchestrator.”
+
+Proposed workflow:
+1) PatientHistory (needs patient_id = patient_4)
+   - Retrieve patient timeline, cancer type, pathology findings, biomarker status available in history, past diagnoses, and detailed treatment history to date.
+   - Deliverable: consolidated patient history data for the diagnostic summary.
+
+2) PatientStatus (needs data from PatientHistory)
+   - Provide current status: age, cancer stage at diagnosis, primary site, histology, biomarkers, ECOG performance status, and concise treatment history to date.
+   - Deliverable: current status summary for the report.
+
+3) Radiology (needs data from PatientHistory)
+   - Retrieve latest imaging findings, including chest imaging (CT, X-ray) and any relevant scans. Include date of imaging, modality, key findings (e.g., lesion size, location, metastatic sites), and any reported response if available.
+   - Deliverable: latest imaging findings section.
+
+4) ClinicalTrials (needs patient status)
+   - List any active or ongoing clinical trials relevant to the patient’s cancer type and biomarker profile, if applicable.
+   - Deliverable: clinical trial status and eligibility notes.
+
+5) ReportCreation (needs: timeline/history, current status, imaging findings, biomarker data, pathology, treatment history, clinical trials)
+   - Assemble all collected data into a formatted Word document tailored for tumor board presentation. Include sections such as:
+     - Patient demographics and cancer type
+     - Biomarker status
+     - Stage at diagnosis
+     - Pathology summary
+     - Imaging findings (latest)
+     - Treatment history (chronology and regimens)
+     - Current status and prognosis notes (non-prescriptive)
+     - Clinical trials (if any)
+     - Notes for tumor board and any unanswered questions
+   - Output: a ready-to-export Word document (.docx) suitable for tumor board review.
+
+6) Final delivery
+   - Provide the Word document (and any relevant metadata or a plain-text executive summary as a backup) to you for review.
+
+User confirmation:
+Please confirm that you would like me to proceed with this workflow to generate the diagnostic summary and export the Word document. If you approve, I will begin with the agents in the order listed above and will keep you updated after each step. If you have any additional sections you want included (e.g., family history, social history, prior radiotherapy details, or specific tumor board formatting preferences), tell me now and I will incorporate them.
+
+Note:
+- I will not provide clinical recommendations or treatment plans as part of this task; the output will be strictly a diagnostic summary suitable for tumor board review. If you later want treatment considerations, we can engage ClinicalGuidelines in a separate plan.
+- Once you confirm, I will proceed and ensure each agent returns their input with the required “back to you: Orchestrator” cue as they finish.
+
+---
+

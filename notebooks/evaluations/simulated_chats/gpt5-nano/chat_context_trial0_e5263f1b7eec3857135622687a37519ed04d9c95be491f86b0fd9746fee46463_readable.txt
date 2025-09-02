@@ -1,0 +1,48 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan to generate your requested diagnostic summary and deliver a formatted Word document:
+
+- Overview: We will coordinate a multi-agent workflow to compile a comprehensive diagnostic summary for Patient ID: patient_4, including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. The final product will be a formatted Word document suitable for tumor board presentation.
+
+- Planned order of participants and deliverables:
+  1) PatientHistory
+     - Task: Retrieve patient timeline, medical history, cancer type, histology, initial stage at diagnosis, and biomarker status (as available in the record).
+     - Output: Patient timeline, initial diagnosis details, biomarkers.
+     - Instruction to agent: back to you: Orchestrator
+  2) PatientStatus
+     - Task: Provide current patient status including age, current stage if updated, primary site, histology, biomarkers, treatment history to date, and ECOG performance status.
+     - Output: Current status summary.
+     - Instruction to agent: back to you: Orchestrator
+  3) Radiology
+     - Task: Retrieve and summarize latest imaging findings (CT/MRI/PET-CT), including RECIST assessment if available and any notable changes since prior imaging.
+     - Output: Imaging findings and interpretation.
+     - Instruction to agent: back to you: Orchestrator
+  4) ClinicalTrials
+     - Task: Identify any active or relevant clinical trials for which patient may be eligible, or trials the patient is enrolled in.
+     - Output: List of trials and eligibility notes.
+     - Instruction to agent: back to you: Orchestrator
+  5) MedicalResearch (optional)
+     - Task: Provide recent literature or guideline context relevant to the cancer type and biomarkers identified, if applicable to framing the diagnostic summary.
+     - Output: Relevant literature/guideline references.
+     - Instruction to agent: back to you: Orchestrator
+  6) ReportCreation
+     - Task: Compile the gathered data into a professionally formatted Word document tailored for tumor board presentation. Include sections: patient demographics, clinical timeline, pathology, biomarkers, staging at diagnosis, treatment history, imaging findings, current status, and a concise diagnostic summary.
+     - Output: A ready-to-export Word document.
+     - Instruction to agent: back to you: Orchestrator
+
+- Deliverable: A formatted Word document suitable for tumor board review, with all requested content (biomarker status, stage at diagnosis, treatment history, latest imaging findings). If you have any formatting preferences (templates, section headings, logo inclusion, patient identifiers liberated for privacy, etc.), tell me now and I’ll incorporate them.
+
+- Data and privacy note: We will only use information available within the patient record for patient_4 and adhere to your privacy requirements.
+
+- Confirmation request: User, please confirm that you’d like me to proceed with this plan. If you approve, I will initiate data retrieval in the exact order above and keep you updated after each step. If you’d like to modify any part (e.g., skip ClinicalTrials, add a specific imaging modality, or adjust the Word formatting), let me know and I’ll adjust before proceeding.
+
+Plan summary: Initiate with PatientHistory, then PatientStatus, Radiology, ClinicalTrials, optional MedicalResearch, and finalize with ReportCreation to produce a formatted Word document. Back to you: Orchestrator after each agent completes their task.
+
+Would you like to proceed with this plan, or would you like any adjustments before I start?
+
+---
+

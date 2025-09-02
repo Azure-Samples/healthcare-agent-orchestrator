@@ -1,0 +1,23 @@
+USER:
+Given the KRAS p.G12C mutation in patient_4, summarize current treatment options including KRAS inhibitors, chemo-immunotherapy, and emerging trial drugs. Include efficacy, risk profile, and how this may affect prognosis
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here’s a proposed plan to answer your question while keeping the discussion structured and comprehensive. Each agent, after completing their task, should yield the chat back to me (Orchestrator) by saying: “back to you: Orchestrator.”
+
+Planned order and purpose:
+1) PatientHistory: Confirm and retrieve the record for patient_4 and extract key clinical details (timeline, primary site, histology, stage, biomarkers like PD-L1 and co-mutations, prior treatments, ECOG).
+- First, I will ask PatientHistory what information they need to proceed.
+2) PatientStatus: Summarize the current clinical status from PatientHistory (age, staging, primary site, histology, biomarkers including KRAS p.G12C, prior therapies, ECOG). This will frame the context for evidence-based options.
+3) ClinicalGuidelines: Provide a non-prescriptive, guideline-based summary of current treatment options relevant to KRAS p.G12C (e.g., KRAS inhibitors, chemo-immunotherapy sequences), including efficacy and risk profile, without making a patient-specific treatment plan.
+4) ClinicalTrials: Summarize emerging trial drugs and combinations for KRAS p.G12C, with brief efficacy signals and safety considerations, filtered to the patient’s status if possible.
+
+User, please confirm this plan so I can proceed. Also, to ensure we tailor the summary appropriately, if PatientHistory does not have a record for patient_4, could you provide the patient’s age, primary cancer type, stage, histology, PD-L1 status, notable co-mutations (e.g., STK11, KEAP1, TP53), prior treatments and responses, and ECOG performance status?
+
+If you confirm, I will begin:
+
+- PatientHistory, before proceeding, what information do you need to retrieve details for this case? After your response, say “back to you: Orchestrator.”
+
+---
+

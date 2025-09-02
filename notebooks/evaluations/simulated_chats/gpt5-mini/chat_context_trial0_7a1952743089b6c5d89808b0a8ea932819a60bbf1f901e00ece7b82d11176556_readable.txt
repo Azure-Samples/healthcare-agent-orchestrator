@@ -1,0 +1,33 @@
+USER:
+Check for any inconsistencies across AI-generated outputs (imaging, pathology, biomarker reports) and the clinical notes entered by providers in the EMR for patient_4. Flag and summarize them for review.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order (what I will do and who will speak, step-by-step)
+1. PatientHistory — pull together the patient timeline and EMR clinical notes for patient_4 (including imaging reports, pathology reports, biomarker reports, and any AI-generated outputs present in the record). Ask what access/inputs are needed. After PatientHistory responds, they must say: back to you: Orchestrator
+2. Radiology — compare imaging-related AI outputs with the EMR imaging reports and/or images and flag inconsistencies (findings, laterality, measurements, dates, image IDs). Radiology will state what image files/reports they need. After Radiology responds, they must say: back to you: Orchestrator
+3. PatientStatus — consolidate current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG) and flag inconsistencies between summaries and EMR notes. Will state which data they need (typically from PatientHistory). After PatientStatus responds, they must say: back to you: Orchestrator
+4. ReportCreation — produce a concise summary document suitable for tumor-board review listing each flagged inconsistency and their source (EMR note vs AI output). Will state what content they need (timeline, clinical summary, imaging/pathology/biomarker findings). After ReportCreation responds, they must say: back to you: Orchestrator
+
+I will moderate and collect the outputs, then provide a short summarized list of inconsistencies for review and ask if you want a document exported.
+
+What I need from you (User)
+User, please provide for patient_4 (upload or point us to):
+- EMR clinical notes and dates (progress notes, consult notes, operative notes if relevant)
+- Official EMR imaging reports (CT, CXR, MRI) and imaging filenames/IDs or DICOMs if available
+- Official EMR pathology report(s)
+- Official EMR biomarker/genomic report(s)
+- Any AI-generated outputs you want compared (AI imaging reads, AI pathology interpretations, AI biomarker summaries), including their dates/versions
+If you cannot upload files, tell us whether PatientHistory has EMR access to fetch these.
+
+Next step — PatientHistory
+PatientHistory, proceed with patient ID: patient_4. Tell me:
+- What access or files you need to assemble the timeline and pull the EMR clinical notes, imaging reports, pathology reports, and biomarker/genomic reports for patient_4
+- If you can fetch AI-generated outputs from the record or whether the User must upload them
+Once you provide the timeline and the requested EMR documents, note any immediate obvious mismatches you see, then say: back to you: Orchestrator
+
+(User and agents: after each agent's reply they must yield back as instructed.)
+
+---
+

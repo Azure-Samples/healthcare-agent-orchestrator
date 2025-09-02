@@ -1,0 +1,34 @@
+USER:
+Check for any inconsistencies across AI-generated outputs (imaging, pathology, biomarker reports) and the clinical notes entered by providers in the EMR for patient_4. Flag and summarize them for review.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and expected order of participants
+- Objective: Check for inconsistencies across AI-generated outputs (imaging, pathology, biomarker reports) and EMR provider notes for patient_4, then flag and summarize them for review.
+- Expected order:
+  1) PatientHistory: retrieve EMR notes and timeline for patient_4, including any pathology summaries if present.
+  2) Radiology: retrieve imaging reports and any AI-generated imaging interpretations.
+  3) MedicalResearch: retrieve biomarker reports/output summaries (and any AI-generated biomarker analyses) for patient_4.
+  4) PatientStatus: provide current patient status (age, staging, primary site, histology, biomarkers, treatment history, ECOG) as available from history sources.
+  5) Compare and identify inconsistencies across sources; categorize as major or minor; compile a concise flag summary with source references.
+  6) ReportCreation (optional): generate a document suitable for tumor board review summarizing inconsistencies and proposed clarifications (based on inputs from steps 1–4).
+- Role reminder: After each agent completes its task, it should yield the chat back to you (Orchestrator) with the phrase: "back to you: Orchestrator".
+- Status expectation: I will coordinate collecting inputs from each agent, then present a consolidated inconsistency report and flagged items to you. Now, I need your confirmation to proceed and any special constraints.
+
+What I need from you, User
+- Please confirm that you want me to proceed with the data-gathering plan above for patient_4.
+- Are there any specific time window or sources to include/exclude (e.g., only data within last 24 months, include external lab reports, include AI-generated outputs only if clearly labeled as such)?
+- If you have any additional context (e.g., known recent EMR edits, ongoing re-staging, or active clinical trials) share it to tailor the review.
+
+If you confirm, I will prompt the agents in the following order:
+- PatientHistory: proceed with EMR notes, timeline, and any pathology notes for patient_4. back to you: Orchestrator
+- Radiology: proceed with imaging reports and AI imaging outputs for patient_4. back to you: Orchestrator
+- MedicalResearch: proceed with biomarker reports and AI-generated biomarker outputs for patient_4. back to you: Orchestrator
+- PatientStatus: proceed with current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG) as available from PatientHistory. back to you: Orchestrator
+- After those, I’ll synthesize the inconsistencies and present a flagged summary for your review.
+
+Would you like me to proceed?
+
+---
+

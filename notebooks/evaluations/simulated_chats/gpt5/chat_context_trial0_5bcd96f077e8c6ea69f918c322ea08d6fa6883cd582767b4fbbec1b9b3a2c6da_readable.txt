@@ -1,0 +1,27 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here’s the plan to generate your comprehensive diagnostic summary and export it as a formatted Word document for tumor board presentation. Each agent, after completing their task, will yield the chat back to me (Orchestrator) by saying: “back to you: Orchestrator.”
+
+Proposed order of participants:
+1) PatientHistory: Retrieve a full patient timeline and key clinical details for Patient ID: patient_4 (stage at diagnosis, biomarker status, primary site, histology, ECOG performance status, treatment history, latest imaging reports and images if available, pathology, medical and social history, and any clinical trial participation).
+2) Radiology: Review the latest imaging (preferably images; otherwise reports) and provide radiology insights relevant for the tumor board.
+3) PatientStatus: Synthesize the current patient status (using age, staging, primary site, histology, biomarkers, treatment history, ECOG PS) for use in the report.
+4) ClinicalTrials (if you want this included): Identify any relevant trials based on the current patient status.
+5) ReportCreation: Assemble all sections into a formatted Word document tailored for tumor board review and provide the downloadable file.
+
+User, please confirm:
+- Shall I include a Clinical Trials section in the tumor board report? Yes/No.
+- If you have any additional imaging files you want included (beyond what’s in the chart), please let me know.
+
+If this plan looks good, I’ll proceed now.
+
+PatientHistory, proceed with:
+- Patient ID: patient_4
+- Please provide: patient timeline; stage at diagnosis; primary site; histology; biomarker status (e.g., PD-L1, EGFR/ALK/ROS1/BRAF, MSI/TMB as applicable); ECOG performance status; detailed treatment history (systemic, surgery, radiation, with dates and responses); latest imaging reports and any available image files (CT, MRI, PET, X-ray); key pathology findings; pertinent medical and social history (smoking, comorbidities); and any clinical trial participation or screening notes. After responding, please say “back to you: Orchestrator.”
+
+---
+

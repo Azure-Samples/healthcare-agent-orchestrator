@@ -1,0 +1,51 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here’s the plan to prepare the tumor board package for Patient ID: patient_4. I’ll coordinate the following agents in this order. Important: Each agent, after completing their task, should yield the chat back to me by saying “back to you: Orchestrator.”
+
+1) PatientHistory
+- Purpose: Retrieve the comprehensive chart for patient_4: demographics, medical/surgical history, social history, oncology timeline, pathology (with histology and biomarkers), staging, treatments and responses, meds/allergies, comorbidities, ECOG, and a list of imaging studies. Include any available chest X-ray images (files/links) and CT scan findings.
+- What they need: Patient ID (provided).
+- Output: Structured timeline and source documents/links.
+
+2) PatientStatus
+- Purpose: Create a concise, structured status summary (age, primary site, histology, biomarkers, TNM/stage, disease sites, ECOG, prior therapies with dates/responses, comorbidities, and current clinical status).
+- What they need: Data from PatientHistory.
+
+3) Radiology
+- Purpose: If chest X-ray images are available, provide radiology insights and impressions; if not, specify what’s missing.
+- What they need: Chest X-ray images (from PatientHistory or from you if you upload).
+
+4) ClinicalGuidelines
+- Purpose: Provide guideline-aligned treatment options based on PatientStatus for tumor board discussion.
+- What they need: PatientStatus.
+
+5) ClinicalTrials
+- Purpose: Identify relevant clinical trials and assess fit based on key inclusion/exclusion factors.
+- What they need: PatientStatus.
+
+6) ReportCreation
+- Purpose: Generate a tumor board Word document containing timeline, clinical summary, medical and social history, cancer type, CT and X-ray findings, pathology findings, guideline-aligned options, and trial opportunities.
+- What they need: Patient timeline, clinical summary, medical/social history, cancer type, CT/X-ray findings, pathology findings, treatment plan options (from ClinicalGuidelines), and clinical trials.
+
+7) MedicalResearch (optional)
+- Purpose: Perform a targeted literature review on any specific tumor board question (e.g., biomarker-driven therapy evidence, sequencing after specific regimens).
+- What they need: A keyword or topic you choose.
+
+User, please confirm:
+- Do you approve this plan and order?
+- Should we include both ClinicalGuidelines and ClinicalTrials sections in the report?
+- Do you want the optional MedicalResearch deep-dive, and if so, on what specific question or keywords?
+
+Additionally:
+- User, can you provide any imaging files for patient_4 (chest X-ray DICOM/JPEG/PNG) and any recent CT reports or pathology PDFs not already in the chart?
+- User, do you have any special questions you want highlighted for the tumor board (e.g., resectability, systemic therapy options, trial eligibility, palliative approaches)?
+
+If you confirm, I will proceed by asking:
+- PatientHistory, proceed with retrieving the full chart for patient_4 as outlined. After responding, please say “back to you: Orchestrator.”
+
+---
+

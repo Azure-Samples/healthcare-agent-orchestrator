@@ -1,0 +1,39 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan to prepare a tumor board package for Patient ID: patient_4
+
+Plan and order of participants (each agent will, after completing their task, yield back to you: "back to you: Orchestrator")
+
+1) PatientHistory (get patient timeline and history)
+- What you can expect: baseline demographics, cancer history, prior treatments, comorbidities, smoking status, performance status notes, and any relevant social history.
+- Needed to proceed: patient_4 (provided as Patient ID).
+
+2) Radiology (review imaging)
+- What you can expect: radiology insights from CT/MRI/PET images, chest X-ray findings, notable lesions, progression, response to therapy.
+
+3) PatientStatus (current status summary)
+- What you can expect: age, primary site, histology, biomarkers, cancer staging, ECOG/PS, current treatment history, and key lab data.
+
+4) ClinicalGuidelines (treatment considerations)
+- What you can expect: guidance aligned with current guidelines based on PatientStatus data (not a clinical plan from me, but guidance from the Guidelines agent).
+
+5) ClinicalTrials (clinical trial options)
+- What you can expect: available trials relevant to the patient’s status and disease characteristics.
+
+6) MedicalResearch (contextual research info)
+- What you can expect: recent research topics or findings related to the patient’s cancer type and treatments being considered.
+
+7) ReportCreation (tumor board document)
+- What you can expect: a tumor board-ready document including patient timeline, clinical summary, medical/social history, cancer type, imaging findings (CT, X-ray), pathology highlights, treatment history, proposed discussion points, and clinical trial options.
+
+User confirmation needed
+- Please confirm that you want me to proceed with the plan above to assemble the tumor board package for patient_4. If you have any changes (e.g., include pathology slides, genetic/biomarker reports, additional imaging, or preferred document format), tell me now and I’ll adjust.
+
+User, please confirm to proceed with this plan. If you confirm, I’ll initiate with the PatientHistory agent for patient_4 and proceed through the sequence, ensuring each agent yields back to you: “back to you: Orchestrator” after their input.
+
+---
+

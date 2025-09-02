@@ -1,0 +1,45 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order of participants (what I will coordinate)
+- Purpose: Prepare a tumor-board packet for Patient ID: patient_4.
+- Order of participants and what each will do:
+  1. PatientHistory — gather the patient timeline, clinical notes, pathology reports, prior treatments, and any available documents. (Needs patient ID and any records the User can provide.)
+  2. Radiology — review and summarize imaging (CT, PET, MRI, X‑ray). (Needs image files or links.)
+  3. PatientStatus — synthesize current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG). (Needs the items above from PatientHistory.)
+  4. ClinicalGuidelines — produce guideline-based treatment options for tumor-board discussion (will use PatientStatus).
+  5. ClinicalTrials — list potentially relevant trials (will use PatientStatus).
+  6. MedicalResearch — provide literature/research summaries if requested (needs keywords/topics).
+  7. ReportCreation — assemble a tumor-board word document using all collected inputs.
+
+Important rule to follow: Each agent, after completing their task, should yield the chat back to me (Orchestrator) by ending their reply with:
+back to you: Orchestrator
+
+Before I ask the agents to proceed, I need confirmation from you and some patient documents.
+
+User, please confirm you want me to proceed with the plan above for Patient ID: patient_4. Also, can you provide the following information and documents (attach files or paste text where available)?
+- Patient’s age
+- Primary cancer site and histology/pathology report(s)
+- Clinical stage (if known)
+- Biomarker results (e.g., EGFR, ALK, PD-L1, HER2, MSI, BRCA, etc. — whichever are relevant)
+- Prior treatments (surgery, chemo, radiation, immunotherapy; dates)
+- Current medications and comorbidities
+- ECOG performance status
+- Latest labs (CBC, CMP, relevant tumor markers)
+- Imaging files (CT, PET-CT, MRI, chest x-ray) or links to DICOMs
+- Any notes from treating oncologist or recent progress notes
+- Social history (smoking, alcohol, living situation) if relevant
+- Any specific questions or goals for the tumor board (e.g., is this for curative intent, second opinion, trial eligibility, surgical candidacy)
+
+If any of these items are unavailable, say which are missing.
+
+PatientHistory, proceed with patient_4. What specific data do you need from the User to compile the patient timeline and notes? Please state exactly which files or data you require, and when you have the timeline ready, provide it and then end with:
+back to you: Orchestrator
+
+Awaiting the User confirmation and the files, and PatientHistory’s list of needed items.
+
+---
+

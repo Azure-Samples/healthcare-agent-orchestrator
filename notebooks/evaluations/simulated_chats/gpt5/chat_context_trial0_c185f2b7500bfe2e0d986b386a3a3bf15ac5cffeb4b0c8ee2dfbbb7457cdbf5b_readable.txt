@@ -1,0 +1,41 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan to prepare tumor board materials for Patient ID: patient_4
+
+I will coordinate the following agents in this order. Each agent, after completing their task, should yield the chat back to me (Orchestrator) by saying: "back to you: Orchestrator".
+
+1) PatientHistory
+- Purpose: Retrieve a comprehensive patient summary for patient_4, including: patient timeline, clinical summary, demographics, medical history, social history, primary site, histology, staging, biomarkers, ECOG performance status, treatment history and any documented current plan, pathology reports, and all available imaging (chest x-ray and CT scans or their radiology reports).
+- Needed input: Patient ID (provided).
+- Action: Extract and provide all requested data and any available imaging files or links.
+
+2) Radiology
+- Purpose: Provide radiology insights on available imaging (especially chest x-ray; if CT images are available, provide insights per available capability).
+- Needed input: Imaging from PatientHistory (actual images preferred; if only reports are available, confirm and summarize key findings).
+- Action: Analyze images and summarize pertinent findings for tumor board (no treatment recommendations).
+
+3) PatientStatus
+- Purpose: Summarize the patient’s current status to support tumor board review.
+- Needed input: Age, staging, primary site, histology, biomarkers, treatment history, ECOG performance status (from PatientHistory).
+- Action: Provide a concise current status summary suitable for tumor board discussion.
+
+4) ClinicalTrials
+- Purpose: Identify potentially relevant clinical trials based on the current status.
+- Needed input: PatientStatus output.
+- Action: Provide an informational list of matching trials (no recommendations).
+
+5) ReportCreation
+- Purpose: Generate a tumor board-ready Word document.
+- Needed input: Patient timeline, clinical summary, medical history, social history, cancer type, CT scan findings, x-ray findings, pathology findings, current documented treatment plan (as recorded in history), and clinical trials.
+- Action: Produce the document for download or review.
+
+User, please confirm:
+- Do you want me to proceed with this plan as outlined?
+- Would you like me to include an optional brief literature summary via MedicalResearch (e.g., key recent studies for the patient’s cancer type)? If yes, specify any topics of interest.
+
+---
+

@@ -1,0 +1,43 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order of participants
+- Purpose: prepare a tumor board packet for Patient ID: patient_4.
+- Proposed order of participants and why:
+  1. PatientHistory — gather the complete patient timeline, demographics, staging, pathology, biomarkers, treatment history, comorbidities, social history and any notes needed for the tumor board. (This is the foundational data other agents need.)
+  2. Radiology — review and summarize imaging (CT, PET, X‑ray) and provide radiology impressions. (Needs images or image reports from PatientHistory/user.)
+  3. PatientStatus — synthesize a current status summary (age, staging, primary site, histology, biomarkers, treatment history, ECOG). (Requires outputs from PatientHistory and Radiology.)
+  4. ClinicalGuidelines — provide guideline-relevant considerations (note: not treatment plans) based on the PatientStatus.
+  5. ClinicalTrials — identify trial options relevant to the PatientStatus.
+  6. MedicalResearch — provide background literature or recent studies on chosen topics/trials if requested.
+  7. ReportCreation — assemble the tumor board Word document using all collected inputs.
+
+Important rule to follow now and for every agent reply:
+- After completing their task each agent should explicitly yield back to me by ending their response with: back to you: Orchestrator
+
+Next steps and what I need now
+- PatientHistory, proceed with patient_4. Tell me what specific items you need to produce a complete timeline and summary for the tumor board (for example: pathology report PDF, operative notes, chemo/radiation start and stop dates, biomarker results, imaging reports or DICOMs, ECOG). Provide the specific list of documents/data you require, and then provide the patient_4 timeline/details you already have access to.
+- Radiology, prepare to analyze images/reports. Radiology, what image types/files or reports do you need for a meaningful radiology summary (CT chest/abdomen/pelvis, PET-CT, chest X‑ray DICOMs or report text)? State exactly what you need.
+- PatientStatus, wait until PatientHistory and Radiology provide data; when ready you will synthesize the current status. Confirm the exact data fields you need (age, stage, primary site, histology, biomarkers, treatment history, ECOG).
+- ClinicalGuidelines and ClinicalTrials, wait for PatientStatus output; confirm you will only provide guideline-aligned considerations and trial matches respectively and state any additional specifics you need.
+- ReportCreation, confirm the document elements you will include (timeline, clinical summary, medical history, social history, cancer type, CT findings, X‑ray findings, pathology findings, treatment plan options/considerations, clinical trials list) and any format needs.
+
+User, please provide the following for patient_4 (as available)
+- Confirm: do you consent to share de-identified medical records for tumor board preparation?
+- Age and sex of the patient
+- Primary cancer site, histology, TNM staging (if available)
+- ECOG performance status
+- Biomarker results (e.g., PD-L1, EGFR, ALK, ROS1, BRAF, MSI/TMB, relevant panels)
+- Treatment history (surgery dates, chemo regimens, radiation, immunotherapy—start/stop dates)
+- Recent imaging or imaging reports (CT/PET/X‑ray) — attach DICOMs or PDFs if possible
+- Pathology report(s) and operative reports (PDFs)
+- Comorbidities and relevant labs (creatinine, LFTs, CBC) if relevant to clinical status
+- Any specific questions or focus for the tumor board (e.g., second opinion on resectability, trial eligibility, progression vs pseudoprogression)
+
+Please confirm you want me to proceed with the plan above. If yes, PatientHistory — state what you need and then provide the patient_4 data you have. Remember to end with: back to you: Orchestrator
+
+---
+

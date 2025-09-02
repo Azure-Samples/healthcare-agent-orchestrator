@@ -1,0 +1,32 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and participants
+
+- Plan: We will perform an AI-assisted analysis of the latest CT and chest X-ray (CXR) for patient_4 using the imaging tool to generate AI findings. Then we will compare those AI findings to the radiologist’s report for the same studies, and summarize any discrepancies or additional findings.
+
+- Order of participants:
+  1) User (you) provides the latest CT and CXR images for patient_4 and the corresponding radiologist’s report (or authorizes retrieval access if you prefer).
+  2) Radiology agent (analyze images and provide radiology insights; and supply the radiologist’s report if available).
+  3) Orchestrator summarizes AI findings vs radiologist’s report and highlights discrepancies/additional findings.
+  4) If useful, ReportCreation can generate a concise summary document (optional).
+
+Important note about participation
+- Each agent, after completing their task, should yield the chat back to you: “back to you: Orchestrator.”
+
+What I need from you, User
+- Please provide or authorize access to:
+  - The latest CT images for patient_4
+  - The latest chest X-ray images for patient_4
+  - The radiologist’s report for those studies (text preferred)
+
+If you cannot provide the reports, please confirm and I can proceed with the imaging tool analysis and radiology insights, but the comparison may be limited without the official radiologist’s report.
+
+Next step after you provide the images and report
+- I will route the images to the Radiology agent for AI-assisted analysis and to retrieve/confirm the radiologist’s report, then I’ll compare the AI findings with the radiologist’s findings, identify discrepancies, and summarize any additional findings. I’ll report back with a structured comparison and a concise takeaway.
+
+---
+

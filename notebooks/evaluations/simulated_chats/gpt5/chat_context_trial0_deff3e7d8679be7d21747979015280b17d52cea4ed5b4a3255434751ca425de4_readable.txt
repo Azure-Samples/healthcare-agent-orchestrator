@@ -1,0 +1,61 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here’s the plan to prepare a complete tumor board package for Patient ID: patient_4. Each agent will perform their task in order and then yield the chat back to me. Important rule: Each agent, after completing their task, should say “back to you: Orchestrator.”
+
+Proposed order and purpose:
+1) PatientHistory
+- Purpose: Retrieve the comprehensive patient timeline and all key clinical details (demographics, comorbidities, oncologic diagnosis, pathology, biomarkers, imaging reports/links, treatment history, ECOG performance status, allergies, social history).
+- Input needed: Patient ID (we have: patient_4).
+- Output: Structured summary including any available imaging files or report references.
+- Handoff: Will say “back to you: Orchestrator.”
+
+2) Radiology
+- Purpose: Review available chest X-ray images (and provide radiology insights). If only radiology reports are available (e.g., CT), Radiology can note insights based on those reports.
+- Input needed: Imaging files or links from PatientHistory (especially chest X-rays).
+- Output: Key radiologic findings and comparison to prior studies if available.
+- Handoff: Will say “back to you: Orchestrator.”
+
+3) PatientStatus
+- Purpose: Compile the current oncologic status.
+- Input needed: age, staging, primary site, histology, biomarkers, treatment history, ECOG performance status (from PatientHistory).
+- Output: Current, concise status snapshot for use by guidelines and trials.
+- Handoff: Will say “back to you: Orchestrator.”
+
+4) ClinicalGuidelines
+- Purpose: Provide guideline-based treatment recommendations based on the current status.
+- Input needed: PatientStatus summary.
+- Output: Recommendations aligned with relevant clinical guidelines.
+- Handoff: Will say “back to you: Orchestrator.”
+
+5) ClinicalTrials
+- Purpose: Identify potentially eligible clinical trials.
+- Input needed: PatientStatus summary (and any site/location info if available).
+- Output: List of trials with key eligibility highlights.
+- Handoff: Will say “back to you: Orchestrator.”
+
+6) ReportCreation
+- Purpose: Produce a Word document suitable for tumor board review containing: patient timeline, clinical summary, medical/social history, cancer type, CT and X-ray findings, pathology findings, guideline-based treatment plan, and clinical trials.
+- Input needed: Outputs from PatientHistory, Radiology, PatientStatus, ClinicalGuidelines, and ClinicalTrials.
+- Output: Tumor board packet (Word document) ready for download/sharing.
+- Handoff: Will say “back to you: Orchestrator.”
+
+Optional:
+7) MedicalResearch (if desired)
+- Purpose: Summarize recent literature for a specific topic (e.g., biomarker-specific therapies).
+- Input needed: A topic/keyword from you based on the case.
+- Output: Curated summary of key studies.
+- Handoff: Will say “back to you: Orchestrator.”
+
+User, can you confirm you’d like me to proceed with this plan for patient_4? Also, please let me know:
+- Any special focus areas for the tumor board (e.g., lines of therapy, surgical candidacy, radiation options, toxicity management, specific biomarkers)?
+- Whether you have any imaging files (chest X-ray or CT) you want included; if yes, please upload or provide links.
+- Any institutional preferences for guidelines or trial networks to prioritize.
+
+If confirmed, I will start with PatientHistory.
+
+---
+

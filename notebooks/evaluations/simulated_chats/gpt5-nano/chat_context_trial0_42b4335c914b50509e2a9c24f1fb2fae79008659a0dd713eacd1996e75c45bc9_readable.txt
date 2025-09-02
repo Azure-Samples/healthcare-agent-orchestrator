@@ -1,0 +1,69 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and expected participant order
+
+Purpose:
+- Generate a comprehensive diagnostic summary for Patient ID: patient_4, including biomarker status, stage at diagnosis, treatment history, and latest imaging findings.
+- Export the summary as a formatted Word document suitable for tumor board presentation.
+
+Proposed execution order and responsibilities:
+1) PatientHistory
+   - Retrieve patient timeline, demographics, cancer type, initial diagnosis date, biomarker status if available, and comprehensive medical history.
+   - Output: patient timeline and history to inform diagnostic summary.
+   - Instruction to agent: "*PatientHistory*, proceed with patient_4."
+   - After response: back to you: Orchestrator
+
+2) Radiology
+   - Retrieve latest imaging findings (CT, MRI, PET-CT, X-ray as available) and radiology reports, including any notable measurements and progression.
+   - Output: imaging findings and key radiology conclusions.
+   - Instruction to agent: "*Radiology*, proceed with latest imaging for patient_4."
+   - After response: back to you: Orchestrator
+
+3) PatientStatus
+   - Compile current status details: age, primary site, histology, biomarkers, staging (at diagnosis and current if available), ECOG, and treatment history to date.
+   - Output: current status summary necessary for the diagnostic report.
+   - Instruction to agent: "*PatientStatus*, proceed with patient_4 status extraction."
+   - After response: back to you: Orchestrator
+
+4) ClinicalTrials (optional but recommended)
+   - Identify any open or known relevant clinical trials for which the patient may be eligible or has been enrolled, and summarize trial status.
+   - Output: list of applicable trials with eligibility notes.
+   - Instruction to agent: "*ClinicalTrials*, proceed with patient_4 trial status."
+   - After response: back to you: Orchestrator
+
+5) ReportCreation
+   - Create a formatted Word document suitable for tumor board, including:
+     - Patient timeline
+     - Clinical summary
+     - Medical history
+     - Social history (if available)
+     - Cancer type and pathology
+     - Imaging findings (CT/MRI/X-ray) with key notes
+     - Pathology findings (biomarkers, receptor status, mutations)
+     - Biomarker status
+     - Stage at diagnosis and current stage (if available)
+     - Treatment history to date (regimens, dates, responses)
+     - Current status (ECOG, labs if pertinent)
+     - Clinical trials (if any)
+     - Any caveats or uncertainties
+   - Output: a Word document ready for download or sharing with the tumor board.
+   - Instruction to agent: "*ReportCreation*, proceed with compiling the document using the collected data for patient_4."
+   - After response: back to you: Orchestrator
+
+6) (Optional) Review and finalization
+   - If any data is missing or inconsistent, loop back to the relevant agent to fill gaps and update the document.
+
+User confirmation needed
+- Please confirm that you want me to proceed with the above plan to collect data from the designated agents and generate the Word document for tumor board presentation.
+- If you have any preferences (e.g., include/exclude certain sections, emphasize specific biomarkers, or include image labels), tell me now and I will incorporate them.
+
+Note
+- This process does not provide clinical recommendations or treatment plans; it only compiles diagnostic and historical information into a formal report for review.
+- Once all agents have contributed, I will summarize the findings and present the final document to you. Do you confirm the plan? If yes, I will initiate with PatientHistory for patient_4.
+
+---
+

@@ -1,0 +1,31 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order of participants
+- I will moderate this session and coordinate two agents in this order: 1) PatientHistory, 2) Radiology.
+- Purpose: obtain the latest CT and chest x‑ray (CXR) images and the radiologist’s report for patient_4, have Radiology run the imaging tool to generate AI findings, then compare those AI findings to the radiologist’s report and summarize discrepancies or additional findings.
+- Each agent, after completing their task, should yield back to me by ending their response with: back to you: Orchestrator
+
+What I need from you now
+- User, can you provide me with patient_4’s latest CT and CXR images (DICOM files preferred; if not available, high‑resolution JPEG/PNG), the dates of those studies, and the radiologist’s written report for each study? If there are study IDs or accession numbers please include them.
+
+Questions to the agents (please respond with what you need to proceed)
+- PatientHistory, proceed with patient_4: what specific information or access do you need from the user or records to retrieve the latest imaging studies and radiology reports? Please confirm you can supply the images and the radiologist’s report once you have that info. After your reply, end with: back to you: Orchestrator
+
+- Radiology, once PatientHistory provides the images and the radiologist’s report: what input do you need (file types, any clinical context, preferred imaging windows/series) to run the imaging tool, produce AI-generated findings, and perform a structured comparison to the radiologist’s report? After your reply, end with: back to you: Orchestrator
+
+Please confirm
+- User, do you agree with this plan and can you upload the requested imaging files and reports? If you want to add any clinical context (symptoms, prior imaging comparisons, prior known lesions), please include that as well.
+
+Next steps after I get the files
+- PatientHistory will retrieve/attach the imaging and report.
+- Radiology will analyze the images with the imaging tool, produce AI findings, and compare those to the radiologist’s report.
+- I will then summarize any discrepancies or additional findings and ask if you want further review or a tumor‑board style report.
+
+Waiting for the user to upload images/reports and the agents to confirm what they need.
+
+---
+

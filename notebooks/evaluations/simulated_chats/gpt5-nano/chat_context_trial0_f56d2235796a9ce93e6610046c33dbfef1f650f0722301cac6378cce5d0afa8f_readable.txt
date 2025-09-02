@@ -1,0 +1,49 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan to prepare tumor board materials for Patient ID: patient_4
+
+Proposed order of participants (each agent will, after finishing their task, yield back to you: “back to you: Orchestrator”):
+
+1) PatientHistory
+   - Task: Retrieve the patient timeline and history for patient_4 (requires patient ID). Produce a concise clinical history, key events, prior diagnoses, treatments, and relevant social history.
+
+2) Radiology
+   - Task: Review and summarize radiology findings using imaging data provided by PatientHistory (e.g., CT, chest X-ray). Provide imaging-based findings, notable lesions, staging-relevant features.
+
+3) PatientStatus
+   - Task: Provide the current status of the patient (age, primary site, histology, biomarkers, TNM/staging if known, ECOG/PS, treatment history, current medications, allergies, and any prior interventions). Draw from the PatientHistory input.
+
+4) ClinicalGuidelines
+   - Task: Based on the PatientStatus information, outline guideline-concordant considerations and potential therapeutic options to discuss at the tumor board (not a treatment plan—just guideline-aligned considerations).
+
+5) ClinicalTrials
+   - Task: Identify relevant ongoing clinical trials for which patient_4 might be eligible, given the current status and prior treatments. Provide trial options, inclusion/exclusion notes, and geographical/eligibility considerations.
+
+6) MedicalResearch
+   - Task: Provide up-to-date research context related to the patient’s cancer type, histology, and any notable biomarkers or mutations. Offer high-level research considerations or questions to discuss at the board.
+
+7) ReportCreation
+   - Task: Assemble a tumor board-ready document with:
+     - Patient timeline and clinical summary
+     - Medical history and social history
+     - Cancer type, histology, biomarkers
+     - CT/X-ray findings
+     - Pathology findings (as available)
+     - Summary of current status and prior treatments
+     - Proposed discussion points (from guidelines and trials)
+     - Relevant clinical trials and research notes
+     - Any requested documents (and planned next steps)
+
+Note: If at any step data is missing, I will pause and query you for specifics or request the necessary data from the appropriate agent.
+
+User confirmation needed
+Please confirm that you’d like me to proceed with this plan and to initiate data gathering for patient_4 in the order listed above. Also tell me if you have any preferences or additional focus areas (for example: emphasis on a specific biomarker, prior surgical notes, social determinants of health, goals of care, etc.). 
+
+If you approve, I’ll begin by engaging PatientHistory and proceed through the sequence, updating you after each step.
+
+---
+

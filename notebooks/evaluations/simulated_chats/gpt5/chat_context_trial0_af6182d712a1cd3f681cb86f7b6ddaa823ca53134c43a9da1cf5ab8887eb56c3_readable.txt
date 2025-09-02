@@ -1,0 +1,44 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is the proposed plan to generate your tumor board-ready diagnostic summary and Word document for Patient ID: patient_4. Each agent, after completing their task, will yield the chat back to me (Orchestrator) by saying: “back to you: Orchestrator.”
+
+Planned sequence and purpose:
+1) PatientHistory: Retrieve the complete clinical record for patient_4, including demographics, medical/social history, diagnosis and histology, stage at diagnosis (with TNM if available), biomarker results, pathology reports, detailed treatment history (with dates and responses), ECOG performance status, adverse events, imaging history and latest imaging reports, and any available imaging files (especially latest chest X-ray images).
+   - After completion, PatientHistory will say: “back to you: Orchestrator.”
+
+2) PatientStatus: Summarize the current clinical status using information from PatientHistory (age, staging, primary site, histology, biomarkers, treatment history, ECOG, current line of therapy/response).
+   - After completion, PatientStatus will say: “back to you: Orchestrator.”
+
+3) Radiology: If PatientHistory provides chest X-ray images, analyze the latest chest X-ray(s) and provide findings and impression. For CT/MRI/PET, we will capture the report findings from PatientHistory’s records.
+   - After completion, Radiology will say: “back to you: Orchestrator.”
+
+4) ClinicalTrials: Based on the PatientStatus summary, identify relevant active clinical trials and provide key details (NCT ID, phase, summary, notable inclusion criteria). If you prefer not to include trials, we can skip this step.
+   - After completion, ClinicalTrials will say: “back to you: Orchestrator.”
+
+5) ReportCreation: Compile a formatted Word document for tumor board presentation, including patient timeline, clinical summary, medical/social history, cancer type, biomarker status, stage at diagnosis and current stage, pathology findings, CT and X-ray findings, treatment history, and clinical trials. We will provide the document as a downloadable .docx file (we can supply a base64 file or a direct download link, depending on your preference).
+   - After completion, ReportCreation will say: “back to you: Orchestrator.”
+
+User, can you confirm that you want me to proceed with this plan for Patient ID: patient_4? Additionally:
+- User, can you provide any geographic preference for clinical trials (e.g., city/state/country) or should we search broadly?
+- User, do you want to include only chest X-ray in the “latest imaging findings,” or should we include the most recent CT/MRI/PET reports as well (if available in the chart)?
+
+If confirmed, I will begin with PatientHistory.
+
+If confirmed:
+- PatientHistory, proceed with retrieving the full patient history and records for Patient ID: patient_4, including:
+  - Demographics (age, sex), medical history, social history
+  - Diagnosis date, primary site, histology, TNM stage at diagnosis and current stage if available
+  - Biomarker status (e.g., PD-L1, EGFR/ALK/ROS1/BRAF, MSI/TMB, HER2, etc., as applicable to the cancer type)
+  - Pathology reports (biopsy/surgical)
+  - Treatment history with dates, regimens, responses, lines of therapy, notable adverse events
+  - ECOG performance status over time and current ECOG
+  - Imaging history with report texts and links/files to images; please attach or reference the latest chest X-ray images if available; provide the most recent CT/MRI/PET report texts as well
+  - Current medications, allergies, and treating team/facility details
+  Please return structured data where possible. After responding, say: “back to you: Orchestrator.”
+
+---
+

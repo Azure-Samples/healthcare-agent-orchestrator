@@ -1,0 +1,26 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+To analyze the CT and CXR images for patient_4, we'll need to follow a structured plan. Here's the proposed approach:
+
+1. **PatientHistory**: We'll start by gathering the timeline and obtaining the necessary CT and CXR images from the patient's records.
+
+2. **Radiology**: Following that, we will perform an AI analysis of the images and provide insights.
+
+3. **Comparison**: We'll compare the AI-generated findings with the radiologist’s report to identify any discrepancies or additional findings.
+
+Here is the detailed plan with the expected order of participants:
+
+1. **PatientHistory**, please obtain and provide the CT and CXR images for patient_4 using the patient's ID. Once done, yield the chat back to me with "back to you: Orchestrator."
+
+2. **Radiology**, you will analyze the images and provide radiology insights. After completing your analysis, yield the chat back to me with "back to you: Orchestrator."
+
+3. **Orchestrator**: I'll then summarize any discrepancies or additional findings based on the AI analysis compared to the radiologist's report.
+
+Let me know, *User*, if you agree with this approach, or if there are other considerations we should keep in mind. Once confirmed, we can proceed!
+
+---
+

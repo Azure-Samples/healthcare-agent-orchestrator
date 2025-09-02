@@ -1,0 +1,48 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is the plan to prepare the tumor board package for Patient ID: patient_4. I will coordinate the following agents in this order. Each agent, after completing their task, should yield the chat back to me (Orchestrator) by saying: "back to you: Orchestrator".
+
+Planned order and purpose:
+1) PatientHistory
+- Purpose: Retrieve the complete patient timeline, medical history, social history, prior and current treatments, cancer type and staging, pathology findings, and available imaging reports and files (e.g., chest X-rays, CT reports).
+- Process: 
+  a) Orchestrator will first ask PatientHistory what information they need to proceed.
+  b) Then I will provide the Patient ID (patient_4) to obtain the data.
+- Expected output: Timeline, clinical summary, medical/social history, imaging reports/files, pathology details, treatment history/current plan (if any).
+
+2) Radiology
+- Purpose: Provide radiology insights on available chest X-ray images. We will use CT scan findings from the reports provided by PatientHistory (as Radiology focuses on chest X-rays).
+- Process:
+  a) Orchestrator will first ask Radiology what information they need to proceed.
+  b) Then I will supply the chest X-ray images (from PatientHistory) for analysis.
+- Expected output: X-ray findings and interpretation.
+
+3) PatientStatus
+- Purpose: Summarize current patient status.
+- Process:
+  a) Orchestrator will first ask PatientStatus what information they need.
+  b) Then I will supply age, staging, primary site, histology, biomarkers, treatment history, and ECOG performance status (sourced from PatientHistory).
+- Expected output: A concise, structured patient status summary.
+
+4) ClinicalTrials
+- Purpose: Identify potentially relevant clinical trials based on the patient’s status (informational only).
+- Process:
+  a) Orchestrator will first ask ClinicalTrials what they need.
+  b) Then I will provide the PatientStatus summary.
+- Expected output: List of trials with brief descriptions, key eligibility highlights, and locations.
+
+5) ReportCreation
+- Purpose: Generate a Word document suitable for tumor board review.
+- Process:
+  a) Orchestrator will first ask ReportCreation what inputs they need.
+  b) Then I will provide: patient timeline, clinical summary, medical history, social history, cancer type, CT scan findings (from PatientHistory’s reports), X-ray findings (from Radiology), pathology findings, current treatment plan if documented (from PatientHistory), and clinical trials (from ClinicalTrials).
+- Expected output: A formatted Word document for tumor board.
+
+User, please confirm that you’d like me to proceed with this plan for Patient ID: patient_4. Once confirmed, I will begin by asking PatientHistory what they need and proceed step-by-step.
+
+---
+

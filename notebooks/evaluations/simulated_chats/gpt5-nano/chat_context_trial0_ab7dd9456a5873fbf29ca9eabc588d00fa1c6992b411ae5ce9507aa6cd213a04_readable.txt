@@ -1,0 +1,53 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan to prepare tumor board package for Patient ID: patient_4
+
+Plan overview:
+- We will coordinate a multi-agent workflow to assemble a complete tumor board package. Each agent will provide their section, then return control to me (Orchestrator). After all inputs are gathered, I will summarize the package for the tumor board.
+
+Planned order of participation:
+1) PatientHistory: Pulls patient timeline and history using patient_id (patient_4). 
+   - Task: provide patient timeline, past medical history, cancer type, stage if known, biomarkers, prior treatments, ECOG status.
+   - Output to be returned to Orchestrator with “back to you: Orchestrator”.
+
+2) Radiology: Review imaging (will receive imaging data from PatientHistory or direct upload if available).
+   - Task: provide radiology findings (ct/mri/positional images), notable lesions, measurements, response assessments if available.
+   - Output to Orchestrator with “back to you: Orchestrator”.
+
+3) PatientStatus: Provide current status and key clinical details.
+   - Task: age, primary site, histology, biomarkers, current treatment history, ECOG, staging, any recent labs, performance status.
+   - Output to Orchestrator with “back to you: Orchestrator”.
+
+4) ClinicalGuidelines: Generate treatment recommendations aligned with current guidelines based on patient status (non-prescriptive; for discussion purposes).
+   - Task: summarize guideline-consistent considerations relevant to patient_4’s status.
+   - Output to Orchestrator with “back to you: Orchestrator”.
+
+5) ClinicalTrials: Identify relevant clinical trials for which patient_4 may be eligible.
+   - Task: propose candidate trials, inclusion criteria, and contact approach.
+   - Output to Orchestrator with “back to you: Orchestrator”.
+
+6) MedicalResearch: Provide up-to-date research themes or data pertinent to the patient’s cancer type and status.
+   - Task: offer literature themes or notable recent findings that may inform discussion.
+   - Output to Orchestrator with “back to you: Orchestrator”.
+
+7) ReportCreation: Compile the tumor board packet.
+   - Task: assemble a comprehensive Word-document package including: patient timeline, clinical summary, medical history, social history, cancer type, ct findings, x-ray findings, pathology findings, treatment plan (discussion only, not a recommendation), potential clinical trials, and research highlights.
+   - Output: a ready-to-present tumor board document to be reviewed by you.
+
+Notes:
+- This process will rely on the patient_id you provided (patient_4). If any additional identifiers or consent details are needed, I’ll request them.
+- I will not provide clinical recommendations or treatment plans directly; the ClinicalGuidelines agent will inform discussion points only.
+
+Before I initiate this plan, please confirm:
+- Is this plan acceptable, and would you like any additional data points or a preferred tumor board template/format?
+- Any constraints or preferred date/time for the tumor board, or attendees to note in the packet?
+
+If you approve, I’ll proceed and prompt the appropriate agents in the order above. 
+User, please confirm to proceed and share any extra preferences.
+
+---
+

@@ -1,0 +1,24 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order of participants:
+- Purpose: Retrieve the latest CT and CXR studies for patient_4, run AI image analysis on the images, compare those AI-generated findings to the radiologist’s finalized reports, and summarize any discrepancies or additional findings.
+- Order:
+  1) PatientHistory: Retrieve the latest CT and CXR imaging for patient_4, including DICOM images (or links), study metadata (study date/time, accession, body part, contrast, series list), and the finalized radiologist report(s). Also check for any existing AI outputs stored with the study in PACS/VNA.
+  2) Radiology: Use the imaging tool to analyze the CXR images. Confirm whether CT analysis is supported with the provided DICOM series; if supported, run AI analysis on the appropriate CT series (e.g., lung windows for chest CT). If CT AI analysis is not supported, Radiology will state limitations and we will rely on any existing AI results retrieved by PatientHistory. Radiology will produce a structured list of findings with localization and confidence.
+  3) Orchestrator (me): Compare AI outputs to the radiologist’s report for each study (CT and CXR) and summarize agreements, discrepancies (AI-only vs report-only findings), measurement differences, and any additional findings. No clinical recommendations will be provided.
+- Important rule: Each agent, after completing their task, should yield the chat back to me (Orchestrator) by explicitly saying “back to you: Orchestrator.”
+
+User, can you please confirm this plan and authorize access to patient_4’s imaging and reports? Additionally:
+- Do you want us to include only the most recent CT and CXR by study date, or also the immediately prior studies for context?
+- If multiple CT types exist (e.g., CT chest vs CT chest/abdomen/pelvis), should we focus on chest CT only?
+- If there are multiple “latest” studies on the same day, should we pick the most recently finalized report?
+
+If confirmed, I will proceed with:
+- PatientHistory, proceed with: fetch the latest CT and CXR for patient_4, including DICOM images (or secured links), study metadata, finalized radiologist reports, and any existing AI outputs stored with the studies. Please return them and then say “back to you: Orchestrator.”
+
+---
+

@@ -1,0 +1,62 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order (what I — Orchestrator — will do)
+- Purpose: prepare a tumor-board packet for Patient ID: patient_4 by collecting history, imaging, pathology, current status, guideline-relevant context, clinical trial options, and then creating a Word-ready tumor board report.
+- Order of participants and why:
+  1. PatientHistory — assemble the patient timeline, prior notes, pathology reports, prior imaging reports, treatment history, comorbidities, social history (needed as foundational source).
+  2. Radiology — review any image files (CT, PET, X-ray) or reports and summarize radiologic findings for the tumor board.
+  3. PatientStatus — synthesize current status (age, stage, primary site, histology, biomarkers, treatment history, ECOG) into a concise clinical summary.
+  4. ClinicalGuidelines — outline guideline-based options (note: they will not give clinical recommendations or a treatment plan, only guideline-relevant information) using PatientStatus.
+  5. ClinicalTrials — search for trial options appropriate to the patient’s status.
+  6. MedicalResearch — provide recent research or trial background on a chosen keyword/topic if needed.
+  7. ReportCreation — assemble a Word document for tumor board review incorporating inputs above.
+
+Important rule for participants: After completing their task, each agent should yield the chat back to me (Orchestrator) by saying exactly: back to you: Orchestrator
+
+What I need from User now
+User, please provide the following documents/data for patient_4 (if available):
+- Age and sex
+- Primary cancer type and histology
+- Clinical stage (TNM) or summary stage
+- Biomarker status (e.g., EGFR, ALK, PD-L1, others relevant)
+- ECOG performance status
+- Full treatment history (surgery, systemic therapy, radiation; dates and agents)
+- Recent imaging reports and/or DICOM/image files (CT, PET-CT, MRI, X-ray)
+- Pathology reports (biopsy/resection) including IHC and molecular testing
+- Relevant labs (CBC, CMP, organ function) and comorbidities
+- Social history (smoking, alcohol), allergies
+- Any patient preferences or trial eligibility constraints
+- Urgency / desired tumor board date and format (virtual/in-person)
+
+If you cannot upload images here, tell me which imaging modality and date for Radiology to review the reports.
+
+Now I will request actions from agents
+
+PatientHistory, proceed with assembling the patient timeline for patient_4. You have the patient ID. Specify what additional specific items or clarifications you need from the user (for example: accession numbers for imaging, pathology report IDs, dates of key events). After your response, yield back to me using: back to you: Orchestrator
+
+Radiology, do you need image files or specific report text for patient_4? State what file types (DICOM, JPEG) and any viewing permissions required. After your response, yield back to me using: back to you: Orchestrator
+
+PatientStatus, list exactly the data fields you need (age, staging, primary site, histology, biomarkers, treatment history, ECOG) to generate the current clinical status for patient_4. After your response, yield back to me using: back to you: Orchestrator
+
+ClinicalGuidelines, once PatientStatus provides the summary, what guideline sources (e.g., NCCN, ESMO, ASCO) will you consult, and do you need any additional patient-specific limits (e.g., organ dysfunction) to contextualize guideline information? After your response, yield back to me using: back to you: Orchestrator
+
+ClinicalTrials, once PatientStatus is available, what fields do you need to filter trials (e.g., geographic location, phase, molecular biomarker requirement, ECOG cutoffs)? After your response, yield back to me using: back to you: Orchestrator
+
+MedicalResearch, specify the keyword(s) or topics you want me to search (e.g., “EGFR exon 20 inhibitors”, “PD-L1 high NSCLC trials”, or a therapy name). After your response, yield back to me using: back to you: Orchestrator
+
+ReportCreation, list the exact inputs you need to generate a Word-ready tumor board summary (patient timeline, clinical summary, imaging findings, pathology, proposed discussion points, trials). After your response, yield back to me using: back to you: Orchestrator
+
+Next step and confirmation
+- User, can you provide the requested patient data and any imaging/pathology files for patient_4?
+- Please confirm you want the tumor board packet prepared now, and whether there is a preferred tumor-board date.
+
+Once you provide files/data (or confirm what’s unavailable), I will instruct PatientHistory to begin assembling the timeline and then move through the participants in the order above.
+
+Do you confirm this plan and can you provide the requested items?
+
+---
+

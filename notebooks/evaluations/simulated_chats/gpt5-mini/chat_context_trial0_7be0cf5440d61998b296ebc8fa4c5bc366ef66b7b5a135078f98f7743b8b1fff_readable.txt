@@ -1,0 +1,31 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and participant order
+
+I will coordinate the team to identify active clinical trials for patient_4. Here is the plan and the order of participants:
+1. PatientHistory — provide the patient timeline and key data (age, primary site, stage, histology, biomarkers including KRAS status, treatment history, ECOG, prior imaging/pathology notes). I will ask PatientHistory what additional info they need to produce that summary.
+2. PatientStatus — create a consolidated current patient-status summary usable for trial matching (needs the items listed above from PatientHistory).
+3. ClinicalTrials — search and list active clinical trials the patient is eligible for (needs the PatientStatus summary and geographic location).
+4. ClinicalGuidelines (if needed) — will *not* provide treatment recommendations but can clarify guideline context for eligibility criteria if requested.
+5. ReportCreation — if you want, prepare a document of the findings for tumor board review (needs the full timeline and trial list).
+6. MedicalResearch — if you want deeper literature or investigational background about specific trial mechanisms or KRAS-targeted strategies.
+
+Important rules
+- Each agent, after completing their task, should yield back to me by ending their reply with: back to you: Orchestrator
+- I will not provide clinical recommendations or treatment plans — only coordination and information gathering to list trials and eligibility.
+- I will ask the user for missing pieces of information explicitly.
+
+User input needed now
+User, can you provide the patient_4 geographic location (city and state or country) so we can limit trial searches to suitable distances? Also please confirm whether the record for patient_4 is up-to-date and whether you can share/confirm these items if available: age, ECOG performance status, and any recent imaging or pathology reports.
+
+Next step — PatientHistory
+*PatientHistory*, proceed with patient_4: please provide the patient timeline and the following items (or let me know what you need to access to provide them): age, primary tumor site, stage (TNM or summary stage), histology, biomarkers including KRAS mutation (specific variant if known), prior treatments (surgery, chemo, targeted, immunotherapy; include dates), and ECOG performance status. If you need any other identifiers or records to pull this data, state what you need.
+
+PatientHistory, after you respond, please yield back to me with: back to you: Orchestrator
+
+---
+

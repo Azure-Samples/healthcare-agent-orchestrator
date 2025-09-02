@@ -1,0 +1,24 @@
+USER:
+Given the KRAS p.G12C mutation in patient_4, summarize current treatment options including KRAS inhibitors, chemo-immunotherapy, and emerging trial drugs. Include efficacy, risk profile, and how this may affect prognosis
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+To address your request regarding the KRAS p.G12C mutation in patient_4, we will follow the plan below and involve several AI agent experts:
+
+1. **PatientHistory**: We'll begin with retrieving the necessary patient information related to patient_4. This includes details such as age, staging, primary site, histology, biomarkers, treatment history, and ecog performance status. 
+
+2. **PatientStatus**: Using the information provided by PatientHistory, PatientStatus will summarize the current condition of patient_4.
+
+3. **ClinicalGuidelines**: Once the patient's status is obtained, ClinicalGuidelines will provide treatment recommendations specifically focused on KRAS inhibitors, chemo-immunotherapy, and emerging trial drugs.
+
+4. **ClinicalTrials**: Leveraging the data from PatientStatus, ClinicalTrials will identify any relevant ongoing clinical trials for drugs targeting KRAS p.G12C.
+
+5. **MedicalResearch**: With the insights from ClinicalGuidelines and ClinicalTrials, MedicalResearch will provide information about efficacy, risk profiles, and how these treatments may affect the prognosis.
+
+Each agent, after completing their task, should yield the chat back to me by saying "back to you: Orchestrator."
+
+*User*, can you provide me with the patient's ID for PatientHistory to proceed?
+
+---
+

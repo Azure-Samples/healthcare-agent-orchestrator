@@ -1,0 +1,40 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and order
+- I will moderate a stepwise tumor-board preparation for patient_4 and coordinate the specialist agents in this order:
+  1) PatientHistory — obtain the patient timeline and source documents.
+  2) Radiology — review any imaging (CT, X-ray, PET) and provide imaging impressions.
+  3) PatientStatus — synthesize current status (age, staging, primary site, histology, biomarkers, treatments, ECOG).
+  4) ClinicalGuidelines — provide guideline-based options (note: I, Orchestrator, will not give clinical recommendations).
+  5) ClinicalTrials — identify relevant trials given the patient status.
+  6) MedicalResearch — provide supporting literature if requested.
+  7) ReportCreation — assemble a tumor-board word document for review.
+
+Rule for all agents
+- Each agent, after completing their task, must yield back to me by ending their reply with: back to you: Orchestrator
+
+What I need from you now (User)
+- User, please confirm you want a full tumor-board packet for patient_4 and provide as many of the following items as you can:
+  - Recent clinic notes and problem list
+  - Pathology report(s) including histology, grade, margins, and molecular biomarkers (EGFR, ALK, PD-L1, etc. if applicable)
+  - Staging information (TNM or summary stage)
+  - All relevant imaging files or reports (CT chest/abdomen/pelvis, PET-CT, X-rays) — if you have DICOMs, please attach; if only reports, attach those.
+  - Treatment history (surgery, radiation, systemic therapy including doses and dates)
+  - Current medications and allergies
+  - ECOG / performance status
+  - Relevant labs (CBC, CMP, tumor markers) and dates
+  - Social history (smoking, alcohol) and comorbidities
+  - Any trial interests or restrictions
+- If any items are not available, say which are missing.
+
+First step — PatientHistory
+- PatientHistory, proceed with compiling a patient timeline for patient_4. Specify exactly which source documents or data elements you need (clinic notes, pathology, imaging, labs, treatment dates). If you already have access to any specific items, state what you will extract. After you provide the timeline, end with: back to you: Orchestrator
+
+Do you confirm this plan, User? If yes, please upload available documents now. If you’d like to change the order or focus (for example, emphasize imaging first), tell me and I’ll adjust before calling the next agent.
+
+---
+
