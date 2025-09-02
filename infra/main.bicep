@@ -34,7 +34,7 @@ param appPlanName string = ''
 param appName string = ''
 
 @description('Gen AI model name and version to deploy')
-@allowed(['gpt-4o;2024-08-06', 'gpt-4.1;2025-04-14', 'gpt-5-chat;2025-08-07'])
+@allowed(['gpt-4o;2024-08-06', 'gpt-4.1;2025-04-14', 'gpt-5;2025-08-07', 'gpt-5-mini;2025-08-07', 'gpt-5-nano;2025-08-07'])
 param model string
 @description('Tokens per minute capacity for the model. Units of 1000 (capacity = 100 means 100K tokens per minute)')
 param modelCapacity int

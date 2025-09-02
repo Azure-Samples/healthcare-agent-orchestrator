@@ -414,14 +414,14 @@ class ChatSimulator:
             output_filename
         )
 
-        with open(output_file_path, 'w') as f:
+        with open(output_file_path, 'w', encoding="utf-8") as f:
             # Save the chat history to a file
             f.write(group_chat_context)
 
         if save_readable_history:
             messages = chat_history_to_readable_text(self.group_chat.history)
             readable_filename = output_file_path.replace(".json", "_readable.txt")
-            with open(readable_filename, 'w') as f:
+            with open(readable_filename, 'w', encoding="utf-8") as f:
                 f.write(messages)
 
         return self
