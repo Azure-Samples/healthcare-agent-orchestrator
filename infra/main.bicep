@@ -40,7 +40,7 @@ param model string
 param modelCapacity int
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/deployment-types
 @description('Specify the deployment type of the model. Only allow deployment types where data processing and data storage is within the specified Azure geography.')
-@allowed(['DataZoneStandard', 'Standard', 'GlobalStandard'])
+@allowed(['Standard', 'DataZoneStandard'])
 param modelSku string
 
 @description('Location to deploy AI Services')
