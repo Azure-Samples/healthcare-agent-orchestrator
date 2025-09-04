@@ -1,0 +1,37 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm objectives and align on the sequence of agent participation.
+- Retrieve and validate the patient’s timeline and key clinical data.
+- Generate a concise patient status summary for downstream agents.
+- Gather/verify imaging and pathology inputs needed by Radiology and ReportCreation.
+- Coordinate guideline-aligned options, trial matching, and research add-ons.
+- Compile a tumor board-ready report and confirm any formatting preferences.
+
+Plan and participation order:
+- PatientHistory: Retrieve a structured timeline and concise history for patient_4.
+- PatientStatus: Build a current oncologic status summary (age, staging, primary site, histology, biomarkers, treatment history, ECOG).
+- Radiology: Provide imaging insights if images are available; otherwise note gaps and needed files.
+- ClinicalGuidelines: Offer guideline-aligned therapeutic options based on PatientStatus.
+- ClinicalTrials: Identify relevant trials matched to PatientStatus.
+- ReportCreation: Assemble a tumor board-ready Word document with all sections (timeline, clinical summary, imaging/pathology findings, and plan/trials).
+- MedicalResearch: Provide targeted literature related to a specified topic pertinent to the case.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User, please confirm this plan. Also, to streamline the process:
+- Do you have any imaging to upload (CT/MRI/PET, chest X-ray, DICOM or JPEG/PDF)? If yes, please provide them for Radiology.
+- Do you have the latest pathology report and molecular testing (biomarkers like PD-L1, MSI, NGS panel)? If available, please share or confirm they are in the record.
+- Any specific research topic you want MedicalResearch to focus on (for example: “first-line therapy evidence for [cancer type] with [biomarker]”, “management of oligoprogression”, or “perioperative strategies”)?
+- Any preferences for clinical trial filters (location, phase, sponsor) and the report format (template style, logo/header)?
+- Target date/time of the tumor board and names/roles to include on the cover page?
+
+If you confirm, I will proceed by instructing PatientHistory to retrieve patient_4’s timeline first. Micro-update on progress will follow each agent’s response.
+
+---
+

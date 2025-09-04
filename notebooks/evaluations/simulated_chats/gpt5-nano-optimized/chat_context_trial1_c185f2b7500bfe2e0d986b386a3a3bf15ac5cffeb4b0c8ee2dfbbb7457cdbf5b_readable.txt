@@ -1,0 +1,34 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps (high level):
+- Confirm and lock in the patient identifier and scope (tumor board prep for the given patient).
+- Initiate data gathering by querying the patient history timeline.
+- Compile a concise history summary and identify data gaps for the tumor board.
+- Coordinate with specialty agents (Status, Radiology, Pathology, Guidelines, Trials, Research) to fill gaps.
+- Assemble a tumor board-ready package (timeline, clinical summary, key questions, imaging/pathology highlights, treatment history, potential trial options).
+- Maintain explicit handoffs: after each agent finishes, they return control to you with the required “back to you: Orchestrator” cue.
+- Provide a clear micro-update after each major handoff and finish with a summarized collective plan and next steps.
+
+Plan for the Tumor Board prep (to be executed after your confirmation):
+- Step 1: PatientHistory: Retrieve and validate the patient timeline for patient_4; produce a concise history_summary.
+- Step 2: PatientStatus: Obtain current status details (age, staging, primary site, histology, biomarkers, treatment history, ECOG) as available from the patient history.
+- Step 3: Radiology: Review available imaging data (e.g., CT/MRI/Chest X-ray) that appear in the timeline; extract key findings.
+- Step 4: Pathology/History details: Incorporate pathology findings and prior biopsies from the timeline.
+- Step 5: ClinicalGuidelines: Obtain relevant treatment recommendations aligned with current status (to be presented as guidance for discussion; not my own clinical advice).
+- Step 6: ClinicalTrials: Gather information on applicable trials based on status and biomarkers.
+- Step 7: ReportCreation: Assemble a formal tumor board document outline (timeline, clinical summary, medical history, cancer type, imaging findings, pathology findings, treatment history, planned questions, potential trials).
+- Step 8: Synthesis: Produce a concise 1-2 sentence collective summary and a list of discussion points for the board.
+- Step 9: Final review: Present the compiled package to you for review and any requested edits before circulating to the tumor board.
+
+Important note you requested:
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User confirmation:
+- Please confirm that you’d like me to proceed with the above plan to gather data from the relevant agents and assemble the tumor board package for Patient ID: patient_4. If you’d like any adjustments (e.g., additional data fields to prioritize, specific formats, or emphasis on certain aspects), tell me and I’ll incorporate them before we begin.
+
+---
+

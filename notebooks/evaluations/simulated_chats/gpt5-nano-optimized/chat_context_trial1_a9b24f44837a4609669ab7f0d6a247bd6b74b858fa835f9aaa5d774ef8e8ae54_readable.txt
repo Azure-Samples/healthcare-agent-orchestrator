@@ -1,0 +1,35 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is my moderation plan before proceeding:
+
+- Verify patient identifier: ensure patient_id is a non-empty string and present.
+- Gather a comprehensive patient history: request Timeline, biomarker status, stage at diagnosis, cancer type, pathology, and prior treatments from the PatientHistory agent.
+- Compile current status: obtain age, staging, primary site, histology, biomarkers, and treatment history from PatientStatus (using data provided by PatientHistory).
+- Retrieve imaging data and interpretation: prompt Radiology to analyze the latest imaging available for patient_4 (ct/mri/x-ray as appropriate).
+- Create the tumor-board-ready report: task ReportCreation to assemble a formatted Word document including patient timeline, clinical summary, medical/social history, cancer type, imaging findings, pathology, treatment history, and current status.
+- Validate and deliver: ensure the final document is coherent, properly labeled, and exportable; present a download-ready content or document outline.
+- Milestone updates: provide a brief status after each agent’s contribution and outline what comes next.
+- Ensure explicit conversational flow: after each agent finishes, they must yield back to you with “back to you: Orchestrator”.
+
+Special rule reminder:
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: *Orchestrator*" after their response.
+
+Planned participation order:
+1) User confirms plan.
+2) PatientHistory → deliver patient timeline and biomarker/staging data (if available).
+3) PatientStatus → provide current status synthesized from history.
+4) Radiology → analyze latest imaging.
+5) ReportCreation → generate the formatted Word document content for tumor board.
+6) Deliver final summary and document content to you, with a note on how to access/export the Word document.
+
+Patient ID check:
+- Provided: patient_4 (string). Proceeding under the assumption this is valid. If you intended a different identifier, please correct me.
+
+User, please confirm to proceed with this plan. If you approve, I will initiate data gathering from the agents in the order above and keep you updated at each milestone.
+
+---
+

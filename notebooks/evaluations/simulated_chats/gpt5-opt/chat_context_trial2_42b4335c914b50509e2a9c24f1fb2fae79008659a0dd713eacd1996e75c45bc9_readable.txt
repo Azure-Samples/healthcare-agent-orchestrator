@@ -1,0 +1,34 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm the objective, outline the agent sequence, and request your approval.
+- Collect the patient’s timeline and history details from PatientHistory.
+- Derive a structured current status from PatientStatus using history details.
+- Obtain or confirm latest imaging findings; involve Radiology only if image files are available.
+- Compile all inputs into a formatted Word document via ReportCreation.
+- Provide milestone updates after each agent’s contribution and ensure handoff back to me.
+
+Plan and participation order:
+1) PatientHistory: Retrieve and summarize the full timeline for patient_4, including staging details, biomarker status, treatment history, and any recorded imaging findings.
+2) PatientStatus: Using the extracted data (age, staging, primary site, histology, biomarkers, treatment history, ECOG), prepare a concise current status section.
+3) Radiology: If you can provide the latest imaging files (CT/MRI/X-ray), Radiology will add imaging insights. If not, we will rely on the narrative imaging findings from the record without Radiology.
+4) ReportCreation: Assemble a tumor-board-ready Word document including diagnostic summary, biomarker status, stage at diagnosis, treatment history, and latest imaging findings.
+
+Special rule:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents should conclude with: “back to you: Orchestrator”.
+
+User confirmation and needed inputs:
+- Please confirm that you approve this plan.
+- If available, please upload or provide access to the latest imaging files (DICOM preferred; JPEG/PNG acceptable). If unavailable, we will use the most recent imaging report from the chart.
+- Do you have a preference for receiving the Word document as a downloadable .docx file or as a base64-encoded .docx string?
+
+On your confirmation, I will proceed:
+- PatientHistory, please proceed with the full timeline for patient_4.
+- Then PatientStatus, followed by Radiology (if images are supplied), and finally ReportCreation to generate the Word document.
+
+---
+

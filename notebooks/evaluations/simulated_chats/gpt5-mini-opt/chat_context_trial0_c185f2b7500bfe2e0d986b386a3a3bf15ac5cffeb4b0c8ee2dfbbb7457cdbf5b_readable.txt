@@ -1,0 +1,52 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — planned moderation steps
+- Validate patient ID and request the PatientHistory timeline per its required JSON schema.
+- Identify missing clinical materials (images, pathology, biomarkers) and request them from the user.
+- Sequence agent contributions (PatientHistory → Radiology → PatientStatus → ClinicalTrials → ClinicalGuidelines → MedicalResearch → ReportCreation), collecting each agent’s outputs and returning control to the Orchestrator after each.
+- Produce milestone micro-updates after each agent response and summarize all inputs at the end.
+
+Purpose, plan, and participant order
+- Purpose: Prepare a tumor-board packet for patient_4 by collecting structured patient timeline/history, imaging interpretation, patient status, relevant trials/guidelines, optional research support, and a final Word report for tumor board review.
+- Expected participation order:
+  1. PatientHistory — validate patient ID and return structured timeline JSON (required first).
+  2. Radiology — analyze imaging if images are provided (needs image files or references from PatientHistory).
+  3. PatientStatus — synthesize current status (needs age, staging, primary site, histology, biomarkers, treatment history, ECOG).
+  4. ClinicalTrials — suggest applicable trials (needs PatientStatus output).
+  5. ClinicalGuidelines — summarize guideline-based options (needs PatientStatus output).
+  6. MedicalResearch — provide background or literature on requested topics (needs keyword/topic).
+  7. ReportCreation — assemble the tumor board Word document (needs timeline, summaries, imaging/pathology findings, and treatment/trials info).
+
+Special rule to all participants (explicit)
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent must conclude their response with: "back to you: Orchestrator"
+
+Initial requests and data needs
+- User, please confirm that the patient ID is correct: "patient_4".
+- User, please provide any available attachments now: imaging files (CT, PET, X-ray), pathology report(s), biomarker results, and any recent clinic notes or labs you want included.
+- Note: Radiology requires the actual image files (DICOMs or high-resolution images). If you cannot provide images, Radiology can only review imaging reports or comment at a high level from descriptions.
+- PatientStatus will require: age, staging, primary tumor site, histology, biomarkers, prior treatment history, and ECOG performance status. If those items are in the records you will upload, PatientHistory should return them; otherwise please supply them directly.
+
+Plan for PatientHistory
+- *PatientHistory*, please proceed with the following:
+  1. Validate the patient ID is present and a string (patient_id = "patient_4").
+  2. Retrieve the relevant patient timeline data and produce a JSON response matching your workflow:
+     - On success: set "status":"success", include "patient_id", "patient_timeline" (structured array of events), "history_summary" (concise), and "error_message": null.
+     - On error (missing/invalid ID): set "status":"error" and an informative "error_message".
+  3. Ensure timeline includes imaging reports (and filenames if attachments exist), pathology findings, biomarker results, treatments, and dates where available.
+  4. Conclude with: back to you: Orchestrator
+
+User confirmation
+- User, do you confirm this plan and that I should ask PatientHistory to proceed now for patient_4? If yes, please also upload any imaging, pathology, or other documents you have. If you want to change the plan (e.g., skip certain agents), tell me which agents to include or exclude.
+
+Micro-update (current)
+- I will now request PatientHistory to retrieve the timeline for patient_4. Once PatientHistory returns the JSON, I will summarize it, identify any missing items, and then call Radiology if imaging is available. Next steps will be shared after PatientHistory responds.
+
+Next action (with your confirmation)
+- If you confirm, I will instruct PatientHistory to begin now.
+
+---
+

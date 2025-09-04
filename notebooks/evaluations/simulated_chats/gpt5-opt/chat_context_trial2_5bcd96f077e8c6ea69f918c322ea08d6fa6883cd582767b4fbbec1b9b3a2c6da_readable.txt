@@ -1,0 +1,38 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify scope and confirm the orchestration plan with you.
+- Validate the patient ID and engage the correct agents in sequence.
+- Gather the patient’s timeline and core clinical details.
+- Synthesize current patient status from the timeline data.
+- Extract or confirm latest imaging findings.
+- Compile a formatted Word document for tumor board presentation.
+- Provide milestone updates and ensure each agent yields control back to me.
+
+Proposed plan and agent sequence:
+- Step 1: PatientHistory will retrieve the structured timeline and history for patient_4, including key dates, stage at diagnosis, biomarkers, treatments, and imaging reports. Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+- Step 2: PatientStatus will synthesize a concise current status using age, primary site, histology, biomarkers, stage at diagnosis, treatment history, and ECOG (from PatientHistory).
+- Step 3: Radiology will summarize the latest imaging findings. If you can provide actual image files (CT, MRI, PET, X-ray), Radiology will analyze them; otherwise, they will summarize from the latest imaging report(s) in PatientHistory and note the limitation of no direct image review.
+- Step 4: ReportCreation will generate a formatted Word document suitable for tumor board, incorporating biomarker status, stage at diagnosis, treatment history, latest imaging findings, timeline, and a concise clinical summary. We will also include placeholders for sections with missing data (e.g., social history or pathology specifics) if not available.
+- Step 5: ClinicalGuidelines will acknowledge scope and refrain from providing treatment recommendations unless you request them explicitly.
+- Step 6: ClinicalTrials will either provide a brief note offering to search for relevant trials based on the synthesized status or perform a targeted search if you want that included.
+- Step 7: MedicalResearch will offer to compile key literature relevant to the case if you want that included.
+
+Information needed from you before we begin:
+- User, do you have any imaging files (CT/MRI/PET/X-ray) to upload for Radiology review? If not, we’ll proceed using the latest imaging report from the chart.
+- User, do you want ClinicalTrials and/or MedicalResearch sections included in the Word document?
+- Optional preferences: desired file name for the Word document, and whether to include social history and comorbidities if present in the chart.
+
+Please confirm:
+- May we proceed with the above plan for patient_4?
+- Confirm whether to include ClinicalTrials and MedicalResearch sections.
+- Provide any imaging files if available, or confirm that we should use chart-reported findings only.
+
+Once you confirm, I will start with PatientHistory.
+
+---
+

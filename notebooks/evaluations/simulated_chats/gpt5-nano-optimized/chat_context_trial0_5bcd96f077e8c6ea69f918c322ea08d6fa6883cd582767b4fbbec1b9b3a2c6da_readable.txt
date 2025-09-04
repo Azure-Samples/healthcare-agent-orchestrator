@@ -1,0 +1,45 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps
+- Verify patient identifier and scope of requested data (biomarkers, stage, treatment history, latest imaging).
+- Engage the appropriate AI agents in sequence to gather each data component.
+- Synthesize the collected data into a concise diagnostic narrative suitable for a tumor-board context.
+- Generate a formatted Word-document draft that includes all required sections (timeline, clinical summary, labs/biomarkers, imaging findings, pathology, treatment history, clinical trials).
+- Provide a clear handoff plan after each agent finishes, and keep you updated on progress.
+- Require your confirmation before delivering the final document, and accommodate any formatting or content adjustments.
+- Ensure data contributions are clearly attributed and the output remains non-clinical guidance (no treatment recommendations).
+
+Plan and participant order
+- Agent 1: PatientHistory
+  - Task: Retrieve biomarker status, stage at diagnosis, and treatment history for patient_4.
+  - Output: Structured timeline and history summary to inform the diagnostic narrative.
+  - Handoff: back to you: Orchestrator
+- Agent 2: Radiology
+  - Task: Retrieve latest imaging findings (CT/MRI, plus any X-ray findings relevant to current status) for patient_4.
+  - Output: Imaging findings section with summaries and key measurements.
+  - Handoff: back to you: Orchestrator
+- Agent 3: PatientStatus
+  - Task: Compile current status (age, primary site, histology, biomarkers, ECOG status, prior lines of therapy) using data from PatientHistory.
+  - Output: Consolidated current status section.
+  - Handoff: back to you: Orchestrator
+- Agent 4: ClinicalTrials
+  - Task: Identify any active or relevant clinical trials for which patient_4 might be eligible, using current patient status.
+  - Output: Trials summary (if any) and eligibility notes.
+  - Handoff: back to you: Orchestrator
+- Agent 5: ReportCreation
+  - Task: Assemble a formatted Word document suitable for tumor-board presentation, incorporating:
+    - patient timeline, clinical summary, medical history, social history, cancer type, CT findings, X-ray findings, pathology findings, treatment history, and clinical trials.
+  - Output: A Word-document-ready content draft (textual) or a structured document object.
+  - Handoff: back to you: Orchestrator
+
+Next step confirmation
+- Please confirm that you’d like me to proceed with the data gathering and document generation as planned. If you have any formatting preferences (section order, headings, or specific wording), tell me now and I’ll incorporate them.
+
+Note: I will not provide clinical recommendations or treatment plans. The forthcoming Word document will reflect diagnostic history, imaging, pathology, and treatment history, plus any active trials, in a tumor-board ready format.
+
+---
+

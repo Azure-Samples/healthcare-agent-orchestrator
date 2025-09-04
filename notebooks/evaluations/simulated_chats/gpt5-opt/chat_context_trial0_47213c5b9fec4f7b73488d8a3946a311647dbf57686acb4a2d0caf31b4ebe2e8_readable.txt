@@ -1,0 +1,35 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist:
+- Confirm scope, outputs, and needed agents
+- Validate required inputs (patient ID) and identify any missing assets (e.g., imaging files)
+- Sequence agent participation and state the handoff protocol
+- Collect patient history, then derive patient status, then assemble trial options, then generate the Word document
+- Provide brief milestone updates after each agent response and manage follow-ups
+
+Proposed plan and participation order:
+- PatientHistory: Retrieve a structured timeline for patient_4, including staging at diagnosis, biomarker results, treatment history, and documented imaging findings. Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+- PatientStatus: Summarize the current status using data from PatientHistory (age, primary site, histology, biomarkers, ECOG status, treatment history, and stage).
+- ClinicalTrials: Identify relevant clinical trials based on the current status (optional but recommended for tumor board completeness).
+- ReportCreation: Generate a formatted Word document suitable for tumor board presentation, including the diagnostic summary (biomarkers, stage at diagnosis), treatment history, and latest imaging findings; incorporate clinical trials if approved.
+
+Notes:
+- Radiology can be added if you can share imaging files (e.g., CT, MRI, or X-ray) to enable image-based insights. Without files, we will use chart-documented imaging reports from PatientHistory.
+
+User confirmation needed:
+- User, please confirm the plan and whether you would like the ClinicalTrials section included.
+- If you have any imaging files (DICOM or other formats) or radiology report PDFs you want referenced, please upload or specify them. Otherwise, we will rely on the latest imaging findings documented in the chart via PatientHistory.
+- Optional: Let me know if you have a preferred institutional template, logo, or formatting requirements for the Word document (e.g., section headings, font, page header/footer).
+
+Once you confirm, I will proceed with:
+1) PatientHistory for patient_4,
+2) PatientStatus,
+3) ClinicalTrials (if approved),
+4) ReportCreation to deliver the Word document.
+
+---
+

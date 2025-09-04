@@ -1,0 +1,47 @@
+USER:
+Given the presence of a KRAS p.G12C mutation, what are the potential benefits and risks of transitioning to KRAS-directed treatment with adagrasib? How might this change the patient's prognosis?
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the user’s goal and confirm the workflow and agent sequence.
+- Gather required patient identifiers and data needed by downstream agents.
+- Coordinate agents in sequence, ensuring each states what they need and yields back.
+- Summarize key handoffs and provide micro-updates after each agent’s response.
+- Avoid clinical recommendations myself; route all such content through the appropriate agents.
+- Verify completeness; if inputs are missing, prompt the right agent or user to supply them.
+
+Proposed plan and participation order:
+1) PatientHistory: Retrieve the patient’s timeline and history using a valid patient ID string.
+2) PatientStatus: Derive the current status (age, staging, primary site, histology, biomarkers including KRAS p.G12C, treatment history, ECOG).
+3) ClinicalGuidelines: Provide a general, evidence-based overview of potential benefits and risks of KRAS-directed therapy with adagrasib and how it may influence prognosis, tailored to the patient’s status.
+4) ClinicalTrials: Identify any relevant trials for KRAS p.G12C that may be options given the patient’s status.
+5) MedicalResearch: Summarize key research and emerging data related to adagrasib and KRAS G12C in the patient’s disease context.
+6) Radiology: If you have recent imaging (e.g., chest CT or brain MRI), Radiology can add insights on disease burden or brain metastasis considerations relevant to risk/benefit discussions.
+7) ReportCreation: If you want a tumor board-style document, this agent can assemble the findings into a Word document.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents, conclude with: “back to you: Orchestrator”.
+
+User, to proceed, please confirm the plan and provide one of the following:
+- Preferred: the patient ID as a string (required by PatientHistory).
+- If no patient ID is available, please provide the minimum details PatientStatus needs:
+  - Age:
+  - Primary cancer site and histology (e.g., NSCLC, adenocarcinoma):
+  - Stage (at diagnosis and current if different):
+  - Biomarkers (confirm KRAS p.G12C; any others like PD-L1, EGFR, ALK, etc.):
+  - Treatment history (systemic therapies, dates if possible):
+  - ECOG performance status (0–4):
+
+Optional but helpful (for richer risk/benefit context and trial fit):
+- Presence of brain metastases and recent imaging availability (CT/MRI/PET):
+- Liver function status and any history of hepatotoxicity:
+- Cardiac history including baseline QTc if known:
+- Concomitant medications that might interact (e.g., strong CYP3A modulators):
+- Any prior KRAS G12C inhibitor exposure (e.g., sotorasib) and response/tolerance.
+
+If you confirm and supply the patient ID, I will start with PatientHistory. If you prefer to skip imaging or a report document, we can omit Radiology and/or ReportCreation for now.
+
+---
+

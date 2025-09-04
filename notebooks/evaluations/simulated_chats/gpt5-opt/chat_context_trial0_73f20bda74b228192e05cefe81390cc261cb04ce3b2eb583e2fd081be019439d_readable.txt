@@ -1,0 +1,47 @@
+USER:
+Can you scan all pathology and molecular testing to see if these biomarkers are present
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the user’s goal and define the exact output needed.
+- Identify which agent(s) must be engaged and what inputs they require.
+- Gather required inputs from the user and/or agents before proceeding.
+- Coordinate the agent workflow, ensure handoffs, and provide micro-updates after each step.
+- Validate outputs for completeness and alignment with the user’s request.
+- Avoid clinical recommendations; focus on organizing and reporting information.
+
+Plan and sequence:
+- We will first engage PatientHistory to retrieve all available pathology and molecular testing information for the specified patient.
+- Orchestrator will then extract and list the requested biomarkers, noting status (e.g., positive/negative/not tested/indeterminate), methods (e.g., IHC, FISH, NGS), and key metrics (e.g., TPS/CPS for PD-L1, VAF, MSI, TMB), as available in the records.
+- If you wish, we can then proceed to PatientStatus to assemble a concise clinical status summary using the biomarkers found.
+- Optional: We can later involve ClinicalTrials or ReportCreation if you want trial options summarized or a tumor board document.
+Special rule: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents must conclude with: “back to you: Orchestrator”.
+
+First, confirming agent input requirements:
+- PatientHistory, please confirm what you need to retrieve all pathology and molecular testing for this patient.
+
+PatientHistory:
+- I require a valid patient_id provided as a string. If the patient_id is missing, empty, or not a string, I will return an error. Once provided, I will return a structured patient_timeline and a concise history_summary that includes pathology and molecular testing details. back to you: Orchestrator
+
+Micro-update: PatientHistory has confirmed that a valid patient_id string is required to fetch the pathology/molecular data. Next, I will gather needed details from you.
+
+User, to proceed, please provide:
+- The patient ID (as a string).
+- The list of biomarkers you want checked (“these biomarkers”). If you don’t have a list, I can scan all available reports and return every biomarker mentioned with its status.
+- Scope preference: scan all historical reports, or only the most recent?
+- Reporting preferences (optional): 
+  - Include test methodology and thresholds (e.g., PD-L1 TPS/CPS, MSI method, TMB units)? 
+  - Include genomic details like variant name, exon, VAF, copy number, fusions, and pathogenicity classification?
+  - Note any dates for when results were obtained?
+
+Upon your confirmation and providing the patient ID (and biomarker list if applicable), I will:
+1) Ask PatientHistory to retrieve the records.
+2) Extract and summarize the biomarker findings for you.
+3) Provide a micro-update and propose optional next steps (e.g., PatientStatus, ClinicalTrials, or ReportCreation).
+
+Please confirm this plan and share the patient_id and biomarker list (or tell me to scan and list all biomarkers found).
+
+---
+

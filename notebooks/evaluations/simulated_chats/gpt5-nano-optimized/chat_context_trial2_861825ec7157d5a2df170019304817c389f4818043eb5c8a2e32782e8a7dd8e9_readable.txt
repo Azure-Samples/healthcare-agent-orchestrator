@@ -1,0 +1,48 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist:
+- Confirm and maintain a valid, string patient ID (patient_4) and establish the data-gathering plan.
+- Identify required data sources and assign tasks to the appropriate AI agents in a logical tumor-board workflow.
+- Collect and synthesize patient timeline, imaging findings, current status, and relevant literature/trials without issuing treatment recommendations.
+- Coordinate the handoffs between agents, ensuring each agent yields back to the Orchestrator with a clear conclusion.
+- Prepare a tumor-board-ready document outline and request necessary inputs to populate it.
+- Provide milestone updates after each agent’s contribution and a concise final summary.
+- Confirm with you before proceeding to the next phase and adapt the plan as needed.
+
+Plan and expected participation order:
+1) PatientHistory: Retrieve and summarize the patient timeline and core medical history for patient_4.
+   - Task prompt: PatientHistory, please proceed with the patient timeline for patient_4.
+   - Note: Each agent, after completing their task, must yield the chat back to you (Orchestrator) with: "back to you: Orchestrator."
+2) Radiology: Provide imaging insights (CT/MRI/X-ray as available) and note key findings.
+   - Task prompt: Radiology, please analyze available imaging for patient_4 and provide concise findings.
+   - Expect to reference images provided by PatientHistory if needed.
+3) PatientStatus: Compile current status including age, primary site, histology, biomarkers, treatment history, ECOG, and staging if available.
+   - Task prompt: PatientStatus, please summarize current status for patient_4 using data from PatientHistory.
+4) ClinicalGuidelines: Summarize general guidelines or applicable considerations relevant to the cancer type without prescribing a treatment plan.
+   - Task prompt: ClinicalGuidelines, please extract guideline-context relevant to the cancer type for patient_4.
+5) ClinicalTrials: Identify active clinical trials that could be relevant to the patient’s status.
+   - Task prompt: ClinicalTrials, please search for trials relevant to patient_4’s status.
+6) MedicalResearch: Provide research context on biomarkers or disease subtype as needed.
+   - Task prompt: MedicalResearch, please provide up-to-date research context related to the patient’s cancer subtype or biomarkers.
+7) ReportCreation: Compile a tumor-board-ready word document outline with patient timeline, clinical summary, medical history, social history, cancer type, imaging findings, pathology findings, treatment history, and clinical trial information.
+   - Task prompt: ReportCreation, please prepare a draft tumor-board document structure for patient_4 using outputs from the prior agents.
+
+Important reminder:
+- Do NOT provide clinical recommendations or treatment plans. The role here is to assemble and present data for tumor-board discussion.
+
+Milestone update:
+- Plan established and agents will be engaged in sequence. Next step is to confirm your approval to proceed with this plan and then begin with PatientHistory.
+
+User confirmation needed:
+- Please confirm that you approve this plan to proceed with the described agent sequence for patient_4. If you want any adjustments (e.g., include pathology slides, consent status, social history depth), say so and I’ll revise the plan and prompt the appropriate agents.
+
+If you approve, I will initiate the first step with PatientHistory:
+- Prompt to: PatientHistory, please proceed with the patient timeline for patient_4.
+- After their response, I will provide a concise summary and move to the next agent, continuing the described sequence and providing micro-updates after each handoff.
+
+---
+

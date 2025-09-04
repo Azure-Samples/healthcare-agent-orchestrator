@@ -1,0 +1,36 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and onboarding for tumor board preparation (Patient ID: patient_4)
+
+Planned moderation steps (conceptual):
+- Validate the patient ID and confirm it is a non-empty string.
+- Initiate a structured pull of the patient’s timeline and history from the PatientHistory agent.
+- Retrieve imaging findings (CT/X-ray) via the Radiology agent, using data provided by PatientHistory as needed.
+- Determine current patient status (age, staging, primary site, histology, biomarkers, ECOG, prior treatments) with the PatientStatus agent.
+- Obtain evidence-based considerations from ClinicalGuidelines based on the patient status.
+- Compile available clinical trials information from ClinicalTrials and relevant medical research from MedicalResearch as needed.
+- Generate a tumor board-ready document with ReportCreation, including patient timeline, clinical summary, medical/social history, cancer type, imaging findings, pathology, treatments, and clinical trials.
+- After each agent’s contribution, ensure the agent returns control to the Orchestrator with the mandated wrap-up line.
+- Provide a concise milestone update after each handoff and an overall summary once all agents have contributed. 
+
+Plan to execute (participation order):
+1) PatientHistory: Retrieve patient timeline, medical history, social history, cancer type, histology, biomarkers, treatment history, ECOG/status if available.
+2) Radiology: Provide imaging findings (CT/X-ray) using data referenced by PatientHistory; request images if necessary.
+3) PatientStatus: Compile current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG).
+4) ClinicalGuidelines: Offer treatment considerations aligned to the patient status.
+5) ClinicalTrials: List relevant clinical trial options for this patient.
+6) MedicalResearch: Provide any supporting research topics or context as needed for formulation of board materials.
+7) ReportCreation: Assemble a tumor board document including patient timeline, clinical summary, medical/social history, cancer type, imaging findings, pathology findings, treatment history, and clinical trials; produce a Word-document-ready package.
+
+Special instruction to all agents:
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User confirmation requested:
+- Please confirm that you approve this plan and the participation order above. If you want any changes (e.g., additional data to be included or a different sequence), say “Yes, adjust plan” and specify the adjustments. Once you confirm, I will initiate with the first agent (PatientHistory).
+
+---
+

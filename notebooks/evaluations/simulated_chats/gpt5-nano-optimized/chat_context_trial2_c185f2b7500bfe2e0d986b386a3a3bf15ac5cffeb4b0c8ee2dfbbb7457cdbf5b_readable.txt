@@ -1,0 +1,32 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps (concise plan):
+- Confirm patient_id and tumor board objectives, then align on scope.
+- Retrieve and summarize PatientHistory timeline for patient_4.
+- Obtain current status (age, staging, primary site, histology, biomarkers, ECOG, treatment history) from PatientStatus.
+- Collect imaging and relevant findings from Radiology; incorporate pathology context as available.
+- Compile a tumor-board ready deliverable (timeline, clinical summary, medical/social history, cancer type, imaging/pathology, prior treatments, clinical trials) and surface clinical guidelines and trial options without making treatment recommendations.
+- Coordinate inputs from ClinicalGuidelines, ClinicalTrials, and MedicalResearch; then generate ReportCreation output.
+- After each agent’s input, provide a micro-update and return control to Orchestrator. Explicitly instruct agents to conclude with: back to you: Orchestrator.
+
+Plan and expected participation order:
+1) PatientHistory: provide patient timeline and concise history for patient_4.
+2) Radiology: add imaging findings and radiology interpretation.
+3) PatientStatus: deliver current status details (age, site, histology, biomarkers, ECOG, staging, prior treatments).
+4) ClinicalGuidelines: summarize relevant guidelines/context for the disease setting.
+5) ClinicalTrials: identify relevant ongoing trials for consideration.
+6) MedicalResearch: surface any recent research or data pertinent to the case.
+7) ReportCreation: assemble a tumor board-ready document (timeline, clinical summary, medical history, social history, cancer type, imaging findings, pathology, prior treatments, and clinical trials).
+8) Orchestrator: synthesize all inputs into a cohesive board-ready summary and outline next steps.
+
+Important note:
+- Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+Please confirm if you’d like me to proceed with this plan for Patient ID: patient_4. If you want any scope adjustments (e.g., skip certain steps or add additional outputs), tell me now and I’ll adapt.
+
+---
+

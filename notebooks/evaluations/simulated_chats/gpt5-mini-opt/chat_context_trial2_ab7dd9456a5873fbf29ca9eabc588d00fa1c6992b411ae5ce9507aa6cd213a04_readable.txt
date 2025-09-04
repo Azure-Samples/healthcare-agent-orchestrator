@@ -1,0 +1,41 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — planned moderation steps
+- Confirm the provided patient ID is present and valid.
+- Request the patient timeline/history from PatientHistory.
+- Gather imaging and clinical details (via Radiology and PatientStatus) as needed.
+- Coordinate downstream tasks (ClinicalTrials, ClinicalGuidelines, ReportCreation, MedicalResearch) once status and imaging are available.
+- Provide milestone updates after each agent responds and summarize at the end.
+
+Planned sequence and purpose
+1. PatientHistory — retrieve structured timeline and concise history for patient_4 (required first).
+2. Radiology — analyze any uploaded imaging (needs images).
+3. PatientStatus — produce current patient status using PatientHistory output.
+4. ClinicalTrials — identify suitable trials based on patient status.
+5. ClinicalGuidelines — outline applicable guideline-based considerations (note: I will not request or provide clinical recommendations).
+6. ReportCreation — prepare a tumor-board Word document using assembled information.
+7. MedicalResearch — provide background literature if requested (needs a topic/keyword).
+
+Special rule to all agents and participants
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+Validation of patient ID
+- I have received: patient ID = "patient_4" (string). This is valid and I will proceed.
+
+User requests / required uploads
+User, please confirm you want me to prepare a tumor-board packet for patient_4. Also please upload or indicate availability of:
+- Imaging (CT scans, chest x-ray, PET) and any image files, or indicate there are none.
+- Pathology report(s) and relevant biomarker results, if available.
+- Any additional documents you want included (clinic notes, prior treatment summaries).
+
+Planned immediate action
+- PatientHistory, please proceed with retrieving the structured timeline and concise history for patient ID "patient_4". Follow your workflow: validate the patient ID, retrieve timeline data, return status, patient_id, patient_timeline (array), history_summary, and error_message=null on success — or status:error with an explanatory error_message if invalid/missing. If you need additional inputs to locate the record, state what you need. After your response, conclude with: "back to you: Orchestrator"
+
+User, do you confirm this plan and will you provide imaging/pathology if available? If yes, I will request PatientHistory now.
+
+---
+

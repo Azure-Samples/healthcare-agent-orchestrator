@@ -1,0 +1,37 @@
+USER:
+Given the presence of a KRAS p.G12C mutation, what are the potential benefits and risks of transitioning to KRAS-directed treatment with adagrasib? How might this change the patient's prognosis?
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Verify you provide a valid patient_id (as a string) to tailor the response to a patient timeline.
+- Retrieve and summarize the patient’s timeline and status once a valid ID is provided.
+- Provide a high-level, non-personalized overview of KRAS G12C inhibitors and adagrasib’s potential benefits/risks.
+- If patient-specific details are available, consult the relevant agents (PatientStatus, ClinicalGuidelines) to tailor information.
+- Orchestrate agent contributions and summarize the collective input for you, noting any uncertainties.
+- Seek your confirmation before proceeding with any next-step plan, and update you after each major agent handoff.
+- Conclude with a concise synthesis and next steps, and invite any follow-up questions.
+
+Special rule: Each agent, after completing their task, must yield the chat back to you (Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+Plan to proceed:
+- I will require a valid patient_id string to begin. Once you provide it, I will coordinate the following flow:
+  - PatientHistory: assemble a concise patient timeline using the ID.
+  - PatientStatus: extract current status (age, cancer type/site, biomarkers including KRAS G12C status, histology, ECOG, prior treatments).
+  - ClinicalGuidelines: review current guidance related to KRAS G12C-directed therapy (adagrasib) for the patient’s context.
+  - Synthesize findings into a brief, non-prescriptive summary of potential benefits/risks and how this class of therapy might influence prognosis in general terms.
+- After each agent’s contribution, I’ll give a micro-update and return control to me.
+
+Regarding general context (non-patient-specific, for orientation):
+- Adagrasib is a KRAS G12C inhibitor studied in KRAS G12C-mutant cancers (notably NSCLC) and has been evaluated in patients who have received prior therapy. General potential benefits reported in trials include evidence of tumor response and disease stabilization in a subset of patients, with responses sometimes lasting several months. Real-world benefits vary by tumor type, prior therapies, and molecular/clinical factors.
+- Common risks/side effects observed with KRAS G12C inhibitors in trials include gastrointestinal symptoms (diarrhea, nausea, vomiting), fatigue, decreased appetite, liver enzyme elevations (hepatotoxicity), edema, and rarely inflammatory lung effects such as pneumonitis/ILD. Monitoring for liver function and respiratory symptoms is typically important. Drug interactions and adherence considerations may apply.
+- Impact on prognosis is context-dependent. In trial settings, meaningful responses and progression-free intervals have been observed in some patients, but outcomes are heterogeneous and depend on line of therapy, tumor biology, co-mutations, and how the disease behaves with targeted therapy. This is not a guaranteed improvement and should be discussed in the context of the patient’s overall disease status and goals of care.
+
+Now, please provide a valid patient_id as a string so I can begin. 
+- User, please share the patient_id string. If you prefer not to share identifiers, I can still provide general information, but I won’t be able to tailor it to a specific history. 
+
+Milestone update: Plan articulated and awaiting a valid patient_id to start data retrieval and agent-specific responses. Next: once you provide the ID, I will engage the relevant agents in order and report back after each contribution.
+
+---
+

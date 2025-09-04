@@ -1,0 +1,50 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — planned moderation steps
+- Confirm and validate the provided patient ID and request any missing materials (images, reports).
+- Retrieve a structured patient timeline from PatientHistory.
+- Pass the extracted status to PatientStatus, then route needed data to Radiology, ClinicalTrials, ClinicalGuidelines, MedicalResearch, and ReportCreation in sequence.
+- Collect each agent's output, provide short milestone updates, and assemble a final concise summary for the tumor board package.
+- Ask the user for confirmation to proceed and any additional files (imaging, pathology, labs).
+
+Planned sequence and purpose (order of participants)
+1. PatientHistory — retrieve and return a validated patient timeline for the provided patient ID (required first).
+2. PatientStatus — derive current clinical status from PatientHistory output (age, staging, histology, biomarkers, treatment history, ECOG).
+3. Radiology — analyze any imaging provided (needs images or links; can accept images exported by PatientHistory if available).
+4. ClinicalTrials — list appropriate trials based on PatientStatus.
+5. ClinicalGuidelines — provide guideline-based treatment options (using PatientStatus) — note: Orchestrator will not endorse or recommend treatment; this agent provides guideline content only.
+6. MedicalResearch — provide recent research literature on specific queries (needs keywords/topics).
+7. ReportCreation — compile a tumor-board-ready document (needs integrated timeline and findings from prior agents).
+
+Special rule to all agents (explicit)
+- Each agent, after completing their task, must yield the chat back to me by concluding their reply with: "back to you: Orchestrator"
+
+User confirmation and materials needed before we proceed
+- User, please confirm that the intended patient ID is exactly: "patient_4".
+- User, please upload any available imaging (CT/MRI/PET/x-ray) and pathology reports, or indicate that none are available.
+- User, if you want specific trials or research topics prioritized, state relevant keywords (e.g., "EGFR-mutant lung cancer", "HER2+ breast cancer", etc.).
+
+Request to PatientHistory
+- PatientHistory, please proceed with retrieving and validating the timeline for patient_id = "patient_4". Per your workflow, validate that the patient ID is a non-empty string. If valid, return a JSON object with:
+  - status: "success"
+  - patient_id: "patient_4"
+  - patient_timeline: an array of structured events (date, event_type, brief details)
+  - history_summary: a concise summary (2–4 sentences)
+  - error_message: null
+If the patient ID is missing or invalid, return:
+  - status: "error"
+  - error_message: explanation of the issue
+Also indicate if you need any additional documents (imaging, pathology, labs) from the user to complete this task.
+Please conclude your response with: back to you: Orchestrator
+
+Next steps after PatientHistory responds
+- I will provide a 1–2 sentence micro-update and then call PatientStatus with the PatientHistory output (or ask the user for missing pieces if needed).
+
+Please confirm you want us to proceed with PatientHistory retrieving the timeline for "patient_4", and upload any available images or reports now if you have them.
+
+---
+

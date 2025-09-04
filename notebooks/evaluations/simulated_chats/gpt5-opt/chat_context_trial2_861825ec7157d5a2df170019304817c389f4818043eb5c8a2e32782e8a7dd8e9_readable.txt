@@ -1,0 +1,34 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the goal and confirm the workflow and agent sequence with you.
+- Collect required inputs and identify gaps early (e.g., imaging files).
+- Coordinate each agent in order, ensuring dependencies are met.
+- After each agent’s response, summarize progress and next steps.
+- Keep you updated at milestones and request clarifications as needed.
+
+Proposed plan and agent sequence for tumor board preparation (Patient ID: patient_4)
+Special rule: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator".
+1) PatientHistory: Retrieve and summarize patient_4’s timeline and history from records.
+2) PatientStatus: Build a current clinical status using age, staging, primary site, histology, biomarkers, prior treatments, and ECOG from PatientHistory.
+3) Radiology (conditional): If imaging files (e.g., chest X-ray, CT) are available from PatientHistory or you upload them, analyze and provide radiology insights. If no images are available, we will proceed without Radiology.
+4) ClinicalGuidelines: Provide guideline-based recommendations using the PatientStatus summary.
+5) ClinicalTrials: List relevant clinical trials matched to PatientStatus.
+6) ReportCreation: Compile a tumor board-ready document including patient timeline, clinical summary, medical/social history, cancer type, imaging and pathology findings, guideline recommendations, and clinical trial options.
+7) MedicalResearch (optional): Provide key references or recent evidence on specific topics you want covered.
+
+User confirmation and needed inputs:
+- Please confirm this plan and sequence.
+- Do you have imaging files (CT, X-ray, PET; DICOM or JPG/PNG) and any pathology PDFs you want included? If yes, please upload.
+- Any specific questions or focus areas for the tumor board (e.g., systemic therapy options, surgical candidacy, radiation considerations, biomarkers, toxicity management)?
+- Preferred output format: .docx or plain-text summary.
+- Deadline or meeting date/time for the tumor board.
+
+If you confirm, I will proceed immediately by requesting PatientHistory to retrieve the record for patient_4.
+
+---
+

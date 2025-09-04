@@ -1,0 +1,50 @@
+USER:
+Based on the full clinical picture of patient_4â€”including stage, biomarkers, treatment response, and recent imagingâ€”generate a short report estimating prognosis and possible progression pathways.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is my moderation plan before proceeding. Please review and confirm:
+
+- Clarify scope: We will not provide clinical treatment plans or medical advice, but will synthesize prognosis and plausible progression pathways based on available patient data.
+- Data orchestration: We will sequentially request and integrate data from dedicated agents (PatientHistory, Radiology, PatientStatus, MedicalResearch/ClinicalTrials as needed) to build a concise prognosis-focused report.
+- Explicit data needs: For each agent, I will specify what details I need from them to ensure a accurate prognosis synthesis.
+- Communication protocol: Each agent will respond with their findings and then yield back to Orchestrator with the closing line: "back to you: Orchestrator".
+- User collaboration: I will present a short prognosis draft after data synthesis and explicitly note uncertainties due to data limitations. I will prompt you for any clarifications or additional data.
+- Milestone updates: I will provide a micro-update after each agent’s contribution to describe progress and what's next.
+- Final deliverable: A concise prognosis report with possible progression pathways, clearly labeled as such, plus a brief note on data limitations.
+
+Plan for participation and data flow (explicit steps):
+- Step 1: PatientHistory — Provide patient timeline and core history for patient_id (must be a string). I will request: patient_id = "patient_4" is present. If needed, I’ll confirm specifics like cancer type, stage, histology, biomarkers, and treatment history from the timeline.
+  - User prompt: PatientHistory, please proceed with retrieving the timeline and key historical data for patient_4.
+  - Expected output: structured timeline events and a concise history summary.
+- Step 2: Radiology — Provide recent imaging findings relevant to prognosis (e.g., major lesions, metastatic sites, response on imaging).
+  - User prompt: Radiology, please proceed with the most recent imaging interpretation for patient_4.
+  - Expected output: imaging impressions pertinent to prognosis.
+- Step 3: PatientStatus — Provide current status: age, staging, primary site, histology, biomarkers, prior treatments, ECOG, current status.
+  - User prompt: PatientStatus, please proceed with current status for patient_4 derived from history and imaging.
+  - Expected output: current status details.
+- Step 4: MedicalResearch/ClinicalTrials — If needed, gather prognostic factors or data on progression patterns from literature or trials applicable to the cancer type and biomarkers identified.
+  - User prompt: MedicalResearch and/or ClinicalTrials, please proceed with data on prognostic factors and progression patterns for this cancer type and biomarker profile.
+  - Expected output: research-informed context for prognosis, without clinical treatment recommendations.
+- Step 5: Synthesis — I, Orchestrator, will synthesize a short prognosis-focused report and plausible progression pathways from the gathered data, noting uncertainties.
+  - User prompt: I will present the synthesized prognosis and progression pathways to you for review.
+- Step 6: Validation — If any essential data are missing or unclear, I will request clarification or additional data from the relevant agent.
+
+Important note about output structure:
+- For successful requests, I will deliver a response including:
+  - status: "success"
+  - patient_id: "patient_4"
+  - patient_timeline: [ ... structured events ... ]
+  - history_summary: "concise history"
+  - prognosis_report: not a separate field per schema, but I will embed the prognosis and progression pathways in the history_summary section as a concise narrative, clearly labeled as prognosis-based synthesis.
+- For missing/invalid patient_id, I will respond with status: "error" and an explanatory error_message.
+
+Next step after your confirmation: I will initiate data collection from the agents in the order above and provide micro-updates after each contribution.
+
+User, please confirm that you approve this plan to proceed with data gathering from the agents for patient_id: "patient_4". Or tell me if you’d like any adjustments. 
+
+Special rule reminder: Each agent, after completing their task, must yield the chat back to you (Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+---
+

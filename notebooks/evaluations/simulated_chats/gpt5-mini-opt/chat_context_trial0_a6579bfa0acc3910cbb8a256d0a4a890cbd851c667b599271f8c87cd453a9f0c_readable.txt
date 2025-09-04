@@ -1,0 +1,46 @@
+USER:
+Given the presence of a KRAS p.G12C mutation, what are the potential benefits and risks of transitioning to KRAS-directed treatment with adagrasib? How might this change the patient's prognosis?
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — my planned moderation steps
+- Clarify whether you want a general evidence summary or a patient-specific assessment.
+- Gather necessary patient details (or a valid patient ID) to enable patient-specific inputs.
+- Ask PatientStatus what exact data it needs, then request that info from you.
+- Query MedicalResearch for evidence on adagrasib (benefits, risks, resistance) and ClinicalGuidelines for guideline context (without giving treatment recommendations).
+- Share each agent's input back to you, summarize progress, and ask for confirmation or next steps.
+
+Planned participants and sequence
+1) PatientStatus — to synthesize current patient status (requires patient details). PatientStatus, please list what you need below. Each agent must conclude with: "back to you: Orchestrator".
+2) MedicalResearch — to summarize clinical trial evidence for adagrasib (efficacy, common/serious adverse events, resistance mechanisms).
+3) ClinicalGuidelines — to provide guideline-contextual information (indications/approval status and guideline positioning) — note: no clinical recommendations or personalized treatment plans.
+4) ClinicalTrials (optional if you want alternatives) — to list relevant trials for KRAS G12C patients.
+5) ReportCreation (optional) — to assemble a tumor-board style document if desired.
+
+User — I need a clarification to proceed
+- Do you want a general evidence-based summary about adagrasib for KRAS p.G12C (non–patient-specific), or do you want an assessment of how switching to adagrasib might affect a specific patient's prognosis?
+- If you want a patient-specific assessment, please either:
+  a) Provide a valid patient ID (string) so PatientHistory can retrieve the timeline (Note: PatientHistory requires a patient ID string), or
+  b) Provide the following patient details directly:
+     - Primary cancer site and histology (e.g., non–small cell lung cancer, adenocarcinoma)
+     - Current stage and sites of metastasis (if any)
+     - Age
+     - ECOG performance status
+     - Prior systemic therapies and lines of treatment
+     - Biomarkers besides KRAS p.G12C (PD-L1, EGFR, ALK, MET, etc.)
+     - Significant comorbidities (hepatic/renal dysfunction, interstitial lung disease, cardiac disease)
+     - Concomitant medications (especially strong CYP3A inhibitors/inducers)
+     - Presence of symptomatic brain metastases
+
+PatientStatus, please proceed
+- PatientStatus, what specific data elements do you require (and in what format) to provide a concise current-status summary usable by the other agents? Please respond listing the fields and expected formats. Each agent must end with: "back to you: Orchestrator"
+
+Next steps after your reply
+- If you choose general evidence summary: I will call MedicalResearch and ClinicalGuidelines to provide the benefits, risks, likely impact on prognosis (based on published data and guideline context), and common resistance mechanisms.
+- If you provide patient-specific data or a patient ID: I will first have PatientStatus summarize the current status, then route that to MedicalResearch and ClinicalGuidelines for personalized-context evidence and guideline framing.
+
+Please confirm which path you prefer and provide either the patient ID (string) or the requested patient details.
+
+---
+

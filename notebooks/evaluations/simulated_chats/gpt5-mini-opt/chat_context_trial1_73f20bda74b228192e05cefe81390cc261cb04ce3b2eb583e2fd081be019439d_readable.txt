@@ -1,0 +1,33 @@
+USER:
+Can you scan all pathology and molecular testing to see if these biomarkers are present
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps (checklist)
+- Validate the patient ID and required user inputs/files.
+- Ask PatientHistory to retrieve and summarize pathology + molecular reports for that patient.
+- Have PatientHistory extract and list reported biomarkers; then ask PatientStatus whether additional clinical details are needed.
+- If needed, route results to other agents (ClinicalTrials, MedicalResearch, ReportCreation) per your confirmation.
+- Summarize findings and ask you if you want follow-up actions.
+
+Plan and sequence of participation
+1. PatientHistory — retrieve patient timeline and all pathology/molecular test reports, extract biomarker findings.
+2. PatientStatus — confirm whether extracted biomarkers suffice for a current status summary (if requested).
+3. ClinicalTrials / MedicalResearch / ReportCreation — optional next steps depending on what you ask after the biomarker extraction.
+
+Special required instruction for agents
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents: conclude with: "back to you: *Orchestrator*"
+
+Questions I need from you now (user)
+- User, please provide the patient ID (required; must be a non-empty string).
+- User, please specify which biomarkers you want checked (e.g., EGFR, ALK, ROS1, KRAS, BRAF, PD-L1, MSI, TMB, NTRK, etc.), or say "all reported biomarkers."
+- User, please attach or indicate how to access the pathology and molecular testing reports (PDFs, images, or EHR access). If you cannot upload, indicate whether I should only use what PatientHistory can fetch from the patient record.
+
+Request to PatientHistory
+- PatientHistory, please state exactly what you need to retrieve pathology and molecular testing (confirm you require: patient ID string, access to attached reports if available, and any note identifiers). Also confirm the output format you will provide (must follow your workflow: JSON with status, patient_id, patient_timeline array, history_summary, error_message null on success). After that, proceed only when the user supplies the patient ID and files. Conclude with: "back to you: *Orchestrator*"
+
+Please confirm the plan or provide the patient ID, biomarkers of interest, and the reports now.
+
+---
+

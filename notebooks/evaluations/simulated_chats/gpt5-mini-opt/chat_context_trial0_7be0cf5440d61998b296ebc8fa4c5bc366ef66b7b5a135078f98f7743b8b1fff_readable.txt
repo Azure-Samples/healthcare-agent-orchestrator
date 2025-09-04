@@ -1,0 +1,34 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — planned moderation steps
+- Confirm we have a valid patient ID and any missing patient details (especially geographic location).
+- Request a structured patient timeline and biomarker/treatment details from PatientHistory.
+- Have PatientStatus compute current clinical status from that timeline.
+- Ask ClinicalTrials to identify active trials matching the computed status and the patient’s location.
+- Present results to you and ask for confirmation or further constraints.
+
+Planned sequence and roles
+1) PatientHistory — retrieve and return a validated patient timeline for "patient_4" including age, primary tumor site, stage, histology, biomarkers (KRAS), treatment history, ECOG, and geographic location (if recorded). Output must follow your agent schema (status/patient_id/patient_timeline/history_summary). PatientHistory, please proceed with that retrieval for patient_id "patient_4" and indicate if any required fields are missing. Conclude with: back to you: Orchestrator
+
+2) (If PatientHistory lacks location or other details) — I will ask the user for the missing items (for example: User, can you provide the patient’s city/state or acceptable travel radius?).
+
+3) PatientStatus — once we have the timeline, compute the patient’s current status (age, stage, primary site, histology, biomarkers incl. KRAS mutation details, ECOG, prior treatments). PatientStatus, please state what specific inputs you require from PatientHistory (or the user) before you proceed. Conclude with: back to you: Orchestrator
+
+4) ClinicalTrials — with the PatientStatus output plus geographic location, identify active clinical trials for which the patient appears eligible, list trial phase, brief eligibility rationale, and contact information. ClinicalTrials, please state any additional constraints you need (e.g., max travel distance) and then proceed after PatientStatus hands off. Conclude with: back to you: Orchestrator
+
+Important rule (followed in the plan)
+> Each agent, after completing their task, must yield the chat back to me (the Orchestrator) and conclude with: "back to you: Orchestrator"
+
+Immediate actions / questions
+- PatientHistory, please retrieve the patient timeline for patient_id "patient_4" now. Include: age, primary site, histology, stage, KRAS mutation details (mutation type if available), full treatment history with dates, ECOG PS, and geographic location if recorded. If patient_id is missing/invalid, return an error per your schema. Conclude with: back to you: Orchestrator
+
+- User, while PatientHistory retrieves this: please confirm that "patient_4" is the correct patient_id (exact string) and provide the patient’s geographic location (city, state/province, country) and any travel constraints (e.g., will not travel >50 miles). If you prefer nationwide trials only, say so.
+
+Please confirm or correct the plan. Once PatientHistory responds, I will request PatientStatus to compute status and then ClinicalTrials to identify appropriate trials.
+
+---
+

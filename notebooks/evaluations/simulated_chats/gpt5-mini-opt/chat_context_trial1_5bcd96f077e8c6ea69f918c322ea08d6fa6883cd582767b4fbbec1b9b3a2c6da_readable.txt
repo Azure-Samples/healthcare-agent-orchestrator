@@ -1,0 +1,49 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — planned moderation steps
+- Validate the provided patient ID and confirm required inputs.
+- Request a structured patient timeline and summary from PatientHistory.
+- Use PatientHistory output to obtain patient status, then request radiology input (if images available) and create the tumor-board Word report.
+- Coordinate handoffs between agents, collect each agent’s output, and assemble the final export.
+- Present milestone micro-updates after each agent response and ask the user to confirm before the final document is produced.
+
+Planned sequence and purpose
+- Order of participants and their tasks:
+  1. PatientHistory — retrieve and return the patient timeline and all diagnostic data for patient_4 (biomarkers, stage at diagnosis, histology, pathology reports, treatment history with dates, ECOG performance, imaging reports/files, social/medical history).
+  2. PatientStatus — produce a concise current-status summary (age, staging, primary site, histology, biomarkers, treatment history summary, ECOG) based on PatientHistory output.
+  3. Radiology — review available imaging files or, if only reports are available, provide imaging insights based on those reports. (If the user will supply DICOM/PNG/JPEG images, Radiology will analyze them.)
+  4. ReportCreation — assemble the tumor-board Word document using the patient timeline, clinical summary, pathology, imaging findings, and treatment history.
+  5. (Optional) ClinicalTrials — if you want, produce relevant trial options after PatientStatus; this is optional and will not include treatment recommendations.
+
+Special coordination rule (required)
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent should conclude their response with: "back to you: Orchestrator"
+
+Validation of the patient ID you provided
+- User provided patient ID: "patient_4"
+- Validation: present and a string — OK. We will proceed.
+
+Requests and clarifying questions before we begin
+1) *PatientHistory*, please proceed with retrieving the timeline for patient_id "patient_4". Specifically return a JSON response matching your workflow rules:
+   - For success: set "status":"success", include "patient_id", provide a structured array "patient_timeline" of events (date, event type, short details), a concise "history_summary", and set "error_message": null.
+   - For error: set "status":"error" and include an informative "error_message".
+   - Include: biomarker status (EGFR/ALK/ROS1/PD-L1 etc), stage at diagnosis, histology, treatment history with dates and agents/modalities, pathology findings, ECOG performance status, and all available imaging reports and any attached imaging files (indicate filenames and formats).
+   - If imaging files are available in any format, attach or indicate how they can be accessed. If no images are available, include the textual imaging reports and dates.
+   - After your response, conclude with: "back to you: Orchestrator"
+
+2) *User*, before PatientHistory proceeds:
+   - Do you have any imaging files (DICOM, JPEG, PNG, or PDF imaging reports) to upload for radiology review? If yes, please upload them now or tell me how you will provide them.
+   - Do you want ClinicalTrials information included after the diagnostic summary? (yes/no)
+
+Micro-update plan
+- After PatientHistory responds I will provide a 1–2 sentence micro-update, then call PatientStatus. After PatientStatus, another micro-update, then call Radiology (if images available) or skip to ReportCreation. I will provide micro-updates after each agent.
+
+Next step
+- If you confirm, I will now instruct PatientHistory to retrieve the requested data for patient_4.
+- Please confirm you want me to proceed, and upload any imaging files now if you have them.
+
+---
+

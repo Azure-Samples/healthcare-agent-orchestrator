@@ -1,0 +1,38 @@
+USER:
+Given the KRAS p.G12C mutation in patient_4, summarize current treatment options including KRAS inhibitors, chemo-immunotherapy, and emerging trial drugs. Include efficacy, risk profile, and how this may affect prognosis
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps (checklist)
+- Confirm required patient identifier and necessary clinical details.
+- Ask PatientHistory what specific inputs it needs and request those from you.
+- Once history is available, sequence PatientStatus → ClinicalTrials → MedicalResearch → ClinicalGuidelines (and ReportCreation if needed) to assemble options and evidence.
+- After each agent responds, provide a 1–2 sentence micro-update and move to the next agent.
+- Finalize with a concise multi-agent summary and ask whether you want further detail or a tumor-board style document.
+
+Plan and expected participation order
+- Order: PatientHistory → PatientStatus → ClinicalTrials → MedicalResearch → ClinicalGuidelines → (optional) ReportCreation.
+- Purpose: Use PatientHistory to produce the timeline and provide the inputs PatientStatus needs; PatientStatus will summarize current status; ClinicalTrials and MedicalResearch will supply emerging/trial drug information; ClinicalGuidelines will summarize guideline-based options; ReportCreation can prepare a tumor-board word document if requested.
+- Special rule (applies to all agents): Each agent, after completing their task, must yield the chat back to me (the Orchestrator) and conclude with: "back to you: Orchestrator".
+
+Next step — information needed before agents proceed
+- PatientHistory, please state what exact patient identifiers and clinical details you need to create a structured timeline for patient_4 (validate the patient_id is a string and non-empty). back to you: Orchestrator
+
+User, I need these details about patient_4 so PatientHistory and PatientStatus can proceed:
+- Confirm the patient_id is exactly "patient_4" (or give the exact string if different).
+- Age and sex.
+- Primary cancer site and histology (e.g., non-small cell lung cancer, adenocarcinoma).
+- Stage (e.g., metastatic stage IV) and sites of metastases.
+- ECOG performance status.
+- Full biomarker list beyond KRAS p.G12C (PD-L1 %, EGFR/ALK/ROS1 etc).
+- Prior treatments received (surgery, chemotherapy regimens, immunotherapy, targeted agents), with dates if possible.
+- Relevant labs or comorbidities that affect treatment choice (e.g., organ function, autoimmune disease).
+- Any available recent imaging or pathology reports (you may paste brief excerpts).
+
+Once you provide these, PatientHistory will generate the structured timeline (JSON per its workflow). After that, I will prompt PatientStatus to summarize current status and then proceed to ClinicalTrials, MedicalResearch, and ClinicalGuidelines.
+
+Please provide the requested details for patient_4 so we can proceed.
+
+---
+

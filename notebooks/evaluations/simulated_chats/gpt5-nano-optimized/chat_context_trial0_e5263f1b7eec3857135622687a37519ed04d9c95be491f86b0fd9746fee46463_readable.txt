@@ -1,0 +1,31 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and moderation steps (to be followed before proceeding):
+
+- Confirm patient identity and extract key data needs (biomarker status, stage at diagnosis, treatment history, latest imaging).
+- Allocate targeted data retrieval to the appropriate AI agents (PatientHistory for timeline and biomarkers; Radiology for imaging; PatientStatus for current status) and request concise, structured inputs.
+- Synthesize a comprehensive Word-document-ready report outline (timeline, clinical summary, medical history, social history, cancer type, imaging findings, pathology findings, treatment history, and clinical trials).
+- Generate the requested Word document via the ReportCreation agent and verify formatting suitability for tumor board presentation.
+- Provide milestone updates after each agent’s contribution and ensure all agents have contributed before finalizing.
+- Confirm with you before final export and delivery; if needed, iterate with any additional data or clarifications.
+
+Important note:
+Each agent must yield the chat back to you (Orchestrator) after their response, concluding with: "back to you: Orchestrator".
+
+Plan confirmation request:
+Please confirm you’d like me to proceed with data retrieval from the relevant agents to generate a formatted Word document for tumor board presentation. If you approve, I will coordinate the following sequence and prompt each agent accordingly:
+- PatientHistory: retrieve patient timeline, stage at diagnosis, cancer type, histology, biomarker status, treatment history, ECOG, and comorbidities.
+- Radiology: provide latest imaging findings (modality, date, key results).
+- PatientStatus: assemble current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG) fromPatientHistory.
+- ReportCreation: build a Word document with a structured tumor board-ready report, including timelines, clinical summary, medical/social history, cancer type, imaging and pathology findings, treatment history, and clinical trial information.
+- Optional: ClinicalTrials and MedicalResearch as needed to enrich the report.
+- Deliver the final formatted document and a brief summary of the included data.
+
+User, please confirm to proceed. If you have any preferred file naming, formatting standards, or specific sections you want emphasized in the tumor-board report, share them now.
+
+---
+

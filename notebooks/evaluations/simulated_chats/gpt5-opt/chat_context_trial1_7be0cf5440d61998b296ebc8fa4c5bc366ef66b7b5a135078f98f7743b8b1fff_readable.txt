@@ -1,0 +1,32 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the user’s goal and confirm the workflow and agent sequence.
+- Collect required patient data and context (especially geography) to enable accurate trial matching.
+- Coordinate agents in sequence, ensuring each has the inputs they require.
+- Validate structured outputs (e.g., PatientHistory JSON) and hand off to next agent.
+- Provide brief milestone updates after each agent completes and outline next steps.
+- Maintain role boundaries (no clinical recommendations) and ensure agents yield control back.
+
+Plan and participation order:
+1) PatientHistory: Retrieve patient_4’s timeline, tumor type, stage, KRAS mutation status, treatment history, and any location details available in records.
+2) PatientStatus: Summarize current status from PatientHistory (age, primary site, histology, staging, biomarkers including KRAS, treatment history, ECOG).
+3) ClinicalTrials: Identify active trials the patient is eligible for based on tumor type, stage, KRAS status, treatment history, and geographic location; include trial phase and contact info.
+Special rule: Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User, please confirm this plan. To proceed efficiently with accurate trial matching, please provide:
+- Geographic location: city, state/province, and country for patient_4.
+- Maximum travel distance you are willing to consider (e.g., 25, 50, 100, 300+ miles or “national/anywhere”).
+- Trial preferences or constraints: acceptable phases (I/II/III), industry vs. academic sites, language requirements, and any insurance/travel constraints.
+- Willingness to consider remote/tele-trial or decentralized elements if available.
+- Any urgent timing considerations (e.g., target start date) or recent progression date if relevant.
+
+Once you confirm, I will proceed with:
+- PatientHistory, please retrieve the timeline and history for "patient_4" with tumor type, stage, KRAS mutation status, prior systemic therapies and lines, ECOG, and any location fields present in the chart. Conclude with: "back to you: Orchestrator".
+
+---
+

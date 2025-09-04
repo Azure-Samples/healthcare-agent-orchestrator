@@ -1,0 +1,37 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and moderation steps (high level)
+
+- Confirm and lock in the patient ID and ensure it’s a string.
+- Orchestrate data gathering by assigning tasks to the relevant agents (PatientHistory, Radiology, PatientStatus, ClinicalGuidelines, ClinicalTrials, MedicalResearch, ReportCreation).
+- Collect structured inputs (timeline, imaging findings, current status, guidelines, trials, and a draft tumor board summary) without providing clinical treatment recommendations.
+- Update you with concise milestone notes after each agent’s contribution and flag any missing data.
+- Synthesize inputs into a tumor-board-ready summary/document using the designated ReportCreation agent.
+- Ensure each agent wraps up with “back to you: Orchestrator” per the required protocol.
+
+Plan in action and participation order
+
+- Participants and sequence:
+  1) Orchestrator (you) initiates plan and coordinates.
+  2) PatientHistory – retrieve patient timeline/history for patient_id: patient_4.
+  3) Radiology – provide imaging findings (CT/MRI/X-ray) if available, or request images from PatientHistory.
+  4) PatientStatus – present current patient status (age, staging, histology, biomarkers, treatment history, ECOG).
+  5) ClinicalGuidelines – offer treatment guideline considerations based on patient status (no treatment recommendations, just guidelines).
+  6) ClinicalTrials – summarize relevant trials based on patient status.
+  7) MedicalResearch – provide research-context keywords or findings relevant to the case.
+  8) ReportCreation – compile a tumor-board-ready document using the collected data.
+
+- Data requests and prompts:
+  - If data is missing, I will ask the relevant agent for what details they need. When addressing you for details, I’ll say: “User, can you provide…?” and when addressing an agent, I’ll say: “PatientHistory, please proceed with…”
+  - Special rule: Each agent, after completing their task, must yield the chat back to you (Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+Next step (pending your confirmation)
+
+- Please confirm that this plan and participation order are acceptable. If you approve, I’ll trigger the first data pull with PatientHistory for patient_4 and proceed step by step, providing micro-updates after each agent’s contribution.
+
+---
+

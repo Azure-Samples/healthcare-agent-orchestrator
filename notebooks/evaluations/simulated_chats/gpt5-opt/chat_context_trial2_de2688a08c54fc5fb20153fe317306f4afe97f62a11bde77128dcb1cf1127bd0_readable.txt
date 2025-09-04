@@ -1,0 +1,33 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the objective, constraints, and required inputs
+- Propose a stepwise plan with agents and sequencing
+- Gather missing information from the user and agents
+- Coordinate agent responses, ensuring each yields back to me
+- Compare and summarize outputs, highlighting discrepancies
+- Provide brief milestone updates after each agent’s turn
+
+Plan and sequence (including the special rule):
+- Step 1: PatientHistory will retrieve the latest imaging timeline for patient_4, including dates, modalities (CT and CXR), and the radiologist’s reports. Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator".
+- Step 2: If images are available via links/attachments in the chart, I will route the latest CXR images to Radiology for AI image analysis. Note: Radiology can analyze chest X-ray images. It does not currently support CT image analysis.
+- Step 3: For CT: We have two options. A) If you can provide AI-generated CT findings (from your imaging tool), I will compare those to the radiologist’s CT report; or B) If no AI CT output is available, we will rely on the radiologist’s CT report only and note that AI image analysis was not performed for CT.
+- Step 4: I will synthesize a discrepancy/additional findings summary: comparing AI CXR findings vs. the radiologist’s CXR report, and for CT, comparing the AI CT output (if provided) vs. the radiologist’s CT report.
+- Step 5: I will present a concise summary and offer next steps (e.g., exportable report) if desired.
+
+User confirmation and required inputs:
+- User, please confirm the plan above. Also, please provide:
+  - The latest CXR images for patient_4 (DICOM files or a secure link). If already in the chart, indicate where to retrieve them.
+  - The latest CT images for patient_4 (DICOM files or a secure link). Note: Our Radiology agent cannot analyze CT images; if you have AI-generated CT findings from your imaging tool, please provide that report/text.
+  - The radiologist’s reports for both the latest CT and CXR, if they are not already in the patient’s chart accessible to PatientHistory.
+  - Any specific regions or findings of interest you want emphasized during comparison.
+
+If you confirm, I will proceed as follows:
+- PatientHistory, please retrieve for patient_4: the most recent CXR and CT events, including dates, accession numbers if available, and the radiologist’s finalized reports, plus any image links contained in the chart. Conclude with: "back to you: Orchestrator".
+
+---
+

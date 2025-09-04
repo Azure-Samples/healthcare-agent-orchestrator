@@ -1,0 +1,49 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist
+- Confirm and validate the provided patient ID and any missing data needed.
+- Request the patient timeline and structured history from PatientHistory.
+- Use PatientHistory output to request patient status (PatientStatus) and imaging interpretation (Radiology).
+- Instruct ReportCreation to generate the Word tumor-board report once all clinical pieces are collected.
+- Return collected outputs to you and deliver the Word document; request confirmation for next steps.
+
+Planned sequence and roles
+1. PatientHistory (validate patient_id, retrieve patient timeline, biomarkers, pathology, treatment history, imaging reports).  
+2. PatientStatus (summarize current status: age, stage, primary site, histology, biomarkers, treatment history, ECOG).  
+3. Radiology (interpret latest imaging — needs images or the imaging report from PatientHistory).  
+4. ReportCreation (assemble a formatted Word tumor-board document — needs timeline, summaries, imaging and pathology findings).  
+
+Special rule to all agents: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent must conclude with: "back to you: Orchestrator"
+
+User — quick confirmations and any additional inputs needed
+- User, please confirm that the correct patient ID is exactly: "patient_4".
+- User, do you have any of the following to upload or paste now? If yes, please provide:
+  - Latest imaging files (CT/PET/CT, chest x-ray) or the radiology report text
+  - Pathology report(s) (including biomarker testing results)
+  - Any treatment notes or medication list not already in the chart
+  - Date of most recent clinic visit or scan
+If you cannot provide additional files, I will proceed requesting the patient record from PatientHistory for the data available in the record.
+
+PatientHistory — please proceed
+- PatientHistory, please validate the provided patient_id = "patient_4" (confirm it's present and a string). If invalid, return an error per your schema.
+- If valid, retrieve and return a structured response according to your workflow:
+  - status: "success"
+  - patient_id
+  - patient_timeline: an array of events (dates, event type: diagnosis, staging, path report, biomarker results, treatments with dates/doses, imaging reports/findings)
+  - history_summary: concise summary (1–3 sentences) of key points: cancer type, stage at diagnosis, biomarker summary, major treatments, latest imaging date/findings
+  - error_message: null
+- If patient_id missing/invalid, return status "error" and an informative error_message.
+- After your response, conclude with: "back to you: Orchestrator"
+
+Next steps after PatientHistory responds
+- I will provide a 1–2 sentence micro-update and then instruct PatientStatus (and Radiology if needed) to proceed using the data you return.
+- Once PatientStatus and Radiology respond, I will instruct ReportCreation to produce the Word document for tumor board presentation.
+
+Please confirm you agree with this plan, User. If yes, PatientHistory should proceed as requested.
+
+---
+

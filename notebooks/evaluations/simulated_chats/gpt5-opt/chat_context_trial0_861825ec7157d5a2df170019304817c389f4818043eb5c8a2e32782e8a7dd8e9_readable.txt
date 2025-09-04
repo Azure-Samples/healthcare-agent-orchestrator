@@ -1,0 +1,33 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the objective and confirm the workflow with you.
+- Collect the patient’s timeline and history details.
+- Derive current patient status from the history; identify any missing data.
+- Coordinate specialist inputs (guidelines, trials, radiology if images available).
+- Compile all materials into a tumor board report draft.
+- Provide milestone updates and confirm next steps after each agent’s response.
+
+Proposed plan and participation order:
+- PatientHistory: Retrieve the full timeline and concise history summary for patient_4.
+- PatientStatus: Use the history to assemble current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG performance status); request any missing items if needed.
+- ClinicalGuidelines: Generate guideline-based considerations using PatientStatus.
+- ClinicalTrials: Identify relevant trials based on PatientStatus.
+- Radiology: If you provide imaging files (CT or chest X-ray), analyze and summarize; otherwise we’ll rely on report text from PatientHistory.
+- ReportCreation: Assemble the tumor board Word document using all collected inputs.
+
+Important rule for all agents:
+Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User, please confirm:
+- Shall I proceed with the above plan for patient_4?
+- Do you have any imaging files (CT scans, chest X-rays) or pathology PDFs to upload? If yes, please provide them; otherwise we’ll use the textual reports from the record.
+- Any specific focus areas for the tumor board (e.g., lines of therapy, resectability, toxicity management, clinical trial eligibility)?
+- Any deadline or formatting preferences for the final Word document?
+
+---
+

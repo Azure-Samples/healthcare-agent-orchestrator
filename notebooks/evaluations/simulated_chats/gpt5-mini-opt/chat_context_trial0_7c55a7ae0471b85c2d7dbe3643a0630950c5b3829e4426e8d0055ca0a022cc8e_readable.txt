@@ -1,0 +1,26 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — my planned moderation steps
+- Validate the provided patient ID and obtain the patient's structured timeline and key clinical details.
+- Use that timeline to generate the patient status (age, site, stage, histology, biomarkers incl. KRAS, treatment history, ECOG).
+- Use the computed patient status plus geographic location to query ClinicalTrials for matching active trials and return phase + contact info.
+Planned participant order and purpose
+1. PatientHistory — validate patient_id and return structured timeline + core data (age, primary site, histology, staging, biomarkers incl. KRAS, treatment history, ECOG, and geographic location if available).
+2. PatientStatus — synthesize current patient status from the PatientHistory output.
+3. ClinicalTrials — list active trials matching the synthesized patient status and geographic constraints (trial phase + contact info).
+Special rule (applies to every agent)
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator) and conclude with: "back to you: Orchestrator"
+
+Next actions and questions
+- *PatientHistory*, please proceed: validate that patient_id is provided and is a string ("patient_4") and retrieve the patient_timeline and the specific data elements listed above. Follow your workflow: for success, return JSON with status "success", patient_id, patient_timeline (array of events), concise history_summary, and error_message null. If the ID is missing/invalid, return status "error" with an informative error_message. Conclude with "back to you: Orchestrator".
+- User, before we proceed: can you confirm that "patient_4" is the correct patient ID and provide the patient’s geographic location (city, state/province, country or ZIP/postal code)? Also tell us whether the patient is willing to travel for a trial (yes/no and max travel distance or region). If geographic location is already in the record, say "location in chart".
+- If there are any constraints we should know for trial eligibility (e.g., age limits, comorbidities, ability to travel, insurance/public-payer restrictions), please state them now.
+
+Please confirm the plan and provide the requested location details. Once confirmed, PatientHistory will proceed to retrieve the record.
+
+---
+

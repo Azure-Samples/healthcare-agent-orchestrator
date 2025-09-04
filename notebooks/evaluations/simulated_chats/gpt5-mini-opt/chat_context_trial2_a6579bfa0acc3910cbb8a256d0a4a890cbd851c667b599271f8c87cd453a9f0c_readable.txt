@@ -1,0 +1,37 @@
+USER:
+Given the presence of a KRAS p.G12C mutation, what are the potential benefits and risks of transitioning to KRAS-directed treatment with adagrasib? How might this change the patient's prognosis?
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — my planned moderation steps
+- Confirm whether you want a general evidence summary or a patient-specific appraisal.
+- If patient-specific, collect/validate the required patient ID or key clinical details.
+- Mobilize the appropriate agents in sequence (PatientHistory → PatientStatus → MedicalResearch → ClinicalGuidelines/ClinicalTrials) and gather their outputs.
+- Summarize findings and offer next steps (e.g., generate a tumor-board report) while ensuring each agent yields back to me.
+
+Planned sequence and who will speak (brief)
+1) I will ask you whether you want a general literature-based summary about adagrasib for KRAS p.G12C or a patient-specific assessment.
+2) If patient-specific: PatientHistory will be called first to retrieve/structure the timeline (requires a patient ID string). PatientStatus will then synthesize current clinical status from that timeline. Then MedicalResearch will provide efficacy/safety evidence on adagrasib. ClinicalGuidelines can comment on guideline-context considerations (but will not give clinical recommendations). ClinicalTrials can list relevant trials. Optionally, ReportCreation can prepare a tumor-board document.
+3) If general (no patient ID), I can immediately call MedicalResearch and ClinicalTrials to summarize benefits, risks, and potential prognostic impacts in general terms; PatientStatus/PatientHistory/ClinicalGuidelines would not be able to tailor without patient data.
+
+Important rule to note (applies to all agents)
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent will conclude with: back to you: Orchestrator
+
+Next, I need you to choose one of the following so we can proceed
+- Option A — Patient-specific assessment: Please provide the patient ID as a string (required for PatientHistory). If you do not have a patient ID, you may instead provide the following key details directly: age, cancer primary site, stage, histology, prior treatments (names/dates), biomarkers (including KRAS p.G12C confirmation, PD-L1, EGFR, ALK, etc.), current ECOG performance status, and any relevant organ-function labs.
+- Option B — General literature summary: indicate you want a general summary (no patient ID needed). I will then engage MedicalResearch and ClinicalTrials for efficacy/safety and prognostic context.
+
+User, please reply with:
+- Your choice (Option A or B).
+- If Option A: provide the patient ID as a string (required) OR the key clinical details listed above.
+
+PatientHistory, please stand by — once the user provides a patient ID string you may proceed to validate it and retrieve the timeline following your workflow. PatientStatus, ClinicalGuidelines, MedicalResearch, and ClinicalTrials: remain ready; I will call each in order after receiving the user’s choice and any required inputs.
+
+Micro-update protocol
+- After each agent responds, I will give a 1–2 sentence micro-update summarizing progress and the next step.
+
+Please confirm how you’d like to proceed.
+
+---
+

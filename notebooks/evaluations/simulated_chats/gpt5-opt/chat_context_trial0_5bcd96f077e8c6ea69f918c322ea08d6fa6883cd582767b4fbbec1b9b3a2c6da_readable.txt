@@ -1,0 +1,33 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the request, define the goal, and propose a step-by-step plan with agent participation order.
+- Validate required inputs (patient ID, imaging availability) and identify any missing info.
+- Coordinate each agent to obtain the needed data, ensuring each yields control back to me.
+- Provide micro-updates after each agent’s response and manage handoffs.
+- Compile inputs and have ReportCreation produce the Word document.
+- Summarize outcomes and confirm any further needs.
+
+Proposed plan and participation order:
+- Step 1 — PatientHistory: Retrieve a structured timeline for patient_4, focusing on staging at diagnosis, biomarker status, treatment history, and most recent imaging report text. Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator".
+- Step 2 — Orchestrator: Extract key elements from the timeline and pass them to PatientStatus.
+- Step 3 — PatientStatus: Generate the current status, including age (if available), primary site, histology, biomarkers, staging, ECOG, and treatment summary. Then yield back.
+- Step 4 — Orchestrator: Determine if clinical trials should be included. If yes, pass the PatientStatus summary to ClinicalTrials.
+- Step 5 — ClinicalTrials (optional): Provide matched or relevant trials based on PatientStatus. Then yield back.
+- Step 6 — Orchestrator: Assemble inputs for ReportCreation (timeline, clinical summary, medical/social history, cancer type, imaging and pathology findings, treatment plan to-date, and clinical trials if requested).
+- Step 7 — ReportCreation: Generate a formatted Word document suitable for tumor board presentation and provide a downloadable file or link. Then yield back.
+- Step 8 — Orchestrator: Provide a micro-summary and confirm if you need any adjustments.
+
+Questions for you before we proceed:
+- Would you like me to include currently available clinical trials in the report? If yes, I’ll involve the ClinicalTrials agent.
+- Do you have any imaging files (CT, MRI, PET/CT, X-ray) to upload for deeper radiology analysis? If not, I’ll rely on the most recent imaging findings documented in the patient’s timeline.
+- Any formatting preferences for the Word document (e.g., institution header/logo, specific section order, or page limit)?
+
+Please confirm this plan. Once confirmed, I will start with PatientHistory for patient_4.
+
+---
+

@@ -1,0 +1,40 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the objective and confirm the workflow with you.
+- Sequence the relevant agents and state what each needs to proceed.
+- Gather the patient’s timeline and derive a structured status snapshot.
+- Coordinate imaging needs and address any missing data.
+- Compile outputs into a tumor board–ready document and supporting materials.
+- Provide milestone updates after each agent’s contribution and manage handoffs.
+
+Proposed plan and participation order:
+- Purpose: Prepare a complete tumor board packet for Patient ID: patient_4.
+- Sequence:
+  1) PatientHistory: Retrieve a structured timeline and concise summary using the provided patient ID.
+  2) PatientStatus: Build a current status summary (age, staging, primary site, histology, biomarkers, treatment history, ECOG).
+  3) Radiology: Provide radiology insights if imaging is available; otherwise specify what’s needed.
+  4) ClinicalGuidelines: Provide guideline-based treatment recommendations informed by the PatientStatus summary.
+  5) ClinicalTrials: Identify relevant trial options based on PatientStatus.
+  6) MedicalResearch: Provide a brief literature overview tailored to the patient’s disease profile or specific questions.
+  7) ReportCreation: Assemble a tumor board Word document including timeline, clinical summary, imaging and pathology findings, plan, and trials.
+- Special rule — agent handoff:
+  Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User confirmation and needed inputs:
+- User, please confirm that you want me to proceed with the above plan for patient_4.
+- Optional but helpful:
+  - Upload or confirm access to imaging (CT/MRI/PET, chest X-ray DICOMs or reports) for Radiology.
+  - Latest pathology reports, biomarker/molecular results, and staging documentation.
+  - Recent labs and ECOG performance status, if available.
+  - Any institution-specific preferences for guidelines or clinical trial networks.
+  - Any specific clinical questions you want addressed at the tumor board (e.g., resectability, systemic therapy options, trial suitability).
+
+If you confirm, I will begin with PatientHistory for patient_4, then provide a short milestone update and proceed to the next agent.
+
+---
+

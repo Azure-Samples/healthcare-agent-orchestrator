@@ -1,0 +1,53 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps (concise plan)
+- Verify patient identifier and outline data sources to gather for patient_4.
+- Assign each AI agent a data-gathering task focused on building a tumor board dossier (timeline, imaging, status, pathology, trials, guidelines).
+- Collect and synthesize the information into a tumor board-ready package without issuing treatment recommendations.
+- Create a formal tumor board document and a concise clinical summary for the user.
+- Provide milestones after each agent’s contribution and confirm next steps with you.
+
+Plan and expected participation order
+- Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+1) PatientHistory (Agent: PatientHistory)
+   - Retrieve and compile a structured timeline and key clinical events for patient_4.
+   - Deliverables: patient timeline events, concise history_summary.
+2) Radiology (Agent: Radiology)
+   - Provide radiology insights if imaging is available (e.g., chest imaging). Request images if needed.
+   - Deliverables: radiology findings summary.
+3) PatientStatus (Agent: PatientStatus)
+   - Compile current patient status: age, primary site, histology, biomarkers, staging, ECOG, prior treatments, current treatment intent.
+   - Deliverables: current_status data block.
+4) PathologyInput (Agent: if available via PatientHistory or separate path reporting)
+   - Summarize pathology findings if available (histology, margins, biomarkers).
+   - Deliverables: pathology_summary (if provided by data sources).
+5) ClinicalGuidelines (Agent: ClinicalGuidelines)
+   - Provide high-level guideline considerations relevant to the patient’s status (not a treatment plan).
+   - Deliverables: guideline_considerations.
+6) ClinicalTrials (Agent: ClinicalTrials)
+   - Identify and summarize ongoing or relevant clinical trials aligned with patient_status.
+   - Deliverables: trials_summary.
+7) ReportCreation (Agent: ReportCreation)
+   - Assemble a tumor board-ready document: patient timeline, clinical summary, medical history, social history, cancer type, imaging findings, pathology findings, treatment history (non-prescriptive), and clinical trials.
+   - Deliverables: a word document suitable for tumor board review.
+8) MedicalResearch (Agent: MedicalResearch)
+   - Provide supportive literature or references relevant to the case keywords from timeline/treatment considerations.
+   - Deliverables: research_notes.
+
+User confirmation
+- Please confirm to proceed with data gathering according to the plan for patient_4.
+- If you want to adjust the order or scope (e.g., omit or add a focus on imaging or pathology), tell me now.
+
+Milestone update
+- Status: Plan outlined and agents identified. Awaiting your confirmation to begin data retrieval for patient_4. Next: upon confirmation, I will activate the agents in the sequence above and provide a brief progress update after each one completes.
+
+Prompt for confirmation
+- User, please confirm that you would like me to proceed with the data collection and tumor board preparation for patient_4 according to the plan above.
+- If yes, please confirm and also let me know if there are any constraints (e.g., prioritize radiology findings or ensure PHI-free summary for the board).
+
+---
+

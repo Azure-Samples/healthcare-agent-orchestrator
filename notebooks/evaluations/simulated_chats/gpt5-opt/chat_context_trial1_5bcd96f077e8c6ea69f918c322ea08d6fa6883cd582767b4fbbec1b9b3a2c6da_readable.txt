@@ -1,0 +1,27 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the user’s goal and confirm the execution plan and agent sequence.
+- Collect core patient data via PatientHistory using the provided patient ID.
+- Derive a concise current status summary via PatientStatus from the retrieved data.
+- Determine availability of imaging (reports vs. image files) and route accordingly.
+- Generate a tumor-board-ready Word document via ReportCreation.
+- Provide brief milestone updates after each agent response and coordinate any optional agents as needed.
+
+Proposed plan and agent sequence:
+- Step 1: PatientHistory will retrieve a structured timeline and history for patient_4, including staging, biomarkers, treatments, pathology, and imaging report text if available. Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+- Step 2: PatientStatus will synthesize a concise current status using the PatientHistory output (age, primary site, histology, biomarkers, staging, ECOG, and treatment history).
+- Step 3 (conditional): Radiology will review imaging only if you can supply image files (e.g., CT, X-ray, or PET as DICOM/jpg). Otherwise, we will rely on the imaging report text from PatientHistory.
+- Step 4: ReportCreation will produce a formatted Word document suitable for tumor board, incorporating biomarker status, stage at diagnosis, treatment history, latest imaging findings, and standard sections (timeline, clinical summary, pathology, etc.). We will return the .docx as a downloadable/base64 file.
+- Optional: If you later want trial options or literature context, we can engage ClinicalTrials and MedicalResearch after Step 4. We will avoid ClinicalGuidelines since you did not request recommendations.
+
+User confirmation:
+- User, please confirm the plan above. Also, do you have actual imaging files (CT, MRI, PET, X-ray) to upload for Radiology review, or should we rely on the latest imaging report text from the chart?
+- Once confirmed, I will proceed with Step 1 (PatientHistory) using patient_4.
+
+---
+

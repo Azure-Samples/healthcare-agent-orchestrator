@@ -1,0 +1,47 @@
+USER:
+Given the KRAS p.G12C mutation in patient_4, summarize current treatment options including KRAS inhibitors, chemo-immunotherapy, and emerging trial drugs. Include efficacy, risk profile, and how this may affect prognosis
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — my planned moderation steps
+- Confirm we have a valid patient ID and request the patient's timeline/history from PatientHistory.
+- Gather missing clinical details (age, primary site, stage, histology, biomarkers, prior treatments, ECOG) from PatientHistory or the user.
+- Route the consolidated status to PatientStatus, then to ClinicalGuidelines, ClinicalTrials, and MedicalResearch for informational summaries (efficacy, risks, prognosis, and trials).
+- Deliver concise micro-updates after each agent reply and finish with a 1–2 sentence collective summary and next-step options.
+
+Planned sequence and participation order
+1. PatientHistory — retrieve/produce patient_4 timeline and summary (required).
+2. PatientStatus — produce current status (needs PatientHistory outputs).
+3. ClinicalGuidelines — provide guideline-informed, non-prescriptive informational summary of relevant treatment classes (needs PatientStatus).
+4. ClinicalTrials — list relevant ongoing/combinatorial trial strategies for KRAS G12C (needs PatientStatus).
+5. MedicalResearch — provide short research context on emerging agents and mechanisms (needs keywords/topic derived from earlier steps).
+Note: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent should conclude their reply with: back to you: Orchestrator
+
+Initial action — validating patient ID and requesting history
+- The user provided: patient_4 (string). That is a valid patient ID string. Next I will request PatientHistory to retrieve the timeline and a concise history summary for patient_4.
+
+PatientHistory, please proceed with the workflow:
+- Validate patient_id = "patient_4" (string).
+- Retrieve relevant timeline data and produce a JSON response following your required schema. For success, include:
+  - status: "success"
+  - patient_id: "patient_4"
+  - patient_timeline: an array of events (date, event type, concise details)
+  - history_summary: concise summary
+  - error_message: null
+- If you cannot retrieve notes or data, return status "error" and an informative error_message explaining what is missing and list which specific data elements you need from the user (age, primary tumor site, stage, histology, biomarkers including PD-L1, prior systemic therapies and lines, ECOG).
+- Conclude with: back to you: Orchestrator
+
+User, while PatientHistory retrieves the record (or requests missing details), please confirm or provide the following if available for patient_4:
+- Age
+- Primary cancer site (e.g., non-small cell lung cancer, colorectal, other)
+- Current stage
+- Histology (e.g., adenocarcinoma)
+- Biomarkers beyond KRAS p.G12C (e.g., PD-L1 TPS, EGFR, ALK, BRAF, MSI status)
+- Prior treatments and lines (chemo, immunotherapy, targeted agents)
+- ECOG performance status
+
+Do you confirm proceeding as above? If yes, PatientHistory will begin. If some of the requested details are not available, please state that and PatientHistory will indicate what it needs.
+
+---
+

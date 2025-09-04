@@ -1,0 +1,41 @@
+USER:
+Check for any inconsistencies across AI-generated outputs (imaging, pathology, biomarker reports) and the clinical notes entered by providers in the EMR for patient_4. Flag and summarize them for review.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist
+- Confirm a valid patient ID is provided and request the structured patient timeline from PatientHistory.
+- Retrieve and review AI-generated outputs (imaging, pathology, biomarker) vs EMR clinical notes for inconsistencies.
+- Route specific items to domain agents as needed (Radiology, PatientStatus, ClinicalTrials, ReportCreation, MedicalResearch) for clarification.
+- Summarize and flag inconsistencies for review and present a concise report for the user.
+
+Planned sequence and participation order
+1. PatientHistory — retrieve the full structured timeline and EMR clinical notes for patient_4. (Required first step.)
+2. Orchestrator — review the returned timeline and decide which domain agents are needed.
+3. Radiology / Pathology / PatientStatus / ClinicalTrials / MedicalResearch / ReportCreation — each engaged only if needed to clarify or reconcile specific inconsistencies.
+4. Orchestrator — synthesize findings, flag inconsistencies, and present summary for review.
+
+Important rule to follow in this session
+> Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent should conclude their response with: "back to you: Orchestrator"
+
+Validation check
+- The user provided patient ID: "patient_4" (string) — valid. Proceeding to request PatientHistory data.
+
+Next action (request to agent)
+- PatientHistory, please proceed with retrieving patient timeline and EMR clinical notes for patient_id = "patient_4". Per your workflow, return a JSON object with:
+  - status ("success" or "error")
+  - patient_id
+  - patient_timeline (array of structured events: date, event_type, source [EMR note, AI-imaging-report, AI-pathology-report, biomarker-report], short text of content)
+  - history_summary (concise)
+  - error_message (null if success)
+- If additional clarifying fields are needed, please state them before retrieving.
+PatientHistory, please proceed. Conclude with: "back to you: Orchestrator"
+
+User question for you
+- User, do you want the check limited to only AI-generated imaging/pathology/biomarker reports that are recorded in the EMR, or should I also search for external AI report files you may have? If external files exist, please upload or indicate where they are stored.
+
+Please confirm or adjust the plan so I can proceed.
+
+---
+

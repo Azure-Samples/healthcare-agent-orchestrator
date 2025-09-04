@@ -1,0 +1,27 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps
+- Confirm patient ID is valid and ready for data retrieval from relevant agents.
+- Orchestrate data gathering: patient timeline and biomarker/stage from PatientHistory, latest imaging from Radiology, current status from PatientStatus.
+- Synthesize a concise diagnostic summary (biomarker status, stage at diagnosis, treatment history, latest imaging findings).
+- Generate a formatted Word document suitable for tumor board using ReportCreation, incorporating timeline, clinical summary, pathology, imaging findings, treatment history, and any trials.
+- Provide milestone updates after each agent’s input and ensure all agents yield back to you with the agreed closing phrase.
+
+Plan for your request
+- I will coordinate the following sequence:
+  1) Retrieve patient timeline and key biomarker/stage details for patient_4 from PatientHistory. 
+  2) Retrieve latest imaging findings from Radiology.
+  3) Retrieve current status and relevant clinical details from PatientStatus.
+  4) Synthesize a comprehensive diagnostic summary (biomarkers, stage at diagnosis, treatment history, latest imaging).
+  5) Create a formatted Word document for tumor board via ReportCreation, including patient timeline, clinical summary, medical history, social history, cancer type, imaging findings, pathology findings, treatment history, and clinical trials.
+- Each agent, after completing their task, must yield the chat back to you with the exact closing: "back to you: Orchestrator".
+
+User confirmation needed
+- Please confirm that you’d like me to proceed with the plan as described. If you approve, I will initiate data retrieval from the respective agents for patient_4 and then compile the Word document for tumor board submission.
+
+---
+

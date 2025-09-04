@@ -1,0 +1,35 @@
+USER:
+Can you scan all pathology and molecular testing to see if these biomarkers are present
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here’s my plan to moderate this request. I’ll keep you informed at each step and only proceed when you confirm.
+
+Moderation plan (high level)
+- Confirm user intent and required identifiers: request a valid patient_id (string) and clarify whether to scan all biomarkers or target a specific list.
+- Assign the right expert: engage PatientHistory to retrieve pathology and molecular testing results from the patient timeline.
+- Extract biomarker data: identify all reported biomarkers in pathology reports and molecular tests.
+- Summarize findings: provide a concise history summary and a structured list of biomarker results aligned to the patient timeline.
+- Handle gaps: if data are missing, query for missing items or request clarifications.
+- Deliver and loop back: present results in a parse-friendly format, then proceed to any additional steps or agents if needed.
+
+Participation order
+- User provides: patient_id (string) and biomarker scope (all biomarkers vs. specific list).
+- Orchestrator coordinates with PatientHistory to retrieve data.
+- PatientHistory returns the relevant timeline and biomarker findings.
+- Orchestrator compiles and presents a concise history summary and biomarker extraction.
+- If needed, we engage additional agents (e.g., MedicalResearch, ClinicalGuidelines) for further context, always returning control to the Orchestrator after each response.
+
+Important rule to follow
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+Next step (user action required)
+- User, please provide:
+  1) patient_id as a string
+  2) whether you want all biomarkers scanned across pathology and molecular testing, or a specific biomarker list
+
+I’ll begin once you confirm and supply the patient_id.
+
+---
+

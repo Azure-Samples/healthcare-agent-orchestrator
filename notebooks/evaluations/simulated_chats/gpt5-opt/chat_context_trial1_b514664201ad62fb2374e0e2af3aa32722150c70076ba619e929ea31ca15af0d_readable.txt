@@ -1,0 +1,39 @@
+USER:
+Given the KRAS p.G12C mutation in patient_4, summarize current treatment options including KRAS inhibitors, chemo-immunotherapy, and emerging trial drugs. Include efficacy, risk profile, and how this may affect prognosis
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist:
+- Clarify the user’s goal and define which agents are required for this task
+- Confirm the participation order and data dependencies among agents
+- Collect missing patient-specific details needed to contextualize evidence
+- Orchestrate agent contributions, ensuring each hands the conversation back
+- Provide micro-updates after each agent’s response and guide next steps
+- Avoid clinical recommendations; focus on evidence summaries and options
+
+Proposed plan and participation order:
+- PatientHistory: Retrieve the timeline for patient_4 to confirm primary site, stage, histology, biomarkers, prior therapies, and ECOG. Special rule: Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator".
+- PatientStatus: Synthesize a current status summary (age, primary site, histology, stage, KRAS p.G12C confirmation, PD-L1 and other biomarkers, prior treatments, ECOG) based on PatientHistory output. Special rule applies.
+- MedicalResearch: Summarize current evidence on KRAS G12C-targeted therapies (e.g., sotorasib, adagrasib), chemo-immunotherapy combinations, and emerging trial drugs (next-gen KRAS G12C inhibitors and combinations), including efficacy data ranges, risk/AE profiles, resistance patterns, and general effects on prognosis by tumor type. Special rule applies.
+- ClinicalTrials: Identify active/relevant trials for KRAS p.G12C aligned to the patient’s status and geography preferences (if provided). Special rule applies.
+- Optional agents:
+  - Radiology: If chest X-ray/CT imaging is available and relevant to current assessment, Radiology can comment; otherwise they will note what’s needed. Special rule applies.
+  - ReportCreation: If you want a tumor board-ready document, this agent will compile all outputs once above steps are done. Special rule applies.
+- Note: To comply with the role limitation, we will not invoke ClinicalGuidelines for specific treatment recommendations unless you explicitly request a general guideline overview without patient-specific directives.
+
+User confirmation request:
+- Please confirm that you’d like us to proceed with this plan and order. Each agent will end their response with: “back to you: Orchestrator”.
+
+Details needed to proceed:
+- User, can you confirm the patient ID exactly as a string: "patient_4"?
+- User, can you provide (if known) any of the following to speed up the process: primary cancer type (e.g., NSCLC vs. colorectal vs. others), stage, histology, ECOG performance status, PD-L1 TPS (if NSCLC), other biomarkers (e.g., STK11/KEAP1, TP53, TMB, MSI/MMR), prior systemic therapies (chemo, IO, targeted), and any relevant comorbidities?
+- Would you like us to include a ClinicalTrials search constrained to your region or preferred distance from a location? If yes, please share city/region or zip/postal code and whether to filter by phase (e.g., Phase 2/3).
+- Do you have recent imaging you want Radiology to review (CT chest/abdomen/pelvis, PET/CT, or chest X-ray)? If yes, please provide images or confirm we should proceed without Radiology.
+- Would you like a compiled Word document at the end (ReportCreation), or is an in-chat summary sufficient?
+
+Next step upon your confirmation:
+- I will cue PatientHistory to retrieve the timeline for "patient_4". After their response, I’ll provide a micro-update and pass to PatientStatus.
+
+---
+

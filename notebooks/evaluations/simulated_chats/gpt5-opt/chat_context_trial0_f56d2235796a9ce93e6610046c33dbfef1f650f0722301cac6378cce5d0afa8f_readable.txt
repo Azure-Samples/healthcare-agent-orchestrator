@@ -1,0 +1,41 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the objective and propose a stepwise plan with agent participation order
+- Confirm the plan with you and request any additional materials needed
+- Coordinate PatientHistory to retrieve the record, then route outputs to dependent agents
+- Manage handoffs between agents, prompting for missing information as needed
+- Provide micro-updates after each agent’s contribution and keep you informed of next steps
+- Ensure each agent yields back to me and that all agents contribute before final summary
+
+Proposed plan and participation order:
+- Step 1: PatientHistory retrieves the timeline and concise history for patient_4.
+- Step 2: PatientStatus compiles current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG) from PatientHistory; we will ask you to fill any gaps.
+- Step 3: Radiology reviews available imaging. If images are not provided, Radiology will state what is needed or summarize from imaging reports in the history.
+- Step 4: ClinicalGuidelines summarizes guideline-aligned options based on PatientStatus.
+- Step 5: ClinicalTrials identifies relevant trial options based on PatientStatus.
+- Step 6: MedicalResearch provides a brief evidence summary on a focused topic (e.g., first-line/next-line standards, key biomarkers, or new approvals); we’ll confirm the topic with you.
+- Step 7: ReportCreation assembles a tumor board document (timeline, clinical summary, medical/social history, cancer type, imaging/pathology findings, current plan, guidelines, and trial options).
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents will conclude with: “back to you: Orchestrator”.
+
+What I need from you to streamline this:
+- Can you share any of the following if available?
+  - Imaging files (DICOM) or links/reports (CT/MRI/PET, chest X-ray)
+  - Pathology reports (biopsy/surgical), biomarker/molecular results
+  - Most recent labs and ECOG performance status
+  - Any known treatment intent (curative vs palliative) and patient preferences
+- For MedicalResearch, do you have a preferred focus area (e.g., adjuvant therapy evidence, targeted therapy data for a specific mutation, toxicity management)?
+
+Please confirm the plan. With your confirmation, I will proceed to Step 1.
+
+If you confirm now, I will start with:
+- PatientHistory, please retrieve the timeline and concise history for patient_id = "patient_4". Remember to output per your JSON schema and end with “back to you: Orchestrator”.
+
+---
+

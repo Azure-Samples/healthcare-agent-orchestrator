@@ -1,0 +1,36 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm scope, required outputs, and available materials for patient_4.
+- Present a clear, stepwise plan with agent roles, inputs, and outputs.
+- Coordinate agents in sequence, ensuring each provides what the next needs.
+- Proactively identify and request any missing data or files from you.
+- Enforce the “yield back” rule so the flow returns to me after each agent.
+- Provide brief progress updates after each agent’s contribution.
+
+Proposed plan and participation order:
+- Important rule: Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator".
+1) PatientHistory: Retrieve the timeline and history for patient_4 and provide a concise summary.
+2) Radiology: Review any available imaging (e.g., chest X-ray/CT). If no images are provided, document gaps and imaging needs.
+3) PatientStatus: Compile the current status (age, primary site, histology, stage, biomarkers, ECOG, prior treatments) from PatientHistory; request clarifications if data are missing.
+4) ClinicalGuidelines: Provide guideline-aligned options based on PatientStatus.
+5) ClinicalTrials: Identify matching trials using PatientStatus.
+6) MedicalResearch: Summarize recent research relevant to the cancer type/biomarker profile; will focus topics based on PatientStatus.
+7) ReportCreation: Assemble a tumor board document including timeline, clinical summary, history, imaging and pathology findings, guideline context, and clinical trials.
+
+What I need from you to proceed:
+- Confirm this plan.
+- Authorize retrieval of data for Patient ID: patient_4 from your records. If data access is limited, please upload or paste:
+  - Latest clinic notes, pathology reports, molecular/biomarker results.
+  - Imaging: chest X-ray and/or CT images (DICOM) or at least finalized radiology reports.
+  - Current medications, prior oncologic treatments, and ECOG performance status.
+- Indicate any focus areas or key questions for the tumor board (e.g., surgical candidacy, systemic therapy choices, trial prioritization).
+
+User, please confirm the plan and provide authorization to retrieve patient_4 data, plus any available files. Once confirmed, I will proceed with PatientHistory first.
+
+---
+

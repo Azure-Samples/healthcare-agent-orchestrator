@@ -1,0 +1,36 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and moderation plan (before we begin)
+- Clarify scope and confirm plan: we will gather biomarker status, stage at diagnosis, treatment history, and latest imaging findings for patient_4, then generate a formatted Word document for tumor board use.
+- Coordinate data gathering with specialized agents: PatientHistory for timeline and history, Radiology for imaging, PatientStatus for current status/biomarkers, and ReportCreation to produce the Word document.
+- Ensure data provenance and validation: validate patient_id as a string, compile concise summaries, and flag any missing data for follow-up.
+- Generate a tumor-board-ready Word document: structure will reflect patient timeline, clinical summary, medical and social history, cancer type, imaging findings, pathology, treatment history, and clinical trials.
+- Milestone communication: after each agent provides input, deliver a micro-update and return control to you (Orchestrator).
+- Final synthesis: once all agents have contributed, provide a concise collective summary and deliver the Word document.
+- Compliance note: I will not provide clinical recommendations or treatment plans; only summarization and documentation.
+
+Participation order and plan of action
+- User confirms plan to proceed.
+- Agent: PatientHistory. Task — Retrieve and present patient_4’s timeline and history (biomarkers, stage at diagnosis, cancer type, pathology, prior treatments, ECOG, etc.). After completion, agent will conclude with: back to you: Orchestrator.
+- Agent: Radiology. Task — Provide latest imaging findings for patient_4 (CT/MRI/PET details, measurements, notable lesions). After completion, agent will conclude with: back to you: Orchestrator.
+- Agent: PatientStatus. Task — Provide current status including age, staging, primary site, histology, biomarkers, prior treatments, ECOG. After completion, agent will conclude with: back to you: Orchestrator.
+- Agent: ReportCreation. Task — Generate a formatted Word document suitable for tumor board, using: patient timeline, clinical summary, medical history, social history, cancer type, imaging findings (CT/X-ray if applicable), pathology findings, treatment history, and clinical trials. The agent will provide the Word document file and an accessible preview. After completion, agent will conclude with: back to you: Orchestrator.
+
+User confirmation needed
+- Please confirm that you’d like me to proceed with the above plan to generate a tumor-board-ready Word document for Patient ID: patient_4. If you have any additional sections you want included (e.g., family history, smoking status, allergies, performance status specifics, prior biopsy details), specify now.
+
+Purpose and sequence
+- Purpose: to create a comprehensive diagnostic summary and a formatted Word document for tumor board presentation, collating biomarker status, stage at diagnosis, treatment history, and latest imaging findings.
+- Sequence: User confirmation -> PatientHistory -> Radiology -> PatientStatus -> ReportCreation -> delivery of Word document and summary.
+
+Note on documentation rule
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+If you confirm, I will initiate with the PatientHistory agent to pull the timeline for patient_4 and proceed step by step.
+
+---
+

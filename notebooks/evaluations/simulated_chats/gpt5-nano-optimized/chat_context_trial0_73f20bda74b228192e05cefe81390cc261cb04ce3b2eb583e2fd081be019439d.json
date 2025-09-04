@@ -1,0 +1,10 @@
+{
+  "conversation_id": "73f20bda74b228192e05cefe81390cc261cb04ce3b2eb583e2fd081be019439d",
+  "chat_history": "{\n  \"messages\": [\n    {\n      \"metadata\": {},\n      \"content_type\": \"message\",\n      \"role\": \"user\",\n      \"items\": [\n        {\n          \"metadata\": {},\n          \"content_type\": \"text\",\n          \"text\": \"Can you scan all pathology and molecular testing to see if these biomarkers are present\"\n        }\n      ]\n    },\n    {\n      \"ai_model_id\": \"gpt-5-nano\",\n      \"metadata\": {\n        \"logprobs\": null,\n        \"id\": \"chatcmpl-CBUCjYF6XntfFoCFV1LXn4Ji5wjKd\",\n        \"created\": 1756853749,\n        \"system_fingerprint\": null,\n        \"usage\": {\n          \"prompt_tokens\": 1231,\n          \"completion_tokens\": 948\n        }\n      },\n      \"content_type\": \"message\",\n      \"role\": \"assistant\",\n      \"name\": \"Orchestrator\",\n      \"items\": [\n        {\n          \"metadata\": {},\n          \"content_type\": \"text\",\n          \"text\": \"{\\n  \\\"status\\\": \\\"error\\\",\\n  \\\"error_message\\\": \\\"Missing or invalid patient_id. Please provide a patient_id as a string to proceed with scanning pathology and molecular testing for the specified biomarkers.\\\"\\n}\"\n        }\n      ],\n      \"finish_reason\": \"stop\"\n    }\n  ]\n}",
+  "patient_id": null,
+  "patient_data": [],
+  "display_blob_urls": [],
+  "display_clinical_trials": [],
+  "output_data": [],
+  "healthcare_agents": {}
+}

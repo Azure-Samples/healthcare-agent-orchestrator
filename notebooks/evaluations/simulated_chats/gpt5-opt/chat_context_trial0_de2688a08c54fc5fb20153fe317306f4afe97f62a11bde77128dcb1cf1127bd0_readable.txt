@@ -1,0 +1,28 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist:
+- Confirm scope, data needs, and participating agents
+- Obtain the latest CT and CXR images and radiologist’s report for patient_4
+- Have Radiology analyze available images to produce AI findings
+- Compare AI findings with the radiologist’s report and summarize discrepancies/additions
+- Provide milestone updates after each agent’s response
+- Keep roles clear; no clinical recommendations
+- Ensure each participating agent yields back to Orchestrator
+
+Proposed plan and participation order:
+1) PatientHistory: Retrieve patient_4’s latest CT and CXR imaging events, including dates, the official radiologist’s report text for each, and the image files or accessible links/identifiers. 
+2) Radiology: Analyze the provided images to generate AI findings. Note: Prioritize CXR analysis; include CT insights if images are available and analyzable. 
+3) Orchestrator: Compare AI-generated findings against the radiologist’s report and summarize discrepancies or additional findings.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User, please confirm this plan. If confirmed:
+- PatientHistory, please proceed with retrieving for patient_id="patient_4": the latest CT and CXR imaging events, including study dates/times, body part/series, the full radiologist’s report text for each study, and the corresponding image files or links needed for analysis. Include any prior comparisons noted in the reports.
+
+---
+

@@ -1,0 +1,42 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the objective and outline a step-by-step plan with agent participation order
+- Verify required inputs and request any missing materials from you
+- Prompt the right agents in sequence, collecting and handing off outputs
+- Provide brief milestone updates after each agent response
+- Ensure all agents yield control back and that no clinical advice is given by me
+- Summarize final outputs and confirm next steps or further needs
+
+Proposed plan and sequence to prepare the tumor board package for patient_4:
+- Step 1: PatientHistory retrieves and summarizes the full timeline for patient_4.
+- Step 2: PatientStatus compiles the current status (age, stage, primary site, histology, biomarkers, treatment history, ECOG), drawing from PatientHistory. If any fields are missing, I will ask you to fill them in.
+- Step 3: Radiology reviews imaging. If you can provide imaging files (CT/MRI/DICOM) or at least official radiology reports, Radiology will analyze them. If not available now, Radiology will specify what is needed and we will note this as pending in the report.
+- Step 4: ClinicalGuidelines reviews the PatientStatus and provides guideline-based treatment considerations.
+- Step 5: ClinicalTrials identifies suitable trials based on the PatientStatus and location preferences.
+- Step 6: MedicalResearch provides a focused literature snapshot on 1–2 key topics most relevant to patient_4 (e.g., biomarkers or therapy class). You can set topic preferences.
+- Step 7: ReportCreation compiles a tumor board-ready Word document including timeline, clinical summary, social/medical history, imaging and pathology findings, and consolidated plans/options including relevant trials.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User confirmation and inputs:
+- Please confirm this plan so I can begin with PatientHistory for patient_4.
+- If available now, please provide:
+  - Imaging: CT/MRI/PET or chest X-ray files (DICOM preferred) or official radiology reports
+  - Latest pathology report and biomarker/molecular results (e.g., PD-L1, EGFR/ALK/ROS1, NGS panel)
+  - Current ECOG performance status
+  - Recent labs of note (CBC, CMP, organ function)
+  - Any treatment preferences or constraints, and allergies
+  - Location constraints for trial search (city/region you prefer)
+  - Any specific MedicalResearch topics you want emphasized
+
+On your confirmation, I will proceed:
+- PatientHistory, please retrieve timeline for patient_4 (to be triggered after your go-ahead).
+
+---
+

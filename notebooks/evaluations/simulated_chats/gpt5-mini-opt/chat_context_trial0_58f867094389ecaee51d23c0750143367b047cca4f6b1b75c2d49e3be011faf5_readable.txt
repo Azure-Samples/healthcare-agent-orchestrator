@@ -1,0 +1,39 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps
+- Confirm the patient ID and request necessary materials (images + radiology report) from PatientHistory.
+- Have Radiology analyze the latest CT and CXR images, produce AI-generated findings, and compare those to the radiologist’s report.
+- Deliver a concise summary of discrepancies or additional findings and ask the user if they want further follow-up (no clinical recommendations).
+
+Planned sequence and rule
+- Order of participants: PatientHistory → Radiology → Orchestrator summary.
+- Special rule to all agents: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent must conclude with: "back to you: Orchestrator"
+
+User, please confirm
+- User, please confirm that the patient ID is patient_4 and that you authorize retrieval of the latest CT and CXR images and the radiologist’s report. If you will provide the images/reports directly, please upload the DICOM/JPEG files and the radiologist’s text report now.
+
+Request to PatientHistory
+- PatientHistory, please proceed with the following for patient_id "patient_4":
+  1. Validate that the patient ID is present and a string.
+  2. Retrieve the relevant patient timeline data and the latest imaging session (CT and CXR) plus the radiologist’s report.
+  3. Return a JSON response following your required schema:
+     - status: "success" (or "error" with an explanatory error_message if patient_id invalid)
+     - patient_id: "patient_4"
+     - patient_timeline: an array of structured events (include imaging event with timestamps)
+     - history_summary: concise summary (1-3 sentences)
+     - error_message: null for success
+  4. Provide accessible links or attachments for the latest CT and CXR images and include the radiologist’s report text.
+- PatientHistory, what additional details or permissions do you need from the user to retrieve these items? Please list them before proceeding.
+- Conclude your response with: "back to you: Orchestrator"
+
+Next steps after PatientHistory responds
+- I will provide a 1–2 sentence micro-update and then direct the images and report to Radiology for AI image analysis and comparison to the radiologist’s report.
+
+If anything in the plan should change, tell me now; otherwise please confirm so I can request PatientHistory to proceed.
+
+---
+

@@ -1,0 +1,33 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm scope, deliverables, and constraints
+- Validate the patient ID and identify required inputs/assets
+- Sequence agents with clear inputs/outputs and handoffs
+- Collect missing details from you or route to the right agent to request them
+- Orchestrate agent responses with brief progress updates after each step
+- Compile final deliverable and verify completeness
+
+Proposed plan and participation order:
+- Step 1: PatientHistory — Retrieve and summarize the complete timeline for patient_4, including stage at diagnosis, biomarker status, treatment history, and any imaging reports found in the record. Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Conclude your response with: "back to you: Orchestrator".
+- Step 2: PatientStatus — Transform the PatientHistory data into a structured current status (age, primary site, histology, biomarkers, staging, ECOG, treatment history). Conclude with: "back to you: Orchestrator".
+- Step 3: Radiology — If you can provide imaging files (CT/MRI/PET/Chest X-ray) or official report PDFs, Radiology will add formal imaging insights. If no images are available, we will rely on the latest imaging findings extracted by PatientHistory. Conclude with: "back to you: Orchestrator".
+- Step 4: ClinicalTrials (optional but recommended for tumor board packets) — Use the PatientStatus to surface trial options relevant to patient_4. Conclude with: "back to you: Orchestrator".
+- Step 5: ReportCreation — Assemble a formatted Word document suitable for tumor board, incorporating the patient timeline, concise clinical summary, medical and social histories, cancer type, imaging findings, pathology/biomarkers, treatment history, and (if requested) clinical trials. Conclude with: "back to you: Orchestrator".
+
+What I need from you to proceed:
+- Please confirm the plan above so I can initiate Step 1.
+- User, can you confirm that the patient ID is exactly "patient_4"?
+- User, can you provide any available imaging files (DICOM or JPEG/PNG) and/or the most recent imaging reports (CT/MRI/PET/X-ray) for inclusion and Radiology review?
+- User, do you have recent pathology/biomarker reports (PDF or text) you want included, or should we rely solely on what PatientHistory returns?
+- User, would you like ClinicalTrials included in the Word document? If yes, I will run Steps 2 and 4 to incorporate trial options.
+- User, any specific formatting preferences for the tumor board document (e.g., institutional template, logo, section order)?
+
+Once you confirm, I’ll begin with PatientHistory and provide a brief progress update after each agent completes their part.
+
+---
+

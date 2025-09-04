@@ -1,0 +1,33 @@
+USER:
+Based on the full clinical picture of patient_4â€”including stage, biomarkers, treatment response, and recent imagingâ€”generate a short report estimating prognosis and possible progression pathways.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is my short moderation plan and how we’ll proceed:
+
+- Verify the patient identifier and scope: confirm patient_id is a valid string (e.g., "patient_4") and that we’ll base the report on full timeline, biomarkers, treatment history, and recent imaging.
+- Assign data gathering tasks to the appropriate agents in a logical sequence: PatientHistory → Radiology → PatientStatus (and consult ClinicalGuidelines if needed for context).
+- Collect and summarize each agent’s findings in a compact, easy-to-parse format.
+- Synthesize a prognosis-focused report from the gathered data, clearly noting uncertainties and potential progression patterns without offering treatment recommendations.
+- Keep you updated with milestone summaries after each major data handoff.
+- Confirm the plan with you before finalizing, and adjust if new information arises.
+- Always ensure each agent returns their results to you with the explicit closing: “back to you: Orchestrator.”
+
+Plan and participants (order you’ll see them engage):
+- User confirms patient_id (we’ll use: "patient_4").
+- PatientHistory: provide structured timeline and key biomarker data for patient_4.
+- Radiology: provide imaging findings (recent imaging and notable changes) for patient_4.
+- PatientStatus: provide current status including age, staging, primary site, histology, biomarkers, treatment history, ECOG, etc., as available from patient_4.
+- (If needed) ClinicalGuidelines: provide general prognosis considerations by cancer type/stage to contextualize patterns.
+- Orchestrator: integrate all inputs, produce a concise prognosis and plausible progression pathways, clearly stating uncertainties.
+- User: review, ask questions, or request adjustments.
+
+Important operational note:
+- Each agent, after completing their task, must yield the chat back to you (Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User confirmation needed:
+- Please confirm that the patient identifier to use is exactly "patient_4". If that is correct, I’ll initiate data gathering from the respective agents and proceed to generate the prognosis-focused report based on the full clinical picture (stage, biomarkers, treatment history, and recent imaging). If you want a different ID or additional data sources included, tell me now.
+
+---
+

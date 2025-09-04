@@ -1,0 +1,28 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and moderation steps:
+- Confirm plan and proceed with data gathering from the designated agents for Patient ID: patient_4.
+- Engage the appropriate agents in sequence to collect history, biomarkers/status, and latest imaging findings.
+- Synthesize a comprehensive diagnostic summary and instruct the ReportCreation agent to produce a formatted Word document suitable for tumor board.
+- After each agent’s contribution, provide a brief update and return control to you.
+- Deliver the final diagnostic summary and the Word document, and offer to tailor formatting or contents for the tumor board.
+
+Participation order and plan:
+- Orchestrator: Lead the discussion, validate patient ID, outline plan, and coordinate handoffs.
+- PatientHistory: Retrieve and summarize patient timeline, cancer type, staging at diagnosis, treatment history, medical/social history as available.
+- PatientStatus: Provide current biomarker status, current stage/status details, ECOG, etc. (via integration with PatientHistory data).
+- Radiology: Provide latest imaging findings (CT/MRI/PET/other) including dates and key findings.
+- ReportCreation: Compile all gathered information into a structured, formatted Word document suitable for tumor board review, including sections for patient timeline, clinical summary, medical history, social history, cancer type, imaging findings, pathology, treatment history, and clinical trials.
+
+Special note:
+> Each agent, after completing their task, must yield the chat back to you (Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+Next action (pending your confirmation):
+- If you approve, I will initiate data collection starting with PatientHistory for patient_4, followed by PatientStatus, Radiology, and then generate the Word document via ReportCreation. Please confirm to proceed. If you have any specific preferences for the document (e.g., formatting, level of detail, or sections to emphasize), share them now.
+
+---
+

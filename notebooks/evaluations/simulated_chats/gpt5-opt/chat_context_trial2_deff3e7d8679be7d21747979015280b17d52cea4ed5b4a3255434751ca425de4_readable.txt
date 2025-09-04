@@ -1,0 +1,34 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify objectives and confirm the workflow with you before engaging agents
+- Sequence the appropriate agents and state what each needs and will provide
+- Collect missing inputs by prompting the right agent or you directly
+- Coordinate handoffs and ensure each agent yields back to me
+- Provide brief milestone updates after each agent’s response
+- Summarize outputs and prepare next steps toward the tumor board packet
+
+Proposed plan and participation order:
+- PatientHistory: Retrieve a structured timeline and concise history for patient_4. I will ask PatientHistory to include any imaging study dates, modalities, and links/images if available.
+- Radiology (conditional): If PatientHistory provides actual chest X-ray or other images, Radiology will interpret them. If no images are available, we will note that and proceed without new radiology insights.
+- PatientStatus: Derive the current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG) using the PatientHistory output.
+- ClinicalTrials: Identify relevant clinical trials using the PatientStatus summary.
+- ReportCreation: Compile a tumor board Word document using the timeline, clinical summary, medical/social history, pathology findings, any radiology findings available, current treatment to date, and clinical trials. We will not generate new treatment recommendations in this document.
+
+Special rule — always specify:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). I instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+Before we begin:
+- User, can you confirm this plan?
+- Do you have any imaging files (e.g., chest X-ray or CT) you want analyzed, or should we proceed with whatever imaging details are in the patient record?
+- Are there any specific clinical questions or discussion points you want highlighted in the tumor board document (e.g., staging clarification, biomarker interpretation, trial eligibility focus)?
+
+If you confirm, I will proceed with:
+Step 1: PatientHistory, please retrieve the structured timeline and history for patient ID "patient_4", including any imaging event details and links/images if available. Remember to return valid JSON per your schema and conclude with: "back to you: Orchestrator".
+
+---
+

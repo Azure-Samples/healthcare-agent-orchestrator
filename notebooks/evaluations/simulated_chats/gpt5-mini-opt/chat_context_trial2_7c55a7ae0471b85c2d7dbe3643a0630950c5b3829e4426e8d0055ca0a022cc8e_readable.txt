@@ -1,0 +1,38 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — my planned moderation steps:
+- Confirm the patient identifier and any missing patient-level details (especially geographic location).
+- Request a structured patient timeline and clinical details from PatientHistory.
+- Use PatientHistory output to have PatientStatus define current status, then ask ClinicalTrials to identify matching active trials.
+- Share the plan with you for confirmation before proceeding.
+
+Planned sequence and roles (expected participation order)
+1. PatientHistory — retrieve and return a structured timeline and core clinical details for patient_4 (age, primary site, histology, stage, biomarkers including KRAS, treatment history, ECOG, and geographic location if available).
+2. PatientStatus — synthesize current patient status from PatientHistory output (age, staging, primary site, histology, biomarkers, treatment history, ECOG).
+3. ClinicalTrials — using PatientStatus, identify active clinical trials for which the patient is likely eligible; include trial phase and contact information.
+Note: Each agent, after completing their task, must yield back to me and conclude with: "back to you: Orchestrator".
+
+Before I instruct the agents to proceed, two quick confirmations / clarifying requests:
+
+User, please confirm:
+- Is the patient identifier exactly "patient_4"? (I will validate it must be a non-empty string.)
+- What geographic location should be used for trial matching (city/state or ZIP)? If you prefer broad matching (country or region), state that preference.
+- Are there any privacy or data restrictions we should observe when searching for trials?
+
+Next, PatientHistory — please proceed:
+- PatientHistory, please retrieve the timeline and clinical data for patient_id "patient_4". Your output must follow your schema:
+  - If successful: return JSON with "status":"success", "patient_id":"patient_4", a structured array "patient_timeline" of events, a concise "history_summary", and "error_message": null.
+  - If there's any issue with the patient_id or retrieval: return "status":"error" and an explanatory "error_message".
+- Please ensure the patient_timeline includes (where available): age, primary tumor site, histology, stage, KRAS mutation status (and other biomarkers), prior treatments (dates and agents), ECOG performance status, and geographic location.
+- After your response, conclude with: back to you: Orchestrator
+
+PatientStatus and ClinicalTrials — stand by. After PatientHistory returns the structured data, I will instruct PatientStatus to synthesize the current status and then ask ClinicalTrials to identify trials.
+
+User — once you confirm the patient_id and provide/confirm location, I will proceed to request PatientHistory data.
+
+---
+

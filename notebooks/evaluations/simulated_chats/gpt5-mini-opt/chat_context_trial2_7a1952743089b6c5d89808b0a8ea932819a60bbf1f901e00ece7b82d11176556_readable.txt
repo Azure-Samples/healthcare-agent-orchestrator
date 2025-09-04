@@ -1,0 +1,40 @@
+USER:
+Check for any inconsistencies across AI-generated outputs (imaging, pathology, biomarker reports) and the clinical notes entered by providers in the EMR for patient_4. Flag and summarize them for review.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — planned moderation steps
+- Verify the provided patient ID is present and a valid string.
+- Instruct PatientHistory to retrieve all EMR provider notes plus AI-generated imaging, pathology, and biomarker reports for that patient and return a structured timeline JSON.
+- If imaging is present, have Radiology analyze images/reports; then have PatientStatus synthesize current clinical status for cross-checking.
+- Compare AI-generated outputs vs EMR notes to flag inconsistencies and summarize them for review.
+- Present findings to the user and ask for confirmation or next steps.
+
+Plan and expected sequence of participants
+1. PatientHistory: retrieve and return a validated, structured patient timeline and all relevant EMR provider notes and AI-generated outputs for patient_4 (imaging reports, pathology reports, biomarker reports). Deliver in the required JSON schema.
+2. Radiology: only if PatientHistory supplies images or imaging files — analyze image(s) and/or imaging reports for potential discrepancies.
+3. PatientStatus: synthesize current clinical status from the retrieved timeline (age, staging, primary site, histology, biomarkers, treatment history, ECOG) to help detect mismatches.
+4. Orchestrator: compare outputs, flag inconsistencies, and present a concise summary for review.
+
+Special rule to all agents (explicit)
+Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Agents must conclude with: "back to you: Orchestrator"
+
+Immediate action required
+PatientHistory, please proceed with retrieving all relevant data for patient_id "patient_4". Per your workflow, validate that the patient ID is present and is a string. If valid, return a JSON object with:
+- status: "success"
+- patient_id: "patient_4"
+- patient_timeline: an array of events (each event should include at minimum: date, event_type [e.g., EMR_note, AI_imaging_report, AI_pathology_report, AI_biomarker_report], source [EMR provider or AI tool name], short_summary, and the note/report text or a link/identifier)
+- history_summary: concise summary (2–4 sentences) of the patient history relevant to comparing reports (cancer type, key dates, key findings)
+- error_message: null
+
+If the patient_id is missing/invalid, return:
+- status: "error"
+- error_message: explanation of the issue
+
+PatientHistory, please also explicitly label which entries are provider-entered EMR notes vs AI-generated outputs, and include images or pointers to images if available. Conclude your response with: "back to you: Orchestrator"
+
+User, can you confirm that you want us to proceed with that exact plan to fetch and compare all EMR provider notes and AI-generated outputs for patient_4? If you want any specific date range, specific report types to prioritize, or to exclude any data sources, please tell us now.
+
+---
+

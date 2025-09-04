@@ -1,0 +1,35 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is my plan and moderation approach. Please confirm to proceed.
+
+Planned moderation steps
+- Validate patient ID and scope, ensuring we generate a comprehensive diagnostic summary for the specified patient_4.
+- Coordinates with the relevant AI agents to retrieve and compile data (timeline, biomarkers, staging, imaging, and history).
+- Synthesize a concise clinical summary and assemble a formatted Word document suitable for tumor board presentation.
+- Prompt for any missing data, and loop in the appropriate agent(s) to fill gaps.
+- Deliver the final Word document content or a downloadable file placeholder with clearly labeled sections.
+- Provide a concise milestone update after each major data handoff and at final delivery.
+
+Plan to execute (high-level)
+- Step 1: PatientHistory — Retrieve and structure the patient timeline and core medical history for patient_4.
+- Step 2: PatientStatus — Obtain current biomarker status, stage at diagnosis, histology, and key treatment history.
+- Step 3: Radiology — Collect the latest imaging findings (CT/MRI/PET as available) and summarize notable results.
+- Step 4: ReportCreation — Compile all gathered data into a formatted Word document with sections appropriate for tumor board review: patient timeline, clinical summary, medical history, social history, cancer type, imaging findings, pathology, treatment history, biomarkers, staging, and notes on clinical trials.
+- Step 5: Validation — Review for completeness and coherence; prompt for missing items if needed.
+- Step 6: Delivery — Provide the Word document content or a download-ready reference, and offer to export revisions if requested.
+
+Special instruction to agents
+- Each agent, after completing their task, must yield the chat back to you (Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+User confirmation request
+- Please confirm that you approve proceeding with the plan above to generate a comprehensive diagnostic summary for patient_4 and export a formatted Word document for tumor board presentation. If you have any additional sections you’d like included (e.g., molecular profiling details beyond standard biomarkers, treatment intent notes, or a separate executive summary), specify now and I will incorporate them.
+
+Milestone update
+- Milestone: Plan proposed and awaiting your confirmation to proceed with data retrieval and document generation. Next: upon confirmation, I will engage the agents in sequence and provide updates after each handoff.
+
+---
+

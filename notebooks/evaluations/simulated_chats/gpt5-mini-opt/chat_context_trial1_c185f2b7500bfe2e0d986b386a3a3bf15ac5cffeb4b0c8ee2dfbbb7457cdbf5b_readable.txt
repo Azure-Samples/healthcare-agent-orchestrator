@@ -1,0 +1,49 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — planned moderation steps
+- Confirm the provided patient ID is valid and request the PatientHistory timeline.
+- Sequence the agents so each builds on the previous output (PatientHistory → PatientStatus → Radiology → ClinicalGuidelines / ClinicalTrials → ReportCreation → MedicalResearch as needed).
+- Gather missing data (images, pathology reports, goals) from the user if not present in the timeline.
+- Verify each agent’s output and pass required inputs onward; ensure each agent yields back to me after their response.
+
+Planned sequence and responsibilities (order of participation)
+1) PatientHistory: retrieve and return structured timeline for patient_4 (required first). This will provide the patient timeline, imaging reports, pathology text, treatment history, biomarkers, staging, and any attached image files if available. PatientHistory, please proceed with retrieving the patient timeline for patient_4. Also confirm whether any images or attachments exist for this patient and include them in your response. PatientHistory, what specific fields will you return if available?
+   - Reminder to PatientHistory: after your response, conclude with: back to you: Orchestrator
+
+2) PatientStatus: using PatientHistory output, produce the current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG). PatientStatus, please list exactly which items you need from PatientHistory (if anything additional is required). 
+   - Reminder to PatientStatus: after your response, conclude with: back to you: Orchestrator
+
+3) Radiology: if images or imaging reports are available from PatientHistory, Radiology will analyze and provide imaging impressions (CT/x-ray). Radiology, confirm what image formats/resolutions you require and whether you can work from imaging reports alone if raw images are not available.
+   - Reminder to Radiology: after your response, conclude with: back to you: Orchestrator
+
+4) ClinicalGuidelines: once PatientStatus is available, ClinicalGuidelines will summarize guideline-based options (note: they will not provide individualized clinical recommendations here — summary only). ClinicalGuidelines, confirm you need PatientStatus output to proceed.
+   - Reminder to ClinicalGuidelines: after your response, conclude with: back to you: Orchestrator
+
+5) ClinicalTrials: using PatientStatus, identify relevant clinical trials. ClinicalTrials, confirm you need PatientStatus and any geographic/eligibility constraints from the user.
+   - Reminder to ClinicalTrials: after your response, conclude with: back to you: Orchestrator
+
+6) ReportCreation: assemble a tumor-board-ready Word document using the consolidated timeline, summaries, imaging findings, pathology, treatment plan, and trial options. ReportCreation, confirm required fields and file formats (and whether you need raw images or captions).
+   - Reminder to ReportCreation: after your response, conclude with: back to you: Orchestrator
+
+7) MedicalResearch (optional): if the team or user requests literature or deeper research on a topic/drug/biomarker, MedicalResearch will run that query. MedicalResearch, specify the keyword requirements you need to start.
+   - Reminder to MedicalResearch: after your response, conclude with: back to you: Orchestrator
+
+Special orchestration rule (applies to all agents)
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent must conclude their message exactly with: back to you: Orchestrator
+
+User action needed before we begin
+- User, please confirm you want us to proceed with patient_id "patient_4".
+- User, please upload any available imaging files (CT/PET/x-ray), pathology reports (slides or reports), and any specific tumor-board goals or constraints (e.g., focus on eligibility for trials, treatment escalation, palliative vs curative intent, dates).
+- If you prefer we only use data in your EHR or another system, please specify access or paste the relevant text.
+
+Immediate next steps (if you confirm)
+- I will instruct PatientHistory to retrieve and return the structured timeline for patient_4. PatientHistory, please proceed now and include imaging/report attachments if present, and state explicitly if patient_id validation succeeds or fails.
+
+User, please confirm you want us to proceed with these steps and supply any files or constraints now.
+
+---
+

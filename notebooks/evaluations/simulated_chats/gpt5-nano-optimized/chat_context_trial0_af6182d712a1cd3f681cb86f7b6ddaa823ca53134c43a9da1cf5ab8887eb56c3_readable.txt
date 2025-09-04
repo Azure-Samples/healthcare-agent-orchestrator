@@ -1,0 +1,26 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is my brief moderation plan before proceeding:
+
+- Confirm the exact patient identifier and the scope of data to collect (biomarker status, stage at diagnosis, treatment history, latest imaging).  
+- Assign data-gathering tasks to the appropriate AI agents (PatientHistory for timelines/biomarkers/staging/treatment; Radiology for imaging findings).  
+- Synthesize a concise diagnostic summary from the retrieved data, highlighting biomarker status, initial stage, major treatments, and the latest imaging results.  
+- Instruct ReportCreation to generate a formatted Word document suitable for tumor board presentation, incorporating the collected data and a clear clinical summary.  
+- Deliver the document and a brief summary to you, and offer to adjust content or format if needed.  
+- Milestone updates after each agent’s contribution to keep you informed of progress and next steps.  
+
+Plan details and participation order:
+- Participation order: PatientHistory → Radiology → ReportCreation.  
+- After each agent completes their task, they must yield the chat back to you (Orchestrator). Each agent should conclude with: "back to you: Orchestrator".
+
+Special rule reminder to all participants:
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User, please confirm the plan. If you’d like any adjustments (e.g., additional data sources or specific formatting preferences for the Word document), tell me now and I’ll incorporate them.
+
+---
+

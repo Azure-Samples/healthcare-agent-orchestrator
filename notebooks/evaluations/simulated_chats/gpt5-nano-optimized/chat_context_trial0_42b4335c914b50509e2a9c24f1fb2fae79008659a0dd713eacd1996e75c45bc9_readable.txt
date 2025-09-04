@@ -1,0 +1,30 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is my moderation plan and next steps. Please confirm so I can proceed.
+
+Planned moderation steps (conceptual)
+- Confirm scope and ensure the request stays within non-clinical guidance boundaries.
+- Validate the provided patient ID and prepare data-gathering plan around PatientHistory, Radiology, and ReportCreation agents.
+- Sequentially collect structured patient timeline, biomarker/status data, stage at diagnosis, treatment history, and latest imaging findings.
+- Synthesize a concise clinical summary suitable for a tumor board, and assemble a formatted Word document using the ReportCreation agent.
+- Deliver a ready-to-export Word document and a concise summary, with milestone updates after each data handoff.
+- Ensure all data pieces are clearly referenced and auditable, and request user confirmation before final delivery if needed.
+
+Planned participation and sequence
+- Orchestrator: End-to-end coordination, plan presentation, and final delivery.
+- PatientHistory: Retrieve structured patient timeline, biomarker status, stage at diagnosis, and treatment history for patient_4.
+- Radiology: Retrieve latest imaging findings (e.g., CT, MRI, PET-CT, X-ray as relevant) for patient_4.
+- ReportCreation: Compile a Word document suitable for tumor board, using the patient timeline, clinical summary, medical history, social history, cancer type, imaging findings, pathology findings, treatment history, and clinical trials.
+
+Special rule note
+> Each agent, after completing their task, must yield the chat back to you (Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User confirmation requested
+- Please confirm: “Proceed with data collection from PatientHistory and Radiology, then generate a formatted Word document for tumor board, exporting all sections requested.” If you confirm, I will initiate the data gathering sequence and keep you updated after each step.
+
+---
+

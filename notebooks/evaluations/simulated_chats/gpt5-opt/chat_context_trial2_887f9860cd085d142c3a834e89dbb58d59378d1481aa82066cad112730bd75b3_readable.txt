@@ -1,0 +1,34 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the goal and confirm the workflow with you.
+- Identify which agents are needed and in what order.
+- Gather the required imaging and report data from the appropriate agent(s).
+- Have Radiology analyze the images using the imaging tool.
+- Compare AI findings to the radiologist’s report and summarize discrepancies.
+- Provide micro-updates after each step and outline the next action.
+
+Plan and participation order:
+1) PatientHistory: Retrieve the latest CT and CXR studies for patient_4, including:
+- Study dates and body regions.
+- Access to the images (files or links) suitable for the imaging tool.
+- The official radiologist’s report text for each study.
+2) Radiology: Use the imaging tool to analyze the provided CT and CXR images and generate AI findings for each study.
+3) Orchestrator: Compare AI-generated findings to the radiologist’s report, summarize discrepancies and any additional findings, and present the result to you.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents must conclude with: "back to you: Orchestrator".
+
+User, please confirm:
+- Do you approve this plan?
+- Can you confirm that we have permission to access the latest CT and CXR images and their radiologist reports for patient_4 via the PatientHistory agent? If not, please upload or provide direct links to the image files (DICOM or compatible) and the report texts.
+
+If you approve, I will proceed as follows:
+- PatientHistory, please proceed with retrieving for patient_4: the latest CT and CXR studies, corresponding image access (files/URLs) for the imaging tool, and the radiologist’s report texts for each study. Conclude with "back to you: Orchestrator".
+
+---
+

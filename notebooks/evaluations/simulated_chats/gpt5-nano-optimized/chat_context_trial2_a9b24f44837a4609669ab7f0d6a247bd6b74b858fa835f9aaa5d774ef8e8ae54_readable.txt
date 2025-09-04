@@ -1,0 +1,30 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and moderation plan (3-7 conceptual bullets):
+- Verify patient_id is valid and collect the required identifiers for data retrieval.
+- Orchestrate data gathering from specialized agents (PatientHistory, Radiology, PatientStatus) to assemble a complete diagnostic picture.
+- Compile a concise clinical summary focused on biomarker status, stage at diagnosis, treatment history, and latest imaging findings.
+- Generate a formatted Word document suitable for tumor board presentation via ReportCreation, including all requested sections.
+- Provide a summary of the collective inputs and indicate next steps or any follow-up needs.
+- Ensure each agent returns content to you with the mandated “back to you: Orchestrator” conclusion and a brief milestone update.
+
+Explicit instruction for plan:
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+Plan to proceed (pending your confirmation):
+- I will coordinate data retrieval from the following agents:
+  - PatientHistory: Retrieve the patient timeline and core medical history for patient_4.
+  - Radiology: Retrieve latest imaging findings (CT/MRI/PET as available) and imaging impressions.
+  - PatientStatus: Retrieve current status including age, primary site, histology, biomarkers, and treatment history (ECog/PS as available).
+  - ReportCreation: Generate a formatted Word document exporting the diagnostic summary and supporting data (timeline, clinical summary, imaging findings, pathology, treatment history, and any relevant clinical trials).
+- After all inputs are collected, I will produce the final Word document content and provide a downloadable or copy-ready version description.
+
+User confirmation required:
+- Please confirm that you want me to proceed with data collection from the designated agents to generate the Word document for tumor board presentation. If you approve, I will initiate the data retrieval for patient_4 and proceed to compile the report, keeping you updated after each agent contributes.
+
+---
+

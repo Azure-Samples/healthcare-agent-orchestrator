@@ -1,0 +1,46 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — my planned moderation steps
+- Validate the provided patient ID and confirm any missing user inputs (images, reports).
+- Ask PatientHistory to retrieve and return a structured timeline and concise history summary for patient_4.
+- Use PatientHistory output to sequence PatientStatus, Radiology, ClinicalTrials (if needed), and ReportCreation to produce the tumor-board Word document.
+- After each agent response, collect required additional details and provide a brief 1–2 sentence micro-update before moving to the next agent.
+- Ensure each agent yields the chat back to me and concludes with: "back to you: Orchestrator".
+
+Plan and sequence (expected participation order)
+1. PatientHistory — retrieve and deliver a validated JSON timeline and concise history_summary for patient_4. (Required first step; PatientStatus, Radiology and ReportCreation depend on this.)
+2. PatientStatus — synthesize current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG).
+3. Radiology — provide imaging insights using imaging files or imaging report text supplied by PatientHistory (or by the user if available).
+4. ClinicalTrials — (if requested/needed) provide trial options based on the patient’s current status.
+5. ReportCreation — compile a formatted Word document suitable for tumor board presentation using the timeline, clinical summary, imaging and pathology findings, and (if requested) clinical trials. 
+
+Special rule to be followed in every agent response
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent must conclude their message with: "back to you: Orchestrator"
+
+User confirmation and initial requirements
+- User, I will proceed only after confirming the patient ID is valid. You provided: patient_4 — please confirm this is correct.
+- User, do you have any imaging files (DICOM, CT/PET/JPEG image files) or the raw imaging reports for patient_4 to include? If yes, please upload them now or paste the report text. Radiology may request images for image-level review; otherwise Radiology can interpret image report text.
+- If there are privacy or PHI constraints, please confirm you have permission to share these records.
+
+Now I will invoke PatientHistory to retrieve the requested timeline and structured summary.
+
+PatientHistory, please proceed with the following:
+- Validate that the provided patient ID is present and is a string.
+- Retrieve the relevant patient timeline data for patient_4 (clinic notes, pathology, biomarker status, staging at diagnosis, treatment history, and latest imaging reports/findings).
+- Return a JSON response exactly matching your required schema:
+  - For success: include "status": "success", "patient_id": "patient_4", a structured array "patient_timeline" of events (date, event_type, brief details), a concise "history_summary", and "error_message": null.
+  - For error (e.g., missing/invalid ID or no data found): include "status": "error" and a meaningful "error_message".
+- If imaging files are available in the record, include references or attach report text; if images themselves are available, indicate how they can be accessed.
+- Conclude your response with: "back to you: Orchestrator"
+
+Micro-update (what will happen after PatientHistory responds)
+- I will review PatientHistory's JSON for completeness. If any items are missing (age, staging, biomarkers, ECOG, or imaging files), I will request them from either you (the User) or PatientHistory before proceeding to PatientStatus and Radiology.
+
+Please confirm that patient_4 is correct and upload any imaging files or imaging report text now if available. Once confirmed, PatientHistory — please proceed.
+
+---
+

@@ -1,0 +1,56 @@
+USER:
+Can you scan all pathology and molecular testing to see if these biomarkers are present
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the goal and define the exact outputs you want.
+- Collect required inputs (patient ID, tumor type, biomarker list or “scan all”) from you.
+- Coordinate PatientHistory to retrieve all pathology and molecular testing entries.
+- Compile and present a clear biomarker presence/absence summary with supporting details.
+- Offer optional follow-ons (PatientStatus, ClinicalTrials, ReportCreation) based on your confirmation.
+- Provide micro-updates after each step and ensure each agent yields back to me.
+
+Proposed plan and participation order:
+1) You provide inputs:
+- Patient ID (required; must be a string).
+- Primary cancer type and histology (optional but helpful).
+- Biomarker list you want checked (or say “scan all available biomarkers”).
+- Preference: most recent results only or full historical timeline.
+
+2) PatientHistory retrieves and summarizes:
+- All pathology and molecular testing reports for the patient.
+- Extracted biomarker mentions with dates, specimen, assay/platform, thresholds/interpretation when available.
+- Output: structured timeline entries plus a concise history summary.
+
+3) Orchestrator compiles biomarker table:
+- Present each biomarker with status (present/positive, absent/negative, indeterminate, not tested), date, source report, assay, and any cutoff/thresholds.
+
+4) Optional next steps (only if you want):
+- PatientStatus: integrate biomarker findings into a current clinical status snapshot.
+- ClinicalTrials: search for trials matching the status/biomarkers.
+- ReportCreation: assemble a concise tumor board–ready document with findings.
+- ClinicalGuidelines: can generate treatment recommendations if requested; note I will moderate and not make clinical recommendations myself.
+- Radiology/MedicalResearch: only if relevant to your goals.
+
+Special rule — always specify:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents: conclude your response with: “back to you: Orchestrator”.
+
+User confirmation and required details:
+- User, can you provide me with:
+  1) patient_id (as a string; required)
+  2) primary cancer type and histology (e.g., lung adenocarcinoma, TNBC, CRC), if known
+  3) the specific biomarkers you want checked (e.g., PD-L1, MSI/MMR, TMB, EGFR, ALK, ROS1, BRAF, KRAS, NRAS, HER2, NTRK, RET, METex14, BRCA1/2, PIK3CA, etc.), or confirm “scan all available biomarkers”
+  4) preference for “latest results only” vs “all historical results”
+  5) any specific cutoffs or reporting format you prefer (e.g., PD-L1 by CPS with threshold, MSI method, TMB units)
+
+Once you confirm, I will:
+- Ask PatientHistory to retrieve the full pathology/molecular corpus for that patient ID.
+- Then I’ll compile and return a clear biomarker presence/absence summary with source details.
+
+Micro-update upon your confirmation:
+- I will trigger PatientHistory first and then report back before any optional steps.
+
+---
+

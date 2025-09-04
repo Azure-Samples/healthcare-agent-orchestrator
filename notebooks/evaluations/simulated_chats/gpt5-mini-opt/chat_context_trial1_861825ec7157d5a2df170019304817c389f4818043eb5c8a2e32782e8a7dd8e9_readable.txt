@@ -1,0 +1,50 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — my planned moderation steps
+- Confirm the patient ID and validate input format.
+- Request the structured patient timeline from PatientHistory.
+- Gather missing clinical data (imaging, pathology, biomarkers, staging, ECOG, treatment history) from the user as needed.
+- Sequence agents: PatientHistory → PatientStatus → Radiology (if images provided) → ClinicalTrials / ClinicalGuidelines → ReportCreation → MedicalResearch (optional).
+- Provide milestone micro-updates after each agent response and ensure each agent yields back to me.
+
+Planned sequence and purpose
+- I will first ask PatientHistory to retrieve and validate the timeline for patient_4.
+- Next, PatientStatus will synthesize the current clinical status using that timeline.
+- If imaging is available, Radiology will analyze images (I will request images from you or PatientHistory).
+- ClinicalTrials and ClinicalGuidelines will use PatientStatus output to provide trial options and guideline-based information (note: these are informational only; no treatment recommendations will be made).
+- ReportCreation will use all collected material to produce a tumor-board–ready document.
+- MedicalResearch can be invoked last for topic-specific literature or evidence searches if requested.
+
+Special rule (applies to all agents)
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent must conclude their message with: "back to you: Orchestrator"
+
+Next actions — immediate requests
+1) PatientHistory, please proceed:
+- Validate the patient ID "patient_4" (confirm it is present and a string).
+- Retrieve the patient timeline and produce output that matches the required JSON schema:
+  - status: "success" or "error"
+  - patient_id
+  - patient_timeline: array of structured events (date, event_type, brief details)
+  - history_summary: concise summary (1–3 lines)
+  - error_message: null if success, informative string if error
+- If you encounter validation problems or missing data, return status "error" with an explanatory error_message.
+- Conclude with: "back to you: Orchestrator"
+
+2) User, please confirm:
+- Do you confirm I should proceed requesting the patient timeline from PatientHistory for patient_4?
+- Please provide any of the following documents now if available (these will speed Radiology, PatientStatus, and ReportCreation):
+  - Imaging files (CT/PET/MRI/x-rays) or links
+  - Pathology report and biomarker results (e.g., PD-L1, molecular panel)
+  - Current staging, histology, age, ECOG performance status
+  - Treatment history (surgery, chemo, radiation, systemic agents) and dates
+  - Relevant social history or comorbidities
+If you do not have these now, we will proceed initially with the PatientHistory timeline and then request missing items as needed.
+
+Please confirm you want me to proceed with PatientHistory now, and provide any of the documents above if available.
+
+---
+

@@ -1,0 +1,48 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — planned moderation steps
+- Validate the patient ID and required inputs.
+- Request structured patient timeline and clinical data from PatientHistory.
+- Use PatientHistory output to request PatientStatus synthesis, Radiology review (if images available), and then assemble the Word tumor-board report via ReportCreation.
+- Provide short milestone updates after each agent responds and confirm next steps with the user.
+
+Planned sequence and purpose
+1. PatientHistory — retrieve and return the full, structured patient timeline and clinical details for patient_4 (required first step).
+2. PatientStatus — synthesize current status (age, stage, primary site, histology, biomarkers, treatment history, ECOG).
+3. Radiology — review latest imaging (only if imaging files are provided; otherwise use imaging findings from PatientHistory).
+4. ClinicalTrials (optional) — identify relevant trials based on patient status (only if you request it).
+5. ReportCreation — compile a formatted Word document for tumor board containing the diagnostic summary, timeline, imaging and pathology findings, and treatment history.
+
+Special coordination rule (must follow)
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent must conclude with: "back to you: Orchestrator"
+
+User confirmation and missing items
+- User, please confirm you want the full tumor-board Word report for patient_4 and whether you want a clinical-trials search included.
+- User, do you have imaging files (DICOM, JPEG, or PDFs of CT/MRI/x-ray) to upload for Radiology review? If yes, please upload them now. If not, Radiology will rely on the imaging descriptions provided in the patient notes.
+- User, do you have any specific formatting preferences for the Word document (institution header, single/double-spaced, sections to emphasize)?
+
+Next immediate action (request to PatientHistory)
+- PatientHistory, please proceed with retrieving the data for patient_id = "patient_4". Per your workflow, validate the patient_id is present and a string. Then return a JSON response with:
+  - "status": "success" or "error"
+  - "patient_id": "patient_4"
+  - "patient_timeline": an array of structured events (date, event_type, brief details — e.g., diagnosis, biopsy/pathology results, staging, biomarker results with dates, treatments given with dates and doses if available, imaging studies and report summaries)
+  - "history_summary": a concise one-paragraph summary
+  - "error_message": null for success (or an informative string if error)
+  
+  Include in the timeline the specific fields we will need downstream: age, sex, primary site, histology, stage at diagnosis, biomarker status (EGFR, ALK, ROS1, PD-L1, others if recorded), ECOG performance status, full treatment history with dates, latest imaging findings (date and short report), pathology report date and summary, and any available social history.
+  
+  If patient_id is missing or invalid, return status "error" and an explanatory error_message.
+  
+  Conclude your response with: "back to you: Orchestrator"
+
+Micro-update after PatientHistory returns
+- I will provide a 1–2 sentence micro-update summarizing what PatientHistory returned and the next step.
+
+If you confirm, I will now ask PatientHistory to retrieve the data for patient_4.
+
+---
+

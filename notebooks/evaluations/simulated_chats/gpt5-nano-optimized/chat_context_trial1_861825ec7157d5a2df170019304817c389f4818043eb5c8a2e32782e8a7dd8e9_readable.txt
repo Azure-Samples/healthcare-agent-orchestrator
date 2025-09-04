@@ -1,0 +1,32 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is my planned moderation approach:
+
+- Confirm the patient identifier and define the scope for the tumor board preparation.
+- Initiate data gathering with the PatientHistory agent to retrieve a complete timeline for patient_4.
+- Compile a concise history summary and identify any data gaps to address with other agents.
+- Coordinate sequentially with Radiology (imaging insights) and PatientStatus (current status) to enrich the board materials.
+- Create a tumor board-ready document draft using ReportCreation, incorporating timeline, clinical summary, pathology, imaging, and treatment history; optionally surface trial and guideline references for discussion.
+- Provide milestone updates after each agent’s contribution and ensure each agent returns control to the Orchestrator with the required “back to you: Orchestrator” closure.
+- Present the final consolidated summary to you and invite any follow-up questions or requests for additional materials.
+
+Plan and expected participation order:
+1) PatientHistory – Retrieve and structure patient timeline for patient_4 (validate presence and string type). After completing, yield back to Orchestrator.
+2) PatientStatus – Provide current status details derived from the timeline (age, primary site, histology, biomarkers, ECOG, staging, treatment history). After completing, yield back to Orchestrator.
+3) Radiology – Supply imaging insights (CT/MRI/X-ray findings, key reports) using data from the patient timeline. After completing, yield back to Orchestrator.
+4) ReportCreation – Assemble a tumor board-ready document (timeline, clinical summary, medical/social history, cancer type, imaging findings, pathology, treatment history, and any clinical trials). After completing, yield back to Orchestrator.
+5) ClinicalTrials (optional) – Identify nearby or relevant trials based on patient status, to be listed for discussion (not a clinical recommendation). After completing, yield back to Orchestrator.
+6) ClinicalGuidelines (optional) – Surface guideline references for discussion only (no treatment recommendations from me). After completing, yield back to Orchestrator.
+7) Final synthesis – Orchestrator compiles and presents a concise tumor board-ready package summary to you and outlines any data gaps or follow-up needs.
+
+Important rule to follow during execution:
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+Please confirm that you would like me to proceed with this plan for Patient ID: patient_4. If you approve, I will start with the PatientHistory retrieval right away.
+
+---
+

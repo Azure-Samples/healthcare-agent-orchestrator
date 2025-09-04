@@ -1,0 +1,34 @@
+USER:
+Given the presence of a KRAS p.G12C mutation, what are the potential benefits and risks of transitioning to KRAS-directed treatment with adagrasib? How might this change the patient's prognosis?
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist
+- Collect the required patient identifier and any missing clinical details.
+- Retrieve the patient timeline and build a concise clinical summary.
+- Derive current patient status (staging, performance, prior treatments).
+- Ask guideline- and research-focused agents to provide an evidence-based overview of benefits, risks, and prognosis implications for adagrasib.
+- Return a short, consolidated summary and ask whether to proceed to trial matching / report generation.
+
+Planned sequence and roles (what will happen next)
+1) PatientHistory — will fetch the patient timeline and history. I need a patient ID string from you to proceed.  
+2) PatientStatus — will use the history to produce current status (age, stage, primary site, histology, biomarkers, prior treatments, ECOG).  
+3) ClinicalGuidelines — will provide an evidence-based discussion of potential benefits and risks of KRAS G12C–directed therapy with adagrasib and how it might affect prognosis (note: ClinicalGuidelines can discuss general guidance and evidence; I will not give direct treatment recommendations).  
+4) MedicalResearch — will supply trial results and literature supporting the benefit/risk statements (e.g., KRYSTAL-1 results).  
+5) ClinicalTrials (optional) — if you want, this agent can look for relevant active trials given the patient’s status.  
+6) Radiology / ReportCreation (optional) — included only if you want imaging review or a tumor-board style document.
+
+Special rule (applies to all agents)
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator) and conclude their reply with: "back to you: Orchestrator".
+
+What I need from you now (User)
+- User, please provide the patient ID as a string (required). If you do not have a patient ID, say so and indicate whether you want a general, non–patient-specific overview.  
+- If you want a personalized response but cannot provide a patient ID, please supply these key details instead: diagnosis (cancer type), stage, age, histology, prior treatments, ECOG performance status, and whether KRAS p.G12C is the only actionable mutation.
+
+PatientHistory, please confirm what you require to proceed (e.g., exact patient ID string and any preferred date range or notes) and whether you need any additional inputs. Conclude with: "back to you: Orchestrator".
+
+User, please confirm you want me to proceed with that plan and provide the patient ID (or say you prefer a general overview).
+
+---
+

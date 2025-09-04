@@ -1,0 +1,38 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the user’s objective and confirm the workflow plan and sequence.
+- Gather foundational patient data from PatientHistory.
+- Coordinate downstream agents based on available data, requesting missing inputs as needed.
+- Provide brief milestone updates after each agent’s contribution.
+- Ensure all agents yield control back and compile outputs into a tumor board packet.
+- Confirm completeness and ask for any remaining needs.
+
+Plan and participation order:
+- We will proceed in this sequence. Special rule: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator".
+1) PatientHistory: Retrieve the full timeline and concise history for patient_4.
+2) Radiology: Review available imaging from PatientHistory. If raw images are not available, Radiology will request them or summarize from report text.
+3) PatientStatus: Compile the current oncologic status using details from PatientHistory (age, staging, primary site, histology, biomarkers, treatment history, ECOG).
+4) ClinicalGuidelines: Provide guideline-aligned treatment pathways based on PatientStatus.
+5) ClinicalTrials: Identify suitable trials matched to PatientStatus.
+6) ReportCreation: Assemble a tumor board document using all prior outputs (timeline, clinical summary, medical/social history, cancer type, imaging and pathology findings, treatment options, and trial opportunities).
+7) MedicalResearch (optional): Add key, up-to-date literature references for complex decisions.
+
+User, please confirm:
+- Is this plan acceptable?
+- Do you have any additional items to include (specific questions for the board, goals of discussion, or institutional preferences)?
+
+If available, please upload or confirm access to:
+- Latest imaging (DICOM or image files) and radiology reports (CT, MRI, PET, chest X-ray).
+- Pathology report(s) including histology and molecular profiling/biomarkers.
+- Any recent treatments given outside our system and current ECOG performance status.
+- Any constraints (e.g., trial site preferences).
+
+Upon your confirmation, I will start with: PatientHistory, please proceed with retrieving the timeline and history for patient_4 and provide the structured JSON response per your schema; conclude with “back to you: Orchestrator.”
+
+---
+

@@ -1,0 +1,37 @@
+USER:
+Based on the full clinical picture of patient_4â€”including stage, biomarkers, treatment response, and recent imagingâ€”generate a short report estimating prognosis and possible progression pathways.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — planned moderation steps
+- Verify a valid patient ID string and request any missing imaging or reports from the user.
+- Ask PatientHistory to retrieve the structured timeline and imaging reports for that patient ID.
+- Use PatientStatus (based on PatientHistory output) and Radiology (if imaging available) to summarize current status and imaging interpretation.
+- Consult MedicalResearch for prognosis data and typical progression pathways relevant to the patient’s profile.
+- Return a concise, non-treatment prognosis/progression summary to the user.
+
+Plan and participation order
+1. PatientHistory — validate patient_id and provide the patient_timeline, history_summary, and imaging reports (if available). (Required first step.)
+2. PatientStatus — synthesize current status (age, stage, site, histology, biomarkers, treatment history, ECOG).
+3. Radiology — interpret the recent imaging (needs images or imaging report text from PatientHistory or the user).
+4. MedicalResearch — provide literature-based prognosis ranges and typical progression pathways aligned to the patient status.
+5. Orchestrator — compile a short report estimating prognosis and possible progression pathways (no treatment recommendations).
+
+Special rule (applies to all agents)
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator) and conclude their response with: back to you: Orchestrator
+
+User confirmation and input needed
+- User, please confirm the patient ID as the exact string "patient_4". If that is not correct, provide the exact patient ID string.
+- User, if you have the recent imaging files (CT, chest x-ray) or the imaging report text, please upload or paste them now. Radiology can only analyze images or read report text supplied by PatientHistory or you.
+
+Now proceeding to the first step
+PatientHistory, please proceed to:
+- Validate that the provided patient ID is the string "patient_4".
+- Retrieve the patient timeline, recent imaging reports (or note if images are unavailable), staging, histology, biomarkers, treatment history, and ECOG if present in the record.
+- Output according to your workflow: set "status" to "success" with "patient_id", "patient_timeline" (array of events), "history_summary" (concise), and "error_message": null. If the ID is missing or invalid, set "status" to "error" and include an explanatory "error_message".
+- Indicate clearly whether any imaging files or reports are missing and what you need from the user.
+Conclude with: back to you: Orchestrator
+
+---
+

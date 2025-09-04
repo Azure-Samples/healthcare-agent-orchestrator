@@ -1,0 +1,27 @@
+USER:
+Can you scan all pathology and molecular testing to see if these biomarkers are present
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is my moderation plan:
+- Confirm plan and required inputs, then identify the most relevant AI agent to answer.
+- Require a valid patient_id (string) to retrieve the patient's timeline and history.
+- Engage PatientHistory to fetch pathology/molecular data and identify biomarker results.
+- If data are missing or ambiguous, prompt the appropriate agent for specifics.
+- Compile a concise biomarker presence/absence summary for the user.
+- Provide a brief milestone update after each agent’s contribution and a final summary with next steps.
+- Ensure no clinical recommendations are given; focus on data extraction and history summary.
+
+Plan for your request:
+- You asked to scan all pathology and molecular testing to see if these biomarkers are present. To proceed, I will fetch the patient’s pathology and molecular test data and identify which biomarkers are reported as present or absent.
+
+Important: Each agent, after completing their task, must yield the chat back to you (Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+Next step:
+- Please provide a valid patient_id (as a string). If you have the specific biomarkers of interest, you can list them; otherwise I will scan for all reported biomarkers in the pathology and molecular data.
+
+Milestone update: Once you provide the patient_id, I will request the PatientHistory agent to retrieve the relevant pathology and molecular data, then proceed to summarize biomarker status. After each agent contributes, I will give a brief progress update.
+
+---
+

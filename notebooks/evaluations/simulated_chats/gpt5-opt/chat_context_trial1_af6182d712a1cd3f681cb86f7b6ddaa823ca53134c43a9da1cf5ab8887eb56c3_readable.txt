@@ -1,0 +1,33 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the user’s objective, scope, and any constraints
+- Propose a stepwise plan with agents and required inputs, then request confirmation
+- Coordinate agents in sequence, collecting and passing required data between them
+- Provide micro-updates after each agent’s contribution
+- Validate outputs (especially JSON from PatientHistory) and ensure no clinical recommendations are made
+- Assemble final deliverable and confirm it meets the user’s needs
+
+Proposed plan and sequence:
+- Step 1: PatientHistory retrieves a structured timeline and history for patient_4 (including staging, biomarkers, treatments, imaging summaries).
+- Step 2: PatientStatus synthesizes a current status summary using details from PatientHistory (age, staging, primary site, histology, biomarkers, treatment history, ECOG).
+- Step 3: Radiology will review any available imaging files for the latest findings; if no images are available, we will rely on the documented imaging narrative from PatientHistory.
+- Step 4: ReportCreation compiles a formatted Word document for tumor board review, incorporating the patient timeline, clinical summary, medical and social history, cancer type, imaging and pathology findings, and treatment history. Clinical trials can be included if you want them.
+- Optional: ClinicalTrials can add trial options if you want that section. MedicalResearch can add citations or background on relevant biomarkers or staging if desired. ClinicalGuidelines is available but will not be used unless you explicitly request guidelines, given we must avoid providing treatment recommendations.
+Special rule:
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents, conclude with: “back to you: Orchestrator”.
+
+Questions for you before we proceed:
+- Do you want a Clinical Trials section included in the tumor board document? If yes, I will engage the ClinicalTrials agent after PatientStatus.
+- Do you have any imaging files (e.g., chest X-ray, CT, MRI) to share for Radiology to analyze? If not, we’ll use the latest imaging findings recorded in the patient history.
+- Do you have a specific Word template, header/footer, or institutional formatting to apply? If yes, please provide details; otherwise I’ll use a clean, professional tumor board layout.
+- Any constraints on de-identification or distribution of the document?
+
+User, please confirm the plan and answer the above questions. Once confirmed, I will start with PatientHistory for patient_4.
+
+---
+

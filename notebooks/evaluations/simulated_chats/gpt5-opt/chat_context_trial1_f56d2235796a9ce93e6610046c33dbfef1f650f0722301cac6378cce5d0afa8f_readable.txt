@@ -1,0 +1,36 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the goal and outline a step-by-step plan with agent participation order.
+- Confirm the plan with you and gather any missing inputs (e.g., imaging, research focus).
+- Sequentially engage each agent, ensuring required inputs are available for the next step.
+- After each agent’s response, give a brief progress update and state the next step.
+- Ensure each agent yields the conversation back to me and that no clinical advice is issued by me.
+- Compile all outputs and prepare the final tumor board package via ReportCreation.
+- Summarize outcomes and check for any further needs.
+
+Proposed plan and participation order:
+- Special rule: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+1) PatientHistory: Retrieve and summarize the full timeline for patient_4.
+2) PatientStatus: Build a concise current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG), using PatientHistory output.
+3) Radiology: Review imaging. If you can provide chest X-ray/CT images or reports, Radiology will summarize key findings. If images are not available, Radiology will note that and proceed accordingly.
+4) ClinicalGuidelines: Using PatientStatus, generate guideline-based treatment options and considerations.
+5) ClinicalTrials: Using PatientStatus, list relevant ongoing clinical trials.
+6) MedicalResearch: Summarize up-to-date research on a focused topic relevant to this case (you can specify a topic; otherwise we’ll propose one based on diagnosis/biomarkers).
+7) ReportCreation: Assemble a tumor board-ready document including patient timeline, clinical summary, medical/social history, cancer type, imaging/pathology summaries, treatment options (from ClinicalGuidelines), and clinical trial listings.
+
+User confirmation and inputs needed:
+- Please confirm this plan.
+- If available, upload or point us to imaging (CT, X-ray) for Radiology, or confirm we should proceed without images.
+- Do you have a preferred research focus for MedicalResearch (e.g., “first-line options for [cancer type] with [biomarker]”, “management of brain metastases in [cancer type]”, etc.)?
+- Any specific sections or institutional template requirements for the final tumor board document?
+- Any deadline or scheduling constraints for the tumor board?
+
+If you confirm, I will begin with: PatientHistory, please proceed with the full timeline and history for patient ID "patient_4".
+
+---
+

@@ -1,0 +1,48 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist:
+- Clarify the goal, scope, and any tool/agent limitations up front
+- Propose a stepwise plan and participation order among agents
+- Obtain user confirmation before proceeding
+- Gather required data (images and reports) via PatientHistory
+- Have Radiology analyze the CXR images and report structured findings
+- Compare AI CXR findings with the radiologist’s reports; summarize discrepancies and extras
+- Provide milestone updates after each agent response and outline next steps
+
+Plan and participation order:
+- Step 1 — PatientHistory: Retrieve the latest imaging entries for patient_4, including:
+  - The most recent chest CT and chest X-ray study identifiers and dates
+  - Access links or attachments for the images (ideally DICOM) or confirm availability in-system
+  - The radiologist’s finalized reports for those studies
+  - PatientHistory, after completing your task, conclude with: “back to you: Orchestrator”
+- Step 2 — Radiology: Perform AI image analysis on the latest chest X-ray images and return a structured set of findings. Note: Our current Radiology agent is limited to chest X-ray analysis. We do not have a CT image analysis tool in this workflow. If CT analysis is essential, we can pause and explore adding a CT-capable agent or proceed with report-only comparison for CT.
+  - Radiology, after completing your task, conclude with: “back to you: Orchestrator”
+- Step 3 — Orchestrator: Compare the AI-generated CXR findings to the radiologist’s CXR report and summarize discrepancies/added details. For CT, if we cannot run AI image analysis, we will summarize the radiologist’s CT report and clearly state that no AI image analysis was performed on CT.
+- Step 4 — Optional next step: If you need AI analysis for CT images, we can discuss options to integrate a CT-capable analysis tool, or you can provide external AI outputs to compare with the radiologist’s CT report.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Conclude with: “back to you: Orchestrator”.
+
+Confirmation and clarifications:
+- User, please confirm:
+  1) Proceed with AI analysis for the chest X-ray only and a report-only comparison for the CT.
+  2) Or would you prefer to pause until we can incorporate a CT-capable analysis tool?
+- User, can you also confirm that patient ID is exactly “patient_4” and that the latest chest CT and chest X-ray images are available in the system for retrieval? If the images are external, please provide access links or upload them.
+
+If you confirm option 1, I will proceed as follows:
+- PatientHistory, please retrieve for patient_4:
+  - The most recent chest CT and chest X-ray study dates, accession numbers/IDs
+  - Direct links or attachments to the image studies (CXR DICOMs prioritized)
+  - The finalized radiologist narrative reports for both studies
+  - A concise note identifying which exams are the latest
+  Conclude with: “back to you: Orchestrator” 
+
+Milestone update upon your confirmation:
+- After PatientHistory responds, I’ll summarize what we have and send the X-ray images to Radiology for AI analysis next.
+
+---
+

@@ -1,0 +1,33 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify objectives and define the agent participation order.
+- Confirm required inputs and identify any missing details from the user.
+- Engage PatientHistory to retrieve the patient’s timeline and biomarkers.
+- Engage PatientStatus to assemble a concise clinical status for eligibility matching.
+- Engage ClinicalTrials to identify active, eligible trials with phase and contact info.
+- Provide micro-updates after each agent handoff and confirm next steps.
+
+Proposed plan and participation order:
+- PatientHistory: Retrieve patient_4’s timeline and key details (tumor type, stage, KRAS mutation status, treatment history, ECOG if available).
+- PatientStatus: Compile a structured current status from the above (age, primary site, histology, staging, biomarkers including KRAS variant, treatment history, ECOG).
+- ClinicalTrials: Use patient status plus geographic info to identify active eligible trials and return trial phase and contact details.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents, please conclude with: “back to you: Orchestrator”
+
+User, to proceed I need:
+- Patient location for trial matching: city/state (or ZIP/postal code) and country.
+- Max travel distance you’d consider (e.g., 25, 50, 100, 300+ miles or “no limit”).
+- Phase preferences: include Phase 1 trials? (yes/no)
+- Any site preferences or exclusions (e.g., academic centers only, exclude specific institutions).
+- Date relevance: should we consider trials currently recruiting as of today, or a specific date?
+
+If you confirm the plan, I will start immediately by asking PatientHistory to retrieve patient_4’s timeline while we await your location/travel preferences.
+
+---
+

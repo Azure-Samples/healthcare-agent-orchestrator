@@ -1,0 +1,53 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps (checklist)
+- Validate the patient identifier and retrieve the structured patient timeline and key clinical details.
+- Synthesize the patient’s current status (age, stage, primary site, histology, biomarkers incl. KRAS, treatment history, ECOG).
+- Use the synthesized status plus the user’s geographic constraints to identify active clinical trials and provide phase/contact details.
+- Return findings to the user and ask for confirmation or additional constraints before finalizing the trial list.
+
+Planned sequence and participant order
+1. PatientHistory — validate patient_id and return the structured timeline and required clinical details for patient_4.
+2. PatientStatus — synthesize current status from PatientHistory output (age, staging, primary site, histology, biomarkers incl. KRAS, treatment history, ECOG).
+3. ClinicalTrials — identify active clinical trials matching the patient status and geographic constraints; include trial phase and contact info.
+4. (If needed) MedicalResearch — provide background or search refinement on specific trial mechanisms or experimental agents.
+5. Back to Orchestrator — consolidate and present results to you.
+
+Special rule (applies to all agents)
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent must conclude their response with: "back to you: Orchestrator"
+
+Immediate actions and information needed
+- *User*, please confirm that the target patient ID is "patient_4" (exact string). If that is correct, please provide the patient’s geographic location (city or ZIP/postal code and country) and any constraints about travel or distance (e.g., willing to travel nationally vs. only local within X miles/km). Also indicate whether trial phase limits are preferred (e.g., only Phase II/III).
+- *PatientHistory*, please proceed with validating the patient_id "patient_4" (ensure it is a non-empty string) and then retrieve and return the patient's structured timeline and the following specific items needed by PatientStatus:
+  - Age
+  - Cancer primary site and histology
+  - Stage (TNM or stage grouping)
+  - Biomarkers (explicitly include KRAS mutation status and other relevant markers)
+  - Treatment history (lines of therapy, dates, agents)
+  - ECOG performance status
+  - Any known geographic or logistical constraints on trial participation (if recorded)
+  
+  Please format your response per your workflow:
+  - If successful, return JSON with "status":"success", "patient_id":"patient_4", "patient_timeline":[...structured events...], "history_summary":"concise summary", and "error_message": null.
+  - If patient_id is missing or invalid, return JSON with "status":"error" and an informative "error_message".
+  - Conclude with the required phrase: back to you: Orchestrator
+
+User prompt (required)
+- *User*, please confirm the patient ID ("patient_4") and provide:
+  1) patient geographic location (city/ZIP/country),
+  2) maximum travel distance or willingness to travel (local, regional, national, international),
+  3) any phase restrictions (e.g., exclude Phase I),
+  4) whether they prefer trials with certain enrollment criteria (e.g., only trials for KRAS G12C vs any KRAS mutation), and
+  5) permission to use de-identified clinical details to search trials.
+
+Next step after your confirmation
+- Once you confirm and PatientHistory returns the patient data, I will direct PatientStatus to synthesize the current status, then ask ClinicalTrials to search for matching active trials in your specified geographic area. I will provide micro-updates after each agent completes their task.
+
+Now proceeding: *PatientHistory*, please validate and retrieve details for patient_id "patient_4" as described above. back to you: Orchestrator
+
+---
+

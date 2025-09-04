@@ -1,0 +1,48 @@
+USER:
+Given the presence of a KRAS p.G12C mutation, what are the potential benefits and risks of transitioning to KRAS-directed treatment with adagrasib? How might this change the patient's prognosis?
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify your objective and confirm the workflow.
+- Collect the required patient identifier and/or core clinical details.
+- Orchestrate PatientHistory to retrieve the timeline, then PatientStatus to synthesize current status.
+- Engage ClinicalGuidelines for benefits/risks and MedicalResearch for evidence context; involve ClinicalTrials if desired.
+- Provide brief milestone updates after each agent’s contribution.
+- Ensure each agent yields control back to me.
+- Summarize consolidated findings and confirm next steps.
+
+Plan and participation order:
+- PatientHistory: Retrieve the patient’s timeline and key details using a patient ID.
+- PatientStatus: Summarize current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG).
+- ClinicalGuidelines: Outline potential benefits and risks of KRAS-directed therapy with adagrasib, and discuss how it may influence prognosis based on the patient’s status.
+- MedicalResearch: Provide an evidence-based overview of adagrasib (KRAS G12C) efficacy and safety from recent trials and real-world data, to contextualize benefits/risks and expected outcomes.
+- ClinicalTrials: Identify relevant ongoing trials for KRAS G12C that may impact options.
+- ReportCreation (optional): Compile a tumor board-ready document summarizing the above.
+- Radiology (optional): If you have imaging to review, this agent can add radiology insights.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Instruct each agent to conclude with: “back to you: Orchestrator” after their response.
+
+Confirmation and needed information:
+- User, to proceed on a patient-specific path, please provide a patient ID as a string (required for PatientHistory).
+- If you do not have a patient ID, you can alternatively provide the core fields needed by PatientStatus:
+  - Age
+  - Primary site and histology (for example, lung adenocarcinoma)
+  - Stage (and presence/absence of brain or liver metastases)
+  - Biomarkers (KRAS G12C confirmed, plus PD-L1, STK11/KEAP1, others if available)
+  - Treatment history (lines of therapy, agents used, responses, dates if possible)
+  - ECOG performance status
+
+Would you like us to proceed with this plan? If you confirm, I will:
+1) Ask PatientHistory to pull the record using your patient ID, then
+2) Have PatientStatus synthesize the clinical status, then
+3) Send to ClinicalGuidelines to outline benefits/risks and prognosis considerations for adagrasib, and
+4) Ask MedicalResearch for an evidence summary of adagrasib in KRAS G12C,
+5) Optionally query ClinicalTrials for trial options.
+
+If you prefer a general (non–patient-specific) evidence overview while we await details, I can immediately task MedicalResearch to provide that. Please confirm your preference and share the patient ID or the clinical details listed above.
+
+---
+

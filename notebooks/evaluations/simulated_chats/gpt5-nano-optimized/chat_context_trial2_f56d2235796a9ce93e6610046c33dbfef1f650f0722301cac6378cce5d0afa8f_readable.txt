@@ -1,0 +1,38 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and moderation steps (high level)
+- Verify the patient identifier is present and valid as a string.
+- Retrieve and assemble the patient timeline/history for patient_4 from the designated history agent.
+- Compile a concise clinical history suitable for a tumor board summary.
+- Gather current status and key oncology details (age, primary site, histology, biomarkers, ECOG, treatment history) via the PatientStatus agent (pulling data from PatientHistory as needed).
+- Collect relevant imaging and pathology context (via Radiology insights and any pathology notes surfaced by patient history).
+- Explore applicable ClinicalGuidelines and available ClinicalTrials relevant to the patient’s status.
+- Create a draft tumor-board-ready document with ReportCreation, then share for your review.
+- After each agent’s contribution, provide a brief progress update and outline next steps.
+
+Explicit rule to keep in mind
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: *Orchestrator*"
+
+Planned participation and sequence
+- Orchestrator (you): Facilitates, assigns tasks, and compiles results.
+- PatientHistory: Retrieve and summarize patient timeline for patient_4.
+- Radiology: Provide imaging insights if available (requires imaging data surfaced by PatientHistory).
+- PatientStatus: Provide current status and key oncologic details (needs data from patient history).
+- ClinicalGuidelines: Suggest treatment considerations based on patient status.
+- ClinicalTrials: Identify relevant trials based on patient status.
+- ReportCreation: Produce a tumor-board-ready document including timeline, history, imaging/pathology highlights, and plan placeholders.
+
+User confirmation
+Please confirm that you’d like me to proceed with this plan. If you approve, I will:
+- Request PatientHistory to fetch the timeline for patient_4.
+- Then sequentially involve Radiology, PatientStatus, ClinicalGuidelines, ClinicalTrials, and finally ReportCreation.
+- After each step, I’ll provide a concise update and proceed to the next.
+
+For clarity, the required patient identifier is: patient_4. If this is correct, please confirm to proceed.
+
+---
+

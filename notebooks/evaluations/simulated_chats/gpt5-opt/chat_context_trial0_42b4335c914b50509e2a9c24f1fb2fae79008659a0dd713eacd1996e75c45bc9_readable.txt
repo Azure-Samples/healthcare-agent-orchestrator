@@ -1,0 +1,32 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the user’s objective and confirm the workflow and outputs.
+- Identify which agents are needed and in what sequence.
+- Gather required patient data from PatientHistory and resolve any missing fields with the user.
+- Compile a concise PatientStatus summary from the collected data.
+- Generate a formatted Word document via ReportCreation and confirm delivery preferences.
+- Provide micro-updates after each agent response and outline next steps.
+
+Proposed plan and participation order:
+1) PatientHistory: Retrieve a structured timeline and history for patient_4, emphasizing biomarker status, stage at diagnosis, treatment history, and any documented imaging findings.
+2) PatientStatus: Create a concise current status summary using age, staging, primary site, histology, biomarkers, treatment history, and ECOG performance status pulled from PatientHistory. If any items are missing, I will request them from you.
+3) ReportCreation: Produce a formatted Word document intended for tumor board, incorporating the patient timeline, clinical summary, medical history, social history, cancer type, imaging findings (CT/X-ray), pathology notes, and the documented treatment plan. Optionally, we can add a ClinicalTrials section if desired.
+- Radiology: Only needed if you can provide actual imaging files for review. Otherwise we’ll rely on the imaging findings documented in the history.
+Special rule: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents will conclude with: “back to you: Orchestrator”.
+
+Questions for you before we proceed:
+- Would you like us to include a ClinicalTrials section in the report? If yes, we will engage the ClinicalTrials agent after PatientStatus.
+- Do you have any imaging files (e.g., chest X-ray/CT) you want Radiology to analyze, or should we rely solely on the documented imaging findings?
+- Any specific formatting requirements for the Word document (institution template, logo, section order), or should we use a standard tumor board layout?
+- Delivery preference: a downloadable .docx (we can provide a base64-encoded .docx for you to save) or a cleanly structured document you can copy into Word?
+- Should the report be de-identified, or include identifiers as present in the chart?
+
+Please confirm this plan. Upon your confirmation, I will proceed by asking PatientHistory to retrieve the record for patient_4.
+
+---
+

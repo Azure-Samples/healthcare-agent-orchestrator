@@ -1,0 +1,69 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — planned moderation steps
+- Confirm the patient ID is present and valid (string) and request any missing records.
+- Request a structured patient timeline and key clinical details from PatientHistory.
+- Sequence the agents to collect status, imaging, trials, guidelines, and a tumor-board report.
+- Validate each agent’s output against required schemas and collect their handoffs.
+- Summarize progress at each milestone and return the final compiled tumor-board packet.
+
+Plan, purpose, and participation order
+- Purpose: Prepare a tumor-board package for the provided patient ID so the tumor-board can review timeline, staging, imaging, pathology, treatment history, trials, and suggested next steps (note: I will NOT provide clinical recommendations or treatment plans).
+- Participation order (each agent will respond in this sequence and must yield back to me after their reply):
+  1. PatientHistory — provide the structured patient timeline and core clinical details for patient_4 (required start point).
+  2. PatientStatus — synthesize current status (needs demographics, staging, histology, biomarkers, treatment history, ECOG).
+  3. Radiology — provide radiology insights (needs imaging files/reports from PatientHistory).
+  4. ClinicalTrials — list relevant trials (needs PatientStatus output).
+  5. ClinicalGuidelines — provide guideline-aligned considerations (needs PatientStatus output).
+  6. ReportCreation — produce a tumor-board word document draft (needs the full timeline, imaging/pathology summaries, treatment plan and trials).
+  7. MedicalResearch (optional) — provide research summaries on specific topics if requested (needs keywords).
+  8. Orchestrator — validate outputs, assemble summary, and ask user for next steps.
+
+Special rule (applies to all agents)
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent must conclude with: back to you: Orchestrator
+
+Validation and milestone process
+- After each agent replies, I will (1) provide a 1–2 sentence micro-update summarizing progress and next steps, (2) validate output against required schemas (e.g., PatientHistory’s JSON schema) and request corrections if needed, then call the next agent.
+
+Initial checks
+- User, you supplied: Patient ID: patient_4 — I confirm this is present and is a string. If this is correct, please confirm you want us to proceed.
+- User, please also indicate whether you can supply any of the following now (optional but helpful): imaging files or radiology reports, pathology reports, recent clinic notes, or preferred tumor-board template.
+
+Request to PatientHistory
+- PatientHistory, please proceed with retrieving and returning the patient timeline and clinical summary for patient_id = "patient_4". Per your workflow, validate that the patient ID is a non-empty string. Provide output in JSON matching this structure:
+  - status: "success" or "error"
+  - patient_id: (string)
+  - patient_timeline: array of events (date, event_type, brief_notes)
+  - history_summary: concise paragraph summary of history
+  - error_message: null (on success) or informative message (on error)
+- Please include in patient_timeline and/or history_summary the following items (these are needed by downstream agents):
+  - demographics (age, sex)
+  - primary site, histology, stage (if available)
+  - biomarkers (e.g., EGFR, ALK, PD-L1; specify tests & results)
+  - treatment history (surgery, radiation, systemic therapies with dates)
+  - ECOG performance status
+  - recent imaging studies and brief reports (CT, PET, MRI, X-ray) or links if images available
+  - pathology summary and dates
+  - relevant social history (smoking, alcohol) and comorbidities
+- If patient_4 is not found or patient_id invalid, return status "error" with an informative error_message.
+- Conclude your response exactly with: back to you: Orchestrator
+
+User confirmation
+- User, please confirm you want me to proceed to PatientHistory retrieving records for patient_4. If yes, type "Proceed".
+- If you want to add or restrict any items to include (for example, exclude social history), state that now.
+
+Next step (upon your confirmation)
+- If you confirm, I will ask PatientHistory to produce the JSON. After PatientHistory replies I will:
+  - Provide a short micro-update,
+  - Validate their JSON,
+  - Then call PatientStatus with any missing required details.
+- If anything in this plan should change, tell me now and I will update the plan and request re-confirmation.
+
+Awaiting your confirmation to proceed.
+
+---
+

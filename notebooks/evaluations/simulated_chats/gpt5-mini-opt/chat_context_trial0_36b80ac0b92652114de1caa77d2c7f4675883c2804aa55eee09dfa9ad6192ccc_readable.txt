@@ -1,0 +1,50 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — planned moderation steps
+- Verify and validate the provided patient ID and request missing clinical materials.
+- Retrieve structured patient timeline and history from PatientHistory.
+- Sequence expert agents (Radiology, PatientStatus, ClinicalTrials, ClinicalGuidelines, MedicalResearch, ReportCreation) to collect domain inputs, each yielding back to me.
+- Produce milestone micro-updates after each agent response and finalize a concise tumor-board packet (ReportCreation) once all inputs are gathered.
+
+Plan and participant order
+1. PatientHistory — retrieve structured timeline and concise history for patient_id "patient_4".
+2. Radiology — review any imaging (CT/X-ray) supplied or referenced by PatientHistory.
+3. PatientStatus — compile current status (age, stage, primary site, histology, biomarkers, treatment history, ECOG) using PatientHistory output.
+4. ClinicalTrials — identify relevant trials using PatientStatus.
+5. ClinicalGuidelines — summarize guideline-based considerations (note: no treatment recommendations from me).
+6. MedicalResearch — provide research references or recent evidence by keyword, if requested.
+7. ReportCreation — assemble a tumor-board Word document using the collected timeline and findings.
+
+Special rule (apply to all agents)
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent must conclude with: "back to you: Orchestrator"
+
+Immediate actions I will take now
+- Validate the patient ID you provided (I see "patient_4" — valid string).
+- Ask PatientHistory to retrieve the patient timeline and history in the required JSON schema.
+- Hold other agents until PatientHistory returns the structured data.
+
+Requests — from PatientHistory (agent) and from you, the user
+- PatientHistory, please proceed with retrieving the patient timeline and history for patient_id "patient_4". Follow your workflow and return a JSON response with:
+  - status ("success" or "error")
+  - patient_id
+  - patient_timeline (array of events)
+  - history_summary (concise)
+  - error_message (null if success)
+  Also validate the patient_id internally and report any issues. Conclude with: "back to you: Orchestrator"
+- User, please confirm:
+  1) You want a tumor-board packet for patient_4 (yes/no).
+  2) Whether you can provide any of the following files now: imaging (CT/DICOMs or JPG/PNG), pathology report(s), operative notes, or lab reports. If so, please upload them or tell me where they are.
+  3) Any deadlines or formatting preferences for the Word tumor-board document.
+  4) Any specific questions to highlight at tumor board (e.g., resectability, trial eligibility, biomarker interpretation).
+
+Micro-update (current)
+- Status: patient ID validated. Waiting for PatientHistory to return structured timeline. Next: PatientHistory retrieval.
+
+Please confirm the plan and provide the files/details requested. Once you confirm, I will proceed to ask PatientHistory to retrieve the timeline now.
+
+---
+

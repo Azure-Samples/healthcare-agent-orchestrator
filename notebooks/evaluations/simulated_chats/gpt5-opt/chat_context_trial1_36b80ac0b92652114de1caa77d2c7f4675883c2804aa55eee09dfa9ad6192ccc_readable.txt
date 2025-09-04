@@ -1,0 +1,37 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm your objectives and propose a step-by-step plan and agent order.
+- Validate the patient ID and retrieve a concise timeline and history.
+- Derive current clinical status from the history.
+- Coordinate specialty inputs (radiology, guidelines, trials) and note any missing data.
+- Compile a tumor board report draft and provide milestone updates throughout.
+- Summarize collective outputs and check for any follow-ups or revisions.
+
+Proposed plan and participation order to prepare the tumor board packet for Patient ID "patient_4":
+- Step 1: PatientHistory will retrieve a structured timeline and concise history summary for patient_4. Output needed for all subsequent steps.
+- Step 2: PatientStatus will extract the current clinical status (age, staging, primary site, histology, biomarkers, treatment history, ECOG performance status) from the PatientHistory output.
+- Step 3: Radiology will review imaging. If you can provide chest X-ray/CT/MRI images, Radiology will analyze them directly; otherwise, Radiology will acknowledge the absence of images and defer to summarized findings from notes.
+- Step 4: ClinicalGuidelines will generate guideline-based options using the PatientStatus summary.
+- Step 5: ClinicalTrials will identify relevant trials based on the PatientStatus summary.
+- Step 6: MedicalResearch (optional) will summarize recent literature on a targeted topic relevant to this patient (e.g., the patient’s tumor subtype and stage).
+- Step 7: ReportCreation will compile a tumor board-ready Word document incorporating: timeline, clinical summary, medical/social history, cancer type, imaging and pathology findings (from available data), guideline-based options, and trial options.
+
+Special Rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents: conclude with “back to you: Orchestrator” after your response.
+
+Information and confirmations needed from you before we begin:
+- Can you confirm we should proceed with this plan and agent order?
+- Imaging: Do you have imaging files (CT, MRI, X-ray) to upload for Radiology? If not, we will proceed using summarized imaging findings from the chart only.
+- Scope: Do you want the ClinicalGuidelines and ClinicalTrials sections included in the tumor board packet?
+- Optional research: Would you like a MedicalResearch section (e.g., “latest evidence for [patient’s cancer type/stage/biomarker]”)?
+- Formatting: Any site-specific template or should we generate a standard tumor board Word document?
+
+Once you confirm, I will proceed with Step 1 and have PatientHistory retrieve the timeline for patient_4.
+
+---
+

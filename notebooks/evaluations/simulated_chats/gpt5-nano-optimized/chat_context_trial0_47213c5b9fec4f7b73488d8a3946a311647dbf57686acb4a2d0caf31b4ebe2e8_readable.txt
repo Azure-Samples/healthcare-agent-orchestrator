@@ -1,0 +1,30 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Moderation plan (high level, non-clinical):
+- Confirm a valid patient ID is provided and ready for data retrieval.
+- Retrieve the patient timeline and key data from the PatientHistory agent.
+- If needed, request imaging and radiology insights from the Radiology agent (using data from the timeline).
+- Synthesize a concise diagnostic summary including biomarker status, stage at diagnosis, treatment history, and latest imaging findings.
+- Use the ReportCreation agent to generate a formatted Word document suitable for tumor board presentation.
+- Deliver the document or a download-ready payload to you, with a short status update after each major step.
+- Ensure no clinical recommendations are issued; focus on documentation and organization of the diagnostic summary.
+
+Plan for this task:
+- Step 1: Retrieve patient_4’s timeline and key data from PatientHistory (biomarker status, stage at diagnosis, treatment history).
+- Step 2: Obtain latest imaging findings and radiology insights as needed (via Radiology, using available timeline data).
+- Step 3: Compile a comprehensive diagnostic summary with clear sections for biomarker status, stage at diagnosis, treatment history, and imaging findings.
+- Step 4: Generate a formatted Word document for tumor board presentation via ReportCreation.
+- Step 5: Return the Word document content/attachment and a brief summary of what was produced.
+- Milestone updates will be provided after each step, and each agent will return control to you with: "back to you: Orchestrator."
+
+Important instruction:
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User, please confirm that you’d like me to proceed with this plan to generate a comprehensive diagnostic summary for Patient ID: patient_4 and export it as a Word document for tumor board use. If you approve, I’ll initiate data retrieval from the relevant agents and keep you updated at each milestone.
+
+---
+

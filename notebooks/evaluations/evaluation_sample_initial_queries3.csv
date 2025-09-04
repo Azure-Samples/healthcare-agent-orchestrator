@@ -1,0 +1,6 @@
+﻿Patient ID,Initial Query,Possible Follow up
+patient_4,"Based on the full clinical picture of patient_4â€”including stage, biomarkers, treatment response, and recent imagingâ€”generate a short report estimating prognosis and possible progression pathways.","What is the estimated prognosis for this patient based on current disease stage, treatment received, and molecular characteristics?"
+patient_4,"Given the presence of a KRAS p.G12C mutation, what are the potential benefits and risks of transitioning to KRAS-directed treatment with adagrasib? How might this change the patient's prognosis?","Given the KRAS p.G12C mutation, what is the clinical evidence supporting use of KRAS inhibitors (e.g., adagrasib vs. sotorasib) in this context? Are there known resistance patterns or co-mutations (e.g., STK11, KEAP1) that affect efficacy?"
+patient_4,Can you scan all pathology and molecular testing to see if these biomarkers are present,Can you scan all pathology and molecular testing to see if these biomarkers are present?
+patient_4,Prepare tumor board for Patient ID: patient_4,What are the known biomarkers for this patientâ€™s cancer and what is the presence of each of those biomarkers based on the reports in the patientâ€™s record?
+patient_4,Prepare tumor board for Patient ID: patient_4,What are the key pathology findings?

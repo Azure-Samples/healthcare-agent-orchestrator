@@ -1,0 +1,30 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — moderation steps
+- Confirm the patient ID and retrieve the patient's latest imaging and radiology reports.
+- Ask PatientHistory to produce the structured timeline and supply the CT and CXR images/reports.
+- Have Radiology analyze the images with the imaging tool, generate AI findings, and compare them to the radiologist’s report.
+- Summarize discrepancies/additional findings and present results back to you, ensuring each agent yields control after their response.
+
+Planned sequence and roles
+1. PatientHistory — retrieve and return the latest CT and CXR images and the radiologist's reports for patient_4 (per their required JSON schema).
+2. Radiology — run the imaging tool analysis on those images, produce AI-generated findings, and compare to the radiologist’s report.
+3. Orchestrator (me) — summarize discrepancies/additional findings, provide short micro-updates after each agent, and check with you about next steps.
+
+Special rule to all agents: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+User, please confirm that you want me to proceed with this plan for patient_4. If yes, I will instruct PatientHistory to retrieve the imaging files and associated radiologist reports.
+
+PatientHistory, please proceed:
+- Required input: patient_id as a string. I will provide "patient_4".
+- Please return a validated response per your workflow: include "status", "patient_id", a structured array "patient_timeline" with events (including links/identifiers for the latest CT and CXR images and the radiologist's report text), a concise "history_summary", and "error_message": null on success. If you need additional details beyond the patient_id, please specify them now.
+- Conclude your response with: "back to you: Orchestrator"
+
+If you have any other constraints or specific image formats we should expect, User, please tell me now. Otherwise, confirm and I will instruct PatientHistory to fetch the data.
+
+---
+

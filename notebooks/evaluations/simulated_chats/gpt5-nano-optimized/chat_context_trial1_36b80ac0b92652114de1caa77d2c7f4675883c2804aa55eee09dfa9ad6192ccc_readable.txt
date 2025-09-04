@@ -1,0 +1,33 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is my plan to moderate and prepare the tumor board for Patient ID: patient_4.
+
+Planned moderation steps
+- Validate and lock in the patient ID as the context for all activities.
+- Retrieve the patient timeline and clinical history from the PatientHistory agent.
+- Identify any data gaps and, if needed, request enrichment from Radiology, Pathology, or ClinicalGuidelines as appropriate.
+- Synthesize a concise history_summary and a structured patient_timeline suitable for tumor board review.
+- Produce tumor board-ready artifacts (clinical summary, key discussion points, and questions) and flag potential clinical questions for discussion.
+- Provide milestone updates after each agent’s contribution and deliver a final collective summary.
+- Ensure every agent yields back to Orchestrator after completing their task.
+
+Plan and expected participation sequence
+- User confirms plan.
+- Orchestrator instructs: PatientHistory, please proceed with retrieving the patient_timeline and history for patient_4.
+- After PatientHistory responds, Orchestrator will summarize and, if needed, engage Radiology and Pathology for imaging/pathology details.
+- After all agents contribute, Orchestrator provides a consolidated tumor board-ready summary and discussion points.
+
+Explicit rule to remember
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: *Orchestrator*"
+
+User confirmation
+- Please confirm that you approve this plan to proceed with obtaining and compiling the patient timeline and tumor board materials for patient_4. If you’d like any adjustments to the plan, tell me what to change and I’ll adapt.
+
+If you confirm, I will immediately engage the PatientHistory agent to retrieve the patient timeline for patient_4 and proceed with the outlined workflow.
+
+---
+

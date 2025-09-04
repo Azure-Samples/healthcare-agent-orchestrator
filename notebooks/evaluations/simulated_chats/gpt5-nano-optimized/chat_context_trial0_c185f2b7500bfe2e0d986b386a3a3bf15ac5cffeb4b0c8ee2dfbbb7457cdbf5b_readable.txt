@@ -1,0 +1,33 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Verify patient ID and initiate the patient timeline retrieval process.
+- Engage the PatientHistory agent to fetch and summarize patient_4’s timeline and history.
+- Coordinate with Radiology to obtain imaging findings and with any available pathology details via the appropriate agents.
+- Retrieve current patient status and key clinical details from PatientStatus (via PatientHistory data).
+- Involve ClinicalGuidelines to surface context on standard-of-care considerations (without asserting treatment plans).
+- Compile a tumor board-ready document outline with timeline, clinical summary, imaging, pathology, and discussion points via ReportCreation, and identify available clinical trials through ClinicalTrials.
+- Gather supplementary background from MedicalResearch as needed and present a concise, board-ready summary to the user.
+- After each agent contributes, provide a micro-update on progress and what comes next.
+
+Plan to proceed (requires your confirmation):
+- Step 1: PatientHistory — retrieve patient_4 timeline and concise history. Then deliver a concise summary.
+- Step 2: Radiology — obtain imaging findings (CT/MBIs/X-ray as available) and note key features.
+- Step 3: PatientStatus — determine current status, staging, site, histology, biomarkers, ECOG, prior treatments.
+- Step 4: ClinicalGuidelines — surface relevant guideline-aligned considerations for discussion.
+- Step 5: ClinicalTrials — identify relevant ongoing trials for potential discussion.
+- Step 6: ReportCreation — assemble a tumor board-ready document outline (timeline, clinical summary, imaging/pathology highlights, treatment considerations, trials, notes).
+- Step 7: MedicalResearch — provide any high-level research context relevant to the case if requested.
+- Step 8: Present consolidated board-ready summary to you, then ask for any follow-up questions or next steps.
+
+Important instruction to all agents:
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+User, please confirm that you approve this plan to proceed with patient_4’s tumor board preparation. If you have any preferences (order of sections, level of detail, or additional data to include), tell me now and I’ll adjust before engaging the agents.
+
+---
+

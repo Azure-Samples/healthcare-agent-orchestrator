@@ -1,0 +1,41 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Moderation checklist (planned steps)
+- Confirm receipt and validity of the patient ID and any available source documents (notes, pathology, imaging).
+- Request the patient timeline and structured history from PatientHistory.
+- Obtain imaging details for Radiology (ask user to upload images or provide imaging reports); run summary through PatientStatus.
+- Prepare the tumor-board Word report via ReportCreation once all inputs are available.
+- Present the assembled report to the user for review and offer next steps (clinical trials or research if desired).
+
+Planned sequence and roles (what will happen next)
+1. PatientHistory — retrieve/produce a structured patient timeline for patient_4 (required first).
+2. Radiology — analyze latest imaging (needs images or imaging report text from either you or PatientHistory).
+3. PatientStatus — consolidate biomarker status, stage at diagnosis, treatment history, ECOG, etc.
+4. ReportCreation — generate the formatted Word document for tumor board with all inputs.
+
+Special rule to be followed in each step
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+User action needed before we proceed
+User, please confirm one of the following so we can continue:
+- Option A (recommended): You can upload or paste the patient’s source documents (clinic notes, pathology report with biomarker results, staging, prior treatment records, and the latest imaging reports or DICOMs). Radiology can analyze DICOMs if provided; otherwise provide the radiology report text and any images.
+- Option B: If you do not have source documents to upload, confirm that you want us to produce a synthetic/example diagnostic summary for a hypothetical "patient_4" (we will clearly label it as fictional).
+Also please tell us any specific formatting preferences for the Word tumor-board document (e.g., title slide, one-page summary, full timeline, inclusion of imaging figures, font size).
+
+Immediate requests to agents (to be executed once the user confirms and/or uploads)
+- PatientHistory, please proceed with retrieval of patient timeline for patient_id "patient_4". You will need the patient_id string (provided). Return output in your required JSON schema with keys: status, patient_id, patient_timeline (array of events), history_summary, error_message. Conclude with: "back to you: Orchestrator"
+- Radiology, stand by to receive imaging files or report text from the user or PatientHistory. Indicate what exact file formats you need (DICOM preferred for image analysis) and any size/transfer constraints. Conclude with: "back to you: Orchestrator"
+- PatientStatus, be ready to compile status once PatientHistory returns age, staging, primary site, histology, biomarkers, treatment history, and ECOG. Conclude with: "back to you: Orchestrator"
+- ReportCreation, stand by to receive all final inputs (patient timeline, clinical summary, histories, imaging findings, pathology, treatment plan, and any clinical trial notes) and prepare a Word (.docx) tumor-board report. Conclude with: "back to you: Orchestrator"
+
+Micro-update (current)
+- Status: awaiting your confirmation and either the patient documents or permission to produce a hypothetical example. Once you reply, we'll call PatientHistory to retrieve/produce the timeline.
+
+Please confirm which option you prefer and upload any available documents (or say "use fictional data") and indicate any formatting preferences for the Word report.
+
+---
+

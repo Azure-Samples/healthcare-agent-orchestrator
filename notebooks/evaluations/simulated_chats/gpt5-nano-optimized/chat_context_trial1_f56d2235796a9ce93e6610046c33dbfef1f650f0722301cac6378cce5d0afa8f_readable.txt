@@ -1,0 +1,20 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and moderation plan (before proceeding)
+- Confirm a valid patient ID and initialize the data-gathering process.
+- Retrieve the structured patient timeline from PatientHistory for patient_4.
+- Derive current status and key clinical details (status, staging, histology, biomarkers, ECOG) using PatientStatus informed by the timeline.
+- Gather imaging insights from Radiology (CT/MRI/X-ray) if available, and integrate findings.
+- Collect pathology and treatment history data to support a tumor-board-ready clinical summary.
+- Engage ClinicalGuidelines and ClinicalTrials to provide context and potential implications, then generate a tumor-board-ready document via ReportCreation.
+- Provide concise milestone updates after each agent’s contribution and a final summary. 
+- Each agent, after completing their task, must yield the chat back to you (Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+User, please confirm that you want me to proceed with this plan for Patient ID: patient_4. Upon your confirmation, I will initiate with the PatientHistory agent to retrieve the timeline.
+
+---
+

@@ -1,0 +1,45 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — my planned moderation steps
+- Validate the provided patient ID and retrieve the patient's timeline first.
+- Use the patient timeline to generate current patient status, then trigger radiology, trials, guidelines, and report-generation as needed.
+- Coordinate each agent in sequence, collect their outputs, and summarize progress after each step.
+- Request any missing inputs from you (images, pathology, or clarifications) before invoking agents that need them.
+- Produce a final concise summary for the tumor board and offer next steps.
+
+Plan and expected participation order
+1) PatientHistory — validate the patient ID and return the structured patient timeline and concise history summary (required first).
+2) PatientStatus — use the PatientHistory output to create the patient status (age, stage, site, histology, biomarkers, treatment history, ECOG).
+3) Radiology — if imaging is available, Radiology will analyze images (Radiology needs images/files).
+4) ClinicalTrials — identify relevant trials using the PatientStatus.
+5) ClinicalGuidelines — provide guideline-based treatment options (will require PatientStatus).
+6) ReportCreation — assemble a tumor-board Word document using the collected timeline, summaries, imaging and pathology findings, and proposed trials/guidelines.
+7) MedicalResearch (optional) — fetch literature on specified topics if requested.
+
+Special rule (applies to all agents)
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+Next action I recommend
+- First step: retrieve the patient timeline. I will now request PatientHistory to proceed for patient_id "patient_4". PatientHistory must validate the ID and return the required JSON structure per its workflow.
+
+PatientHistory, please proceed
+- PatientHistory, please validate that the patient_id "patient_4" is present and a string, retrieve the relevant patient timeline data, and return a response matching your required schema:
+  - On success: set "status" = "success", include "patient_id", a structured array "patient_timeline" of events, a concise "history_summary", and "error_message" = null.
+  - On error: set "status" = "error" and include an informative "error_message".
+- Please self-validate that your JSON matches your schema before returning.
+- Conclude your message with exactly: back to you: Orchestrator
+
+User, please confirm before we proceed
+- User, can you confirm you want me to proceed and that "patient_4" is the correct patient ID?
+- Also, do you have any additional materials to upload now (imaging files, pathology reports, or prior notes) that you want included? Note: Radiology will need image files to perform image analysis.
+- If everything looks good, reply "Proceed" and optionally attach files. If you want to change the plan, tell me what to adjust.
+
+Micro-update plan
+- After PatientHistory responds, I will provide a 1–2 sentence micro-update and then invoke PatientStatus (and ask PatientStatus what it needs).
+
+---
+

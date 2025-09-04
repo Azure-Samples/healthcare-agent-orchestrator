@@ -1,0 +1,32 @@
+USER:
+Based on the full clinical picture of patient_4â€”including stage, biomarkers, treatment response, and recent imagingâ€”generate a short report estimating prognosis and possible progression pathways.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and moderation steps:
+- Confirm a valid patient_id and its type before proceeding.
+- Engage the appropriate AI agents to gather: patient history timeline, current status (stage, biomarkers, histology, ECOG), recent imaging/radiology interpretation, and relevant research on prognosis.
+- Synthesize a concise prognosis-oriented report and outline plausible progression pathways based on the compiled data, clearly noting limitations.
+- Highlight any data gaps and request missing details or confirm assumptions with you.
+- Present a short, non-prescriptive report suitable for discussion, followed by a check-in to confirm next steps or questions.
+- Milestone updates after each agent’s input, then a final summary of the collective input.
+> Each agent, after completing their task, must yield the chat back to you (Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+Plan for this request:
+- Data retrieval plan:
+  - PatientHistory: Retrieve the timeline and core medical history for patient_id = "patient_4".
+  - PatientStatus: Retrieve current status including stage, primary site, histology, biomarkers, ECOG, and treatment history.
+  - Radiology: Retrieve latest imaging findings and radiology interpretation (e.g., CT/MCT/MRI as available).
+  - MedicalResearch: Look up prognosis literature and known progression patterns related to the cancer type and biomarkers present in patient_4.
+- Synthesis plan:
+  - Build a concise prognosis-oriented report that notes estimated prognosis context and plausible progression pathways, with clear caveats about data gaps.
+- Confirmation plan:
+  - I will present this plan and ask you to confirm before I proceed with the agent calls.
+- Next steps:
+  - Upon your confirmation, I will trigger the agents in the order above and provide milestone updates as each contributes.
+
+User, please confirm that you’d like me to proceed with the above data-gathering-and-synthesis plan using patient_id = "patient_4". If you have any constraints (e.g., focus areas, preferred biomarker emphasis, or a specific cancer type), please specify.
+
+---
+

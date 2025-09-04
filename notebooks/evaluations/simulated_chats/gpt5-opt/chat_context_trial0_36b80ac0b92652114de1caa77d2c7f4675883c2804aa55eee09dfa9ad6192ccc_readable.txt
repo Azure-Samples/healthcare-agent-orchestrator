@@ -1,0 +1,36 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist:
+- Clarify the user’s goal and confirm the workflow plan
+- Sequence the right agents and define handoffs between them
+- Gather missing inputs required by downstream agents
+- Ensure each agent returns outputs in their required format
+- Provide micro-updates after each agent’s contribution
+- Summarize outcomes and ask for next steps
+
+Proposed plan and participation order:
+- Purpose: Prepare a comprehensive tumor board package for Patient ID: "patient_4".
+- Sequence and handoffs:
+  1) PatientHistory: Retrieve and summarize the full patient timeline and history for patient_4. Output will seed all other agents.
+  2) Radiology: Review any available chest X-ray or CT images referenced by PatientHistory or uploaded by you. If no images are available, Radiology will specify what is needed.
+  3) PatientStatus: Build a concise current status using age, staging, primary site, histology, biomarkers, treatment history, and ECOG derived from PatientHistory. Will flag any missing elements.
+  4) ClinicalGuidelines: Provide guideline-based options based on the PatientStatus.
+  5) ClinicalTrials: Identify relevant trials matched to PatientStatus.
+  6) ReportCreation: Compile a tumor board Word document using the timeline, clinical summary, medical/social history, imaging findings, pathology, plan, and trial options.
+  7) MedicalResearch: Provide research insights targeted to a topic you specify (or we suggest one based on status and biomarkers).
+- Special rule for all agents: Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+Before we begin, I need your confirmation and any optional inputs:
+- Confirm: Proceed with the above plan for patient_4?
+- Imaging: If you have chest X-ray or CT images (DICOM or JPEG/PNG), please upload or share access. If none, we will proceed with report-based radiology and note that images were unavailable.
+- Research focus (optional): Any particular topics you want MedicalResearch to explore (e.g., latest therapies for the patient’s histology/biomarkers, toxicity profiles, resistance mechanisms)?
+- Clinical trials preferences (optional): Any geography/institutional constraints we should consider?
+
+If you confirm, I will start with: PatientHistory, please retrieve and summarize the timeline for patient_4. back to you: Orchestrator.
+
+---
+

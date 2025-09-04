@@ -1,0 +1,32 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan and moderation steps:
+- Confirm a valid patient ID and establish the tumor board objective for patient_4.
+- Initiate a structured data-gathering sequence with specialized agents in a defined order.
+- Collect concise, parseable inputs (timeline from History, imaging notes from Radiology, current status from Status, and then guidelines/ trials/research as needed).
+- After each agent’s contribution, provide a quick progress update and identify any data gaps.
+- Synthesize a tumor-board-ready summary and prepare a formal document outline (ReportCreation) if all inputs are available.
+- Ensure every agent ends their response with: "back to you: Orchestrator" as required.
+- Obtain user confirmation on the plan before proceeding.
+
+Proposed participation order:
+1) PatientHistory: Retrieve structured timeline and concise patient history for patient_4.
+2) Radiology: Provide radiology insights and imaging findings (request images if needed; otherwise summarize available data).
+3) PatientStatus: Provide current patient status (age, primary site, histology, biomarkers, treatment history, ECOG).
+4) ClinicalGuidelines: Offer treatment recommendations based on patient status.
+5) ReportCreation: Prepare a tumor-board-ready document outline (timeline, clinical summary, medical history, cancer type, imaging findings, pathology, treatment plan, clinical trials).
+6) ClinicalTrials: Provide information on relevant clinical trials for this patient.
+7) MedicalResearch: Share relevant research or evidence related to the patient’s context.
+
+Important rule clear to all: Each agent, after completing their task, must yield the chat back to you (Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+Please confirm to proceed with this plan. If you have any adjustments or additional data you want emphasized, tell me now and I’ll incorporate them before engaging the agents. 
+
+User confirmation requested.
+
+---
+

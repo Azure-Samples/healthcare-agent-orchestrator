@@ -1,0 +1,46 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the objective, scope, and any tool/agent limitations.
+- Confirm the workflow plan and participation order with you.
+- Gather the necessary inputs from the appropriate agent(s).
+- Coordinate image analysis and report retrieval.
+- Synthesize comparisons, highlight discrepancies, and summarize findings.
+- Provide micro-updates after each step and outline next actions.
+
+Plan and participation order:
+- Purpose: Retrieve the latest CT and CXR exams for patient_4, obtain the radiologist’s reports, run AI analysis on available images, and summarize discrepancies or additional findings between AI results and the radiologist’s interpretations.
+- Order:
+  1) PatientHistory: Retrieve the latest CT and CXR entries for patient_4, including exam dates, body region, accession numbers, image links/files, and full radiology report texts.
+  2) Radiology: Perform AI analysis on the CXR images to generate structured findings. Note: This agent is limited to chest X-ray analysis and cannot analyze CT images in this environment.
+  3) Orchestrator: Compare the AI CXR findings with the radiologist’s CXR report and summarize discrepancies/additional findings. For CT, I will summarize the radiologist’s CT report and note that AI image analysis of CT was not performed due to current tool limitations unless a CT-capable analysis tool is provided.
+- Output: A clear summary of discrepancies and any additional AI-detected findings for CXR; a concise summary of the CT radiologist report with a note on AI-analysis limitations.
+- Special rule — ALWAYS: Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+Notes on tool/agent limitations:
+- We can run AI analysis on CXR via the Radiology agent.
+- We currently do not have an agent to analyze CT images. I can still retrieve and summarize the CT radiologist’s report and flag items for manual review.
+
+User, please confirm:
+- May I proceed with this plan for patient_4?
+- If you have direct links or files for the latest CT and CXR images (especially CXR), please share them. If not, I will ask PatientHistory to provide access details.
+- For CT: Do you want me to proceed with report-only comparison (no AI image analysis), or do you have a CT-capable tool/output you’d like me to include?
+
+If confirmed, I will proceed as follows:
+- PatientHistory, please retrieve for patient_4:
+  - The latest CXR and CT exams, including:
+    - Exam dates, body region, modality, accession numbers
+    - Image file references/links suitable for analysis
+    - Full radiologist report texts for each exam
+  - Any prior relevant comparator studies noted in the reports
+  - Return data in your required JSON schema
+  - Conclude with: "back to you: Orchestrator"
+
+Micro-update after PatientHistory responds: I will summarize what imaging and reports are available and then send the CXR images to Radiology for AI analysis.
+
+---
+

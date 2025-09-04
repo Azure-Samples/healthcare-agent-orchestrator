@@ -1,0 +1,40 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Moderation checklist — planned steps
+- Confirm the patient identifier and any missing basic inputs (especially geographic location).
+- Ask PatientHistory to retrieve and return a structured timeline and concise history for the given patient_id.
+- Use PatientHistory output to let PatientStatus derive current status (age, stage, site, histology, biomarkers, treatment history, ECOG).
+- Pass PatientStatus output to ClinicalTrials to identify active, eligible trials (phase + contact info).
+- Return the assembled trial list to you and request confirmation or additional constraints (e.g., distance threshold, preferred trial phase).
+
+Planned sequence and roles
+1. PatientHistory — retrieve patient_4 timeline and concise history. (Needed: patient_id string; if missing or invalid, return error per schema.)
+2. PatientStatus — use PatientHistory output to compute current patient status (age, staging, primary site, histology, biomarkers, treatment history, ECOG).
+3. ClinicalTrials — using PatientStatus, list active clinical trials the patient is eligible for, including phase and contact info.
+(If needed later: ReportCreation to prepare tumor-board doc; MedicalResearch or Radiology if extra data required.)
+
+Important rule for all agents
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator) and conclude their reply with: back to you: Orchestrator
+
+User confirmation and missing info
+User, I have patient_id = "patient_4" from your message. Please confirm that this is correct (must be provided as a string). Also please provide the patient's geographic location (city/state or ZIP code) or a travel radius preference so trials can be filtered by location. If you have any of the following details already, please provide them now to speed things up: age, ECOG performance status, prior therapies (names/dates), primary tumor site, histology, and known biomarkers (e.g., KRAS mutation details).
+
+Next step (action)
+- If the patient_id and location are confirmed, I will request PatientHistory to retrieve the patient timeline for "patient_4" now.
+
+PatientHistory, please proceed
+- PatientHistory, please retrieve the timeline for patient_id "patient_4" and return a response following your required JSON schema:
+  - For success: set "status":"success", include "patient_id", an array "patient_timeline" of events, a concise "history_summary", and "error_message": null.
+  - For error (invalid/missing patient_id): set "status":"error" and an informative "error_message".
+- If you need any additional clarifying inputs from the user (e.g., confirm patient ID format or missing identifiers), state them clearly.
+- Conclude with: back to you: Orchestrator
+
+Micro-update after PatientHistory responds
+- I will provide a 1–2 sentence micro-update summarizing progress and next steps (PatientStatus then ClinicalTrials).
+
+---
+

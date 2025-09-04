@@ -1,0 +1,34 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the user’s goal and confirm the workflow and sequence of agent participation.
+- Gather the patient’s timeline and history from PatientHistory using the provided patient ID.
+- Synthesize a concise current status via PatientStatus, based on the retrieved history.
+- Verify imaging details and determine whether Radiology can add insights or defer to reported findings.
+- Compile a polished tumor board Word document via ReportCreation.
+- Have remaining agents acknowledge readiness or note any optional next steps while avoiding clinical recommendations.
+- Provide milestone updates and finalize with a brief summary and next-step options.
+
+Proposed plan and participation order:
+- Step 1 — PatientHistory: Retrieve the full timeline/history for patient_4 and return a structured summary including any documented biomarker results, staging at diagnosis, treatments, and imaging report summaries.
+- Step 2 — PatientStatus: Use the PatientHistory output to produce a concise “current status” snapshot (age, stage, primary site, histology, biomarkers, treatment history, ECOG).
+- Step 3 — Radiology: If you have chest X-ray images to share, Radiology will analyze them; otherwise Radiology will acknowledge the lack of images and defer to reported findings in the history.
+- Step 4 — ReportCreation: Compile a formatted Word document suitable for tumor board presentation containing the requested sections (biomarker status, stage at diagnosis, treatment history, latest imaging findings). I will provide the content and can also generate a downloadable .docx upon request.
+- Step 5 — ClinicalGuidelines: Acknowledge readiness for guideline-based options if requested; will not provide recommendations unless you ask (to comply with your request and role limitations).
+- Step 6 — ClinicalTrials: Note readiness to search for relevant trials based on the PatientStatus output if you want this included.
+- Step 7 — MedicalResearch: Stand by for any targeted literature or background summaries if you want them appended.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). I will instruct each agent to conclude with: “back to you: Orchestrator” after their response.
+
+User, please confirm:
+- Do you approve this plan and participation order?
+- Do you have any imaging files (especially chest X-ray) to upload for Radiology, or should we rely solely on the imaging details that appear in the chart?
+- Would you like me to generate a downloadable .docx file at the end (I can provide a base64-encoded .docx for you to save), or is an in-chat formatted report sufficient?
+
+---
+

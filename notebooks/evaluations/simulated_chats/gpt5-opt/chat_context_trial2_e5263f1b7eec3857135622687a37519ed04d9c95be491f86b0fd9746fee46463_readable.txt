@@ -1,0 +1,36 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist:
+- Clarify scope and confirm the workflow sequence with the user
+- Gather the patient’s timeline and history from PatientHistory
+- Derive a structured current status for PatientStatus
+- Decide on Radiology’s involvement based on availability of imaging files
+- Collect optional clinical trial context from ClinicalTrials (for the tumor board report)
+- Compile a formatted Word document via ReportCreation and deliver it
+
+Proposed plan and sequence:
+- Step 1: PatientHistory will retrieve and summarize the full timeline for patient_4, including key diagnostics, pathology, biomarkers, treatments, and imaging report summaries.
+- Step 2: PatientStatus will construct the current status (age, stage at diagnosis and current stage, primary site, histology, biomarkers, treatment history, ECOG).
+- Step 3: Radiology (optional) will provide imaging insights if you can supply the most recent imaging files (CT/MRI/X-ray) or de-identified radiology reports. If not available, we will use the latest imaging findings from PatientHistory’s notes.
+- Step 4: ClinicalTrials (optional but helpful for tumor board context) will provide a brief overview of relevant trial categories/options based on PatientStatus.
+- Step 5: ReportCreation will generate and export a cleanly formatted Word document for tumor board presentation, incorporating patient timeline, clinical summary, pathology, imaging findings, and treatment history; we can optionally include clinical trials and social/medical history if you prefer.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Instruct each agent to conclude with: “back to you: Orchestrator”.
+
+User confirmation and needed inputs:
+- User, please confirm that you’d like us to proceed with the plan above.
+- If you want Radiology to add image-based insights, please upload or provide access to the most recent imaging files (CT/MRI/X-ray) or at least the finalized radiology reports. Otherwise, we will rely on text-based imaging findings from the chart timeline.
+- Do you want a brief “Clinical Trials” section included in the Word document? If yes, we will run ClinicalTrials after PatientStatus.
+- Any preferences for the Word document format (e.g., include social history, smoking history, family history, medications, allergies)? If you have a template, we can adapt to it.
+- Delivery preference: we can provide the .docx as a downloadable base64-encoded file along with a filename. Is that acceptable?
+
+If you confirm, I will proceed as follows:
+1) PatientHistory, please retrieve the full patient timeline and concise history for patient_id = "patient_4". Remember to validate the ID and return status, patient_id, patient_timeline array, history_summary, and error_message per your JSON schema. Conclude with: “back to you: Orchestrator”.
+
+---
+

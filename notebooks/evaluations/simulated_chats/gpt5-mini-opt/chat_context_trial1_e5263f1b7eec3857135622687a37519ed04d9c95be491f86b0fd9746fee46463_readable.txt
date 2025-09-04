@@ -1,0 +1,41 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist
+- Validate the provided patient ID and retrieve the complete patient timeline and key data elements.
+- Gather patient status (age, stage, site, histology, biomarkers, ECOG, treatment history) from PatientHistory and summarize.
+- Collect latest imaging and pathology details (ask the user to upload images/reports if available) and route to Radiology if image files are provided.
+- Assemble required inputs for the tumor-board Word report and ask ReportCreation to produce the document.
+- Confirm each agent's output, provide micro-updates after each step, and then present the final assembled brief and file to you.
+
+Planned sequence and responsibilities (each agent will yield back to me when done)
+1. PatientHistory — validate patient ID and return structured timeline + concise history summary (this is the required first step).
+2. PatientStatus — derive current status (age, staging, primary site, histology, biomarkers, treatments, ECOG) from PatientHistory output.
+3. Radiology — provide imaging interpretation if image files (CT/PET/x-ray) are available; otherwise summarize imaging reports from PatientHistory. (If you upload imaging files, Radiology will need them to do image analysis.)
+4. ClinicalTrials — list relevant trial options based on PatientStatus (no treatment recommendations).
+5. ReportCreation — compile a formatted Word document for tumor board using the assembled inputs.
+
+Special rule to all agents and to you
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent should conclude with: "back to you: Orchestrator"
+
+Immediate actions and what I need now
+- *Patient*, please confirm that the patient ID is patient_4 (you provided this) and, if available, upload any imaging files (CT, PET, x-ray) and pathology reports you want included in the tumor board document. If no imaging files are available, confirm that including imaging report text is acceptable.
+- *PatientHistory*, please proceed with validating the patient ID "patient_4" (confirm it's a non-empty string), retrieve the patient's timeline and all relevant elements below, and return the required JSON with:
+  - status ("success" or "error")
+  - patient_id
+  - patient_timeline (structured array of events: dates, event type, brief details)
+  - history_summary (concise)
+  - error_message (null if success)
+  PatientHistory, please include or indicate the following in the timeline so downstream agents can proceed: age, stage at diagnosis, primary site, histology, biomarker status (EGFR, ALK, PD-L1, etc.), full treatment history (dates and regimens), ECOG performance status, pathology findings, CT/PET/x-ray report texts or links to image files, social history (smoking, etc.). If any of these are unavailable in records, state what is missing.
+  Please also indicate whether imaging files are available and, if so, provide filenames or access instructions.
+
+User confirmation request
+- *User*, please confirm you want the tumor-board Word document (DOCX) formatted with: title slide (patient ID, name if you want included), 1-page clinical summary, timeline slide(s), imaging slide(s), pathology summary, current status, and treatment history. Also confirm whether you want identifiable information included or redacted.
+
+If you confirm, PatientHistory will start. Once PatientHistory returns, I will give a 1–2 sentence micro-update and call the next agent (PatientStatus).
+
+---
+

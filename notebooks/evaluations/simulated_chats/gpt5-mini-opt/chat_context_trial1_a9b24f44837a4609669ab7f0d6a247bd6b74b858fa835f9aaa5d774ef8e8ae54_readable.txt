@@ -1,0 +1,48 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — my planned moderation steps
+- Validate the provided patient ID and confirm any missing source data (imaging files, pathology reports, ECOG, age).
+- Request a structured patient timeline and clinical data from PatientHistory.
+- Collect imaging inputs (or reports) and run Radiology and PatientStatus analyses, then gather clinical-trial context and create the tumor-board Word report via ReportCreation.
+- Return each agent’s output to you, summarize progress at each milestone, and assemble the final Word document for your download.
+
+Plan and expected participation order
+1. PatientHistory — retrieve structured timeline and key clinical data for patient_4 (biomarkers, stage at diagnosis, pathology, treatment history, ECOG, age, social history, imaging reports/files). (Needed first.)
+2. PatientStatus — synthesize current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG). (Depends on PatientHistory output.)
+3. Radiology — analyze latest imaging (needs images or imaging reports supplied by PatientHistory or uploaded by you). (Depends on PatientHistory / any uploaded files.)
+4. ClinicalTrials — identify relevant trial options based on PatientStatus. (Depends on PatientStatus.)
+5. ReportCreation — produce the formatted Word document for tumor-board presentation using the assembled inputs. (Final step.)
+
+Special rule (applies to all agents)
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator) and conclude with: back to you: Orchestrator
+
+Immediate actions I will take now
+- Validate patient ID: you provided "patient_4" (I will check that it is a non-empty string).
+- Ask PatientHistory to retrieve the requested data for patient_4.
+- Request any missing files or clarifications from you if required.
+
+User prompt / required inputs
+User, please confirm:
+- Is patient_id exactly "patient_4"? (If yes, I will proceed.)
+- Do you have imaging files to upload (CT chest, PET-CT, chest x-ray, DICOMs) or only imaging reports? If you have image files, please upload them now (preferably DICOM or high-resolution JPEG/PNG for x-rays).
+- Are there any privacy or access restrictions for patient_4 that I should know about?
+- If you prefer, you may also supply additional items now: recent pathology report (with biomarker results), ECOG performance status, age, and social history. If you don’t supply these, I will request them from PatientHistory.
+
+Requests to agents (starting now)
+- PatientHistory, please proceed with retrieving the full clinical timeline for patient_id "patient_4". Required output format: JSON with fields {status, patient_id, patient_timeline[], history_summary, error_message}. For success, set status="success", include patient_id, a structured array of patient_timeline events (date, event_type, brief details), and a concise history_summary. Include explicit items: age, primary site, histology, stage at diagnosis, biomarker status (EGFR, ALK, ROS1, PD-L1, others), treatment history (dates, agents, responses), ECOG, pathology findings, social history (smoking/alcohol), and latest imaging reports (CT, PET, X-ray) and attach image filenames/links if available. If the patient_id is missing/invalid, return status="error" with an informative error_message. Conclude with: back to you: Orchestrator
+
+- Radiology, before analysis: please state exactly what you need to analyze imaging (DICOM preferred, or high-resolution JPEG/PNG; for CT please include series name and slice thickness). If imaging reports are provided instead of images, state whether you can generate useful insights from those reports alone. Conclude with: back to you: Orchestrator
+
+- PatientStatus, please confirm the exact fields you will extract and your output format (concise structured summary including age, staging at diagnosis, current stage, primary site, histology, biomarkers, treatment history, ECOG). You will await PatientHistory output. Conclude with: back to you: Orchestrator
+
+Micro-update (next step)
+- Once PatientHistory returns the structured JSON for patient_4 (or reports an error), I will summarize that output in 1–2 sentences and then send the relevant imaging items to Radiology and the clinical fields to PatientStatus. After those agents respond, I will ask ClinicalTrials and then instruct ReportCreation to generate the Word document.
+
+Please confirm you want me to proceed with patient_id "patient_4" and upload any imaging files now (or say “no images available, only reports”).
+
+---
+

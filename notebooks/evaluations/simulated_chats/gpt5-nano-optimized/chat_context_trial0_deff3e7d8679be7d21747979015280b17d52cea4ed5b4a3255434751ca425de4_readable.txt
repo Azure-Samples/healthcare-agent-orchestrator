@@ -1,0 +1,34 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps (concise plan)
+- Confirm and validate the provided patient ID (as a string) and state the plan to the user.
+- Orchestrate data gathering: initiate PatientHistory to retrieve the patient timeline and summary.
+- Sequentially involve relevant agents (Radiology, PatientStatus, ClinicalGuidelines, ReportCreation, ClinicalTrials, MedicalResearch) in a structured handoff, requesting the specific details each needs.
+- Compile a tumor-board-ready synthesis from agent outputs (timeline, clinical summary, imaging findings, pathology, treatment considerations, trial options) without giving clinical recommendations myself.
+- Provide milestone updates after each agent’s contribution and conclude with a concise collective summary and next steps for the user.
+
+Plan for participation and handoffs
+- Participant order and handoff protocolos:
+  1) PatientHistory: Retrieve and structure the patient timeline and history using patient_id. Conclude with: back to you: Orchestrator
+  2) Radiology: Provide radiology insights (need imaging data from PatientHistory). Conclude with: back to you: Orchestrator
+  3) PatientStatus: Deliver current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG). Conclude with: back to you: Orchestrator
+  4) ClinicalGuidelines: Offer treatment recommendations based on patient status. Conclude with: back to you: Orchestrator
+  5) ReportCreation: Generate a tumor-board-ready document outline (timeline, clinical summary, medical history, social history, cancer type, CT/X-ray/pathology findings, treatment plan, clinical trials). Conclude with: back to you: Orchestrator
+  6) ClinicalTrials: Provide information on relevant clinical trials for the patient status. Conclude with: back to you: Orchestrator
+  7) MedicalResearch: Provide relevant research context or evidence summaries related to the case theme. Conclude with: back to you: Orchestrator
+- After all agents have contributed, I will synthesize a concise collective summary and ask you for further questions or next steps.
+
+Important note for execution
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User confirmation
+- Please confirm that you approve the above plan and the participation order. If you want any changes (e.g., skip certain agents, reorder steps, or adjust output format), tell me and I’ll adapt. 
+- For clarity: I will proceed once you confirm. 
+- Also, please confirm that Patient ID is exactly: "patient_4" (string). If correct, I’ll begin with PatientHistory.
+
+---
+

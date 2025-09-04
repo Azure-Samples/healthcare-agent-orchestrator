@@ -1,0 +1,13 @@
+USER:
+Can you scan all pathology and molecular testing to see if these biomarkers are present
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+{
+  "status": "error",
+  "error_message": "Missing or invalid patient_id. Please provide a patient_id as a string to proceed with scanning pathology and molecular testing for the specified biomarkers."
+}
+
+---
+

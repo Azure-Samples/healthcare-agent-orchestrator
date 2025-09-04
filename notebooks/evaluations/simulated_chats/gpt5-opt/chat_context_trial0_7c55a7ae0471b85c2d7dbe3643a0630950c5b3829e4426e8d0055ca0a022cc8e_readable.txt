@@ -1,0 +1,30 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the goal and confirm the workflow with you.
+- Gather baseline patient details from PatientHistory using the patient ID.
+- Derive a concise current status from PatientStatus, focusing on tumor type, stage, KRAS status, treatment history, performance status, and location.
+- Use ClinicalTrials to identify active, location-relevant trials, including phase and contact info.
+- Provide micro-updates after each step and close with a brief summary.
+
+Proposed plan and participant order:
+1) PatientHistory: Retrieve and summarize patient_4’s timeline and key clinical details (tumor type, stage, histology, biomarkers including KRAS, treatment history, ECOG performance status, and geographic location).
+2) PatientStatus: Convert that information into a concise current status profile suitable for trial matching.
+3) ClinicalTrials: Identify active trials that match patient_4’s status and location, listing trial phase and site/contact info.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (Orchestrator). Agents, conclude with: “back to you: Orchestrator”.
+
+User, please confirm:
+- May I proceed with the above plan?
+- What is patient_4’s preferred geographic location for trials (city/state/country) and any travel radius you’d consider (e.g., within 50 miles, statewide, nationwide)?
+- If known, do you have any updates on KRAS mutation specifics (e.g., G12C, G12D), and current ECOG performance status? If unknown, I’ll first query PatientHistory and follow up if anything is missing.
+
+If you confirm, I will start by engaging PatientHistory for patient_4.
+
+---
+

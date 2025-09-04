@@ -1,0 +1,44 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps
+- Validate the provided patient ID and confirm any missing inputs (images, formatting preferences, inclusion of clinical trials).
+- Request a structured patient timeline and history from PatientHistory.
+- Use PatientHistory output to request patient status from PatientStatus, imaging interpretation from Radiology (if images or imaging reports available), optional clinical-trials info from ClinicalTrials, and then ask ReportCreation to assemble the Word tumor-board document.
+- Coordinate handoffs between agents, require each agent to return control with the exact phrase "back to you: Orchestrator", and provide brief milestone updates after each agent response.
+- Present the final compiled report to you for confirmation and any revisions.
+
+Planned sequence and expected participation order
+1. PatientHistory — retrieve timeline and all clinical facts for patient_4 (required first).
+2. PatientStatus — compile current status (age, stage, primary site, histology, biomarkers, treatment history, ECOG).
+3. Radiology — interpret latest imaging (will rely on images or the imaging reports provided by PatientHistory; request images if available).
+4. ClinicalTrials (optional) — list relevant trials based on PatientStatus (only if you want this included).
+5. ReportCreation — assemble and export the formatted Word document for the tumor board using the collected inputs.
+
+Special rule (applies to all agents)
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator) and conclude with: "back to you: Orchestrator"
+
+Next steps — I need two immediate confirmations before engaging the agents
+1) User confirmation:
+- User, do you confirm I should proceed with the sequence above for Patient ID "patient_4"?
+- Do you want ClinicalTrials included in the report (yes/no)?
+- Do you have any imaging files (CT, chest x-ray, PET) to upload now for Radiology analysis, or should Radiology work from imaging reports only?
+- Any formatting preferences for the Word document (page length, headings, inclusion of logos, or specific tumor-board template)?
+
+2) Agent instruction (PatientHistory)
+- PatientHistory, please proceed to retrieve the full structured timeline for patient_id "patient_4". Return a JSON per your schema with:
+  - status ("success" or "error")
+  - patient_id
+  - patient_timeline (array of events with dates, event type, notes; include biomarker status, pathology, stage at diagnosis, treatment history, imaging reports/findings, age, social history, ECOG if available)
+  - history_summary (concise)
+  - error_message (null for success)
+- If the patient_id is missing/invalid, return status "error" and an explanatory error_message.
+- Conclude with: "back to you: Orchestrator"
+
+Please confirm the plan and answer the user questions above so I can ask PatientHistory to begin.
+
+---
+

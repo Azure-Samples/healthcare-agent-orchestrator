@@ -1,0 +1,37 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm scope, deliverables, and agent sequence with you
+- Collect required inputs (patient ID is provided; request any missing artifacts like imaging files/reports)
+- Coordinate agents to extract timeline, synthesize status, and compile findings
+- Provide milestone updates between agent handoffs
+- Assemble and deliver the formatted tumor board document
+- Verify completeness and ask for any final edits
+
+Proposed plan and agent order:
+1) PatientHistory: Retrieve and summarize patient_4’s timeline, including stage at diagnosis, biomarker status, treatment history, and documented imaging reports. Output per its JSON schema. Conclude with: “back to you: Orchestrator”.
+2) PatientStatus: Using details from PatientHistory, generate a concise current status snapshot (age, staging, primary site, histology, biomarkers, treatment history, ECOG). If any fields are missing, we will ask you to supply them. Conclude with: “back to you: Orchestrator”.
+3) Radiology: Review the most recent imaging. If you can provide image files (DICOM) or official radiology reports, Radiology will extract definitive “latest imaging findings.” If images are unavailable, we’ll rely on the imaging narratives from PatientHistory. Conclude with: “back to you: Orchestrator”.
+4) ReportCreation: Compile a formatted Word document for tumor board presentation, incorporating patient timeline, clinical summary, medical/social history (if available), cancer type, imaging findings, pathology findings, and factual treatment history to date. If you want a Clinical Trials section included, we can optionally invoke ClinicalTrials after PatientStatus. Conclude with: “back to you: Orchestrator”.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents must conclude with: “back to you: Orchestrator”.
+
+What I need from you to proceed:
+- Do you approve this plan and agent order?
+- Do you want a Clinical Trials section included in the Word document?
+- Can you provide the latest imaging assets? Options:
+  - DICOM files (CT/MRI/PET-CT/X-ray) or a link
+  - Official radiology report PDFs for the latest study
+- If known, please provide:
+  - ECOG performance status
+  - Any institutional tumor board template or formatting preferences (e.g., logo, section order)
+
+User, please confirm the plan and share any available files or details. Once confirmed, I will prompt PatientHistory to begin.
+
+---
+

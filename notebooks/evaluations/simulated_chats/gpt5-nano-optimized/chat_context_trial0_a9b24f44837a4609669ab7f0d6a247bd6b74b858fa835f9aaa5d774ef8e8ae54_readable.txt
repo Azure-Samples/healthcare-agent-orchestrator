@@ -1,0 +1,27 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist
+- Confirm and validate the provided patient ID and ensure we can access the record.
+- Instruct PatientHistory to retrieve a concise timeline and key history (biomarker status, stage at diagnosis, histology, prior treatments, dates).
+- Retrieve the latest imaging findings via Radiology, focusing on the most recent CT/PET/X-ray results and dates.
+- Obtain current patient status details (age, histology, biomarkers, current status) from PatientStatus (via PatientHistory data).
+- Compile a comprehensive tumor-board-ready report plan with sections (timeline, clinical summary, medical history, social history, cancer type, imaging findings, pathology, treatment history, clinical trials) using ReportCreation, ensuring no new clinical recommendations are generated.
+- Deliver a formatted Word document export and provide a concise summary of findings. After each agent’s input, acknowledge completion and return control to you.
+
+Plan and participation order
+- Participant order: PatientHistory -> Radiology -> PatientStatus -> ReportCreation (with optional ClinicalTrials and MedicalResearch if applicable)
+- After each participant completes, they must end with: “back to you: Orchestrator”
+- This session will culminate in a tumor-board-ready Word document and a concise diagnostic summary
+
+Explicit rule to follow
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+User confirmation
+- Please confirm that you’d like me to proceed with the above plan to compile Patient ID: patient_4’s comprehensive diagnostic summary and export a Word document for tumor board presentation. If you approve, I’ll begin by engaging the PatientHistory agent to gather the timeline and core history, followed by Radiology, then PatientStatus, and finally ReportCreation to assemble the document. If you’d like any adjustments (e.g., exclude certain sections, emphasize specific biomarkers, or include additional documents), tell me now.
+
+---
+

@@ -1,0 +1,44 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm scope and present a clear, stepwise plan with agent participation order.
+- Verify required inputs and permissions; request missing items from you.
+- Coordinate each agent’s contribution in sequence and keep you updated at milestones.
+- Ensure agents provide only their domain outputs and yield control back to me.
+- Compile all outputs and route them to ReportCreation for a tumor board document.
+- Summarize results and confirm any follow-up needs.
+
+Proposed plan and participation order:
+- PatientHistory: Retrieve a structured timeline for patient_4. 
+- PatientStatus: Build a concise current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG) based on PatientHistory.
+- Radiology: Review imaging. If images are available, provide imaging insights; otherwise, we’ll use available radiology reports.
+- ClinicalGuidelines: Provide guideline-based options based on PatientStatus.
+- ClinicalTrials: Identify relevant clinical trials using PatientStatus.
+- MedicalResearch: Summarize recent research on a specified focus topic relevant to this case.
+- ReportCreation: Assemble a tumor board Word document using all prior outputs.
+Special rule: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent will conclude with: “back to you: Orchestrator”.
+
+What I need from you to proceed:
+- Confirmation: May we proceed with this plan and retrieve patient_4’s record?
+- Imaging: Please upload or share access to imaging files (DICOM preferred; JPEG/PNG acceptable) for chest X-ray and CT, plus imaging dates. If images aren’t available, please provide the official radiology reports.
+- Pathology: Latest biopsy/surgical pathology report including histology and biomarkers (e.g., ER/PR/HER2, PD-L1, MSI, TMB, NGS panel), and the most recent path stage if available.
+- Clinical details (if not in the record or to expedite):
+  - Age, primary cancer site, histology subtype, clinical or pathologic stage.
+  - Treatment history with dates and responses; current treatment plan.
+  - ECOG performance status.
+  - Key comorbidities, allergies, and any treatment contraindications.
+  - Social history highlights relevant to oncology (e.g., smoking status).
+- Research focus (for MedicalResearch): Any specific questions you want addressed (e.g., management after progression on X, role of biomarker Y, perioperative therapy evidence).
+- Logistics: Target tumor board date/time and any institutional template requirements for the report.
+
+If you confirm, I will begin by prompting:
+- PatientHistory, please proceed with the timeline for patient_id = "patient_4". Conclude with “back to you: Orchestrator”.
+
+User, can you confirm the plan and provide the above items or grant permission to retrieve them from the record? If some items are unavailable, let me know and we will note gaps and proceed accordingly.
+
+---
+

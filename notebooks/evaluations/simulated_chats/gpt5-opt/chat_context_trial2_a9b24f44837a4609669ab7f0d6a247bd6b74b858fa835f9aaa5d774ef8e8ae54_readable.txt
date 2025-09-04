@@ -1,0 +1,37 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist:
+- Confirm the scope and present a clear, stepwise plan and agent order.
+- Gather the patient’s timeline and key data from PatientHistory using the provided ID.
+- Determine if imaging files are available for Radiology review; otherwise use reported findings.
+- Compile a structured current status via PatientStatus.
+- Generate the tumor board Word report via ReportCreation, integrating all gathered inputs.
+- Offer optional additions (ClinicalTrials, MedicalResearch) per your preference.
+- Provide micro-updates at milestones and ensure each agent yields control back to me.
+
+Proposed plan and sequence:
+- Step 1 — PatientHistory: Retrieve the comprehensive timeline and history for patient_id "patient_4" including diagnosis date, stage at diagnosis, histology, biomarkers, treatment history, and any imaging reports or links to images. Output: concise timeline and history summary.
+- Step 2 — Radiology (conditional): If PatientHistory provides imaging files (e.g., chest X-ray) or links, Radiology will analyze and summarize the latest imaging findings. If no images are available, we will rely on the imaging impressions from PatientHistory.
+- Step 3 — PatientStatus: Using the data from PatientHistory (and Radiology if applicable), compile the current status: age, primary site, histology, staging, biomarker status, ECOG performance status, and treatment to date.
+- Step 4 — ReportCreation: Generate a formatted Word document suitable for tumor board presentation that includes the diagnostic summary (biomarkers, stage at diagnosis), treatment history, and latest imaging findings. If you want, we can include clinical trials or research highlights sections as add-ons.
+- Optional — ClinicalTrials: If you want a clinical trials section in the report, we will have ClinicalTrials search based on the PatientStatus summary.
+- Optional — MedicalResearch: If you want a brief literature snapshot (e.g., recent studies relevant to this patient’s tumor type/biomarkers), we will ask MedicalResearch to provide it.
+- Note on ClinicalGuidelines: To respect your request and our role limitation (no clinical recommendations), we will not invoke ClinicalGuidelines unless you explicitly want a non-prescriptive overview. We will avoid generating any treatment recommendations.
+
+Special rule — agent handoff:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent will conclude with: “back to you: Orchestrator”.
+
+User confirmation and a couple of quick questions:
+- Please confirm that this plan works for you.
+- Do you want us to include an optional ClinicalTrials section and/or a brief MedicalResearch literature summary in the Word document?
+- Do you have any imaging files (e.g., chest X-ray, CT) to upload for Radiology review? If not, we’ll use the imaging impressions found in PatientHistory.
+- If your tumor board has a preferred template or institutional header/logo for the Word document, let me know; otherwise we’ll use a standard, clean format.
+
+If you confirm, I will begin with Step 1 by asking PatientHistory to retrieve details for patient_id "patient_4".
+
+---
+

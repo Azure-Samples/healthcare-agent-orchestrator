@@ -1,0 +1,33 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps
+- Validate the provided patient ID and confirm any missing data or files needed.
+- Ask PatientHistory to retrieve a structured timeline and history for patient_4.
+- Use PatientHistory output to call downstream agents (Radiology, PatientStatus, ReportCreation, ClinicalTrials as needed) and assemble the tumor-board Word report.
+- Keep you informed at each milestone, summarize progress, and request any missing inputs (images, ECOG, pathology reports).
+- Produce the Word document via ReportCreation once all required inputs are collected.
+
+Planned sequence and roles (expected participation order)
+1. PatientHistory — retrieve and validate the patient timeline for patient_4 (biomarkers, stage at diagnosis, treatment history, latest imaging findings).
+2. Radiology — analyze any imaging (CT/CXR) if images or image reports are available from PatientHistory or uploaded by you.
+3. PatientStatus — consolidate current status (age, staging, primary site, histology, biomarkers, treatment history, ECOG).
+4. ClinicalTrials — list relevant trial options (if requested) based on PatientStatus.
+5. ReportCreation — generate the formatted Word document for tumor board, using inputs above.
+Note: Each agent, after completing their task, must yield the chat back to me and conclude with: "back to you: Orchestrator"
+
+User confirmation and missing items
+- User, please confirm that I should proceed with patient_id = "patient_4".
+- User, do you have any imaging files (CT scans, chest x-rays, DICOMs), pathology reports, or other documents to upload now? Radiology will need actual images to perform image-level analysis; otherwise Radiology can summarize from textual imaging reports if provided.
+- User, do you want the Word document to include identifiable demographics (name, DOB) or should it be de-identified? If de-identified, confirm and indicate what identifiers to omit.
+
+Next action plan (pending your confirmation)
+- After you confirm and/or upload any available files, I will ask PatientHistory to retrieve and return the structured timeline for patient_4. PatientHistory, please proceed when I confirm and include biomarker status, stage at diagnosis, treatment history, and latest imaging findings in the structured JSON per your workflow and validation rules. End your response with: "back to you: Orchestrator"
+
+Please confirm the above and upload any files now (imaging, pathology, or notes).
+
+---
+

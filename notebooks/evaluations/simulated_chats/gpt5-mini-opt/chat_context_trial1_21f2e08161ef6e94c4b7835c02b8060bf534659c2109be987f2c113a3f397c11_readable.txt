@@ -1,0 +1,30 @@
+USER:
+Based on the full clinical picture of patient_4â€”including stage, biomarkers, treatment response, and recent imagingâ€”generate a short report estimating prognosis and possible progression pathways.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — my moderation steps
+- Confirm I have a valid patient ID string and any missing clinical items.
+- Assign agents in an ordered plan to retrieve and synthesize timeline, imaging, and status.
+- Collect what each agent needs, run them in sequence, and return a concise synthesis for your review.
+
+Planned sequence and who will contribute
+1) PatientHistory — validate the patient ID and retrieve the patient timeline and relevant items (stage, biomarkers, treatment history, imaging reports).  
+2) Radiology — review any imaging details or images pulled by PatientHistory and summarize key findings (only if imaging is available).  
+3) PatientStatus — synthesize current status (age, stage, site, histology, biomarkers, treatment history, ECOG) from PatientHistory outputs.  
+4) MedicalResearch — provide context on prognosis drivers and plausible biological progression pathways given the clinical picture.  
+5) ClinicalTrials (optional) — list trials relevant to the current patient status if you request them.  
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Instructed text for agents to include at the end of their replies: "back to you: Orchestrator"
+
+What I need from you now, User
+- Please confirm the exact patient ID as a string (for example: "patient_4"). If the ID you intended is different from "patient_4", please provide the exact string.  
+- If you can, provide or confirm any missing core items now: recent stage, key biomarkers, major treatments to date, and a brief description of the most recent imaging (date and findings). If you cannot provide them, say so and I will instruct PatientHistory to attempt retrieval using the confirmed patient ID.
+
+Requests to agents
+- PatientHistory, please state what inputs you require to validate and retrieve the patient timeline for the provided patient ID. Specifically list required fields and any constraints (for example: must be a non-empty string). After your reply, conclude with: "back to you: Orchestrator"
+
+User, please confirm the patient ID string (and optionally paste key clinical details). Once you confirm, I will ask PatientHistory to validate and retrieve the timeline and then continue the planned agent sequence.
+
+---
+

@@ -1,0 +1,54 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist (moderation steps)
+- Confirm the patient ID is valid and obtain the structured patient timeline and core clinical data.
+- Ask PatientHistory to deliver the patient timeline, biomarker, staging, pathology, treatment history, imaging reports, and any available images.
+- Use PatientHistory output to sequence PatientStatus and Radiology requests; then produce the tumor-board Word report via ReportCreation.
+- Confirm with you whether to include ClinicalTrials or ClinicalGuidelines content in the report before invoking those agents.
+- Coordinate each agent in order, collect their outputs, provide micro-updates after each response, and ensure each agent yields back to me.
+
+Planned sequence and participation order
+1. PatientHistory — retrieve and return validated structured data for patient_id "patient_4" (required first).
+2. PatientStatus — summarize current status (age, staging, site, histology, biomarkers, treatment history, ECOG).
+3. Radiology — analyze imaging findings (needs images or imaging reports from PatientHistory).
+4. (Optional) ClinicalTrials / ClinicalGuidelines — include if you request trial options or guideline recommendations (these need PatientStatus).
+5. ReportCreation — assemble and export the tumor-board Word document using inputs from PatientHistory, PatientStatus, Radiology, and optionally ClinicalTrials/Guidelines.
+Special rule (applies to all agents)
+- Each agent, after completing their task, must conclude with: "back to you: Orchestrator"
+
+Validation of patient ID
+- I have received patient ID: "patient_4" (string). This satisfies PatientHistory's requirement to proceed.
+
+Now I will request the necessary data from PatientHistory so we can proceed.
+
+PatientHistory, please proceed with the following for patient_id "patient_4":
+- Validate the patient_id and return status ("success" or "error"). If error, include an informative error_message.
+- If success, produce:
+  - patient_id (echo the input)
+  - patient_timeline: a structured array of events (date, event_type, brief details). Include diagnosis date, staging at diagnosis, pathology results (including histology and biomarker panel with values like EGFR, ALK, ROS1, PD-L1 % or others), treatments given (dates, regimens, cycles, responses), recent labs if relevant, ECOG performance status, and any comorbidities/social history.
+  - history_summary: concise 2–4 sentence summary.
+  - error_message: null on success.
+- If imaging files (CT/PET/x-ray) or full radiology reports are available in the patient record, please attach or include the radiology reports and indicate file names for images (so Radiology can request or analyze them).
+- Provide the output in the PatientHistory JSON schema (status, patient_id, patient_timeline array, history_summary, error_message).
+- After completing, conclude with: "back to you: Orchestrator"
+
+PatientHistory, what additional information or files (e.g., DICOM CT, chest x-ray images, pathology PDF) do you need from the user to provide a complete response for patient_4?
+
+User, before PatientHistory responds:
+- Please confirm you want the full tumor-board Word report (including imaging and pathology appendices) exported.
+- Do you want inclusion of clinical trial options or guideline-based treatment recommendations in the report? (Yes/No)
+- If you have imaging files (DICOM CT/PET or JPEG/PNG x-rays) or pathology reports to upload, please provide them now or indicate they are available in the record.
+
+Next steps once PatientHistory responds
+- I will give a 1–2 sentence micro-update and then call PatientStatus (and Radiology if imaging is provided) using the data from PatientHistory.
+- After PatientStatus and Radiology outputs, I will offer an option to include ClinicalTrials/ClinicalGuidelines before invoking them.
+- Finally, I will call ReportCreation to assemble the Word document and return it to you.
+
+Please confirm the above plan and answer the user questions about inclusion of trials/guidelines and availability of imaging/pathology files so we can proceed.
+
+---
+

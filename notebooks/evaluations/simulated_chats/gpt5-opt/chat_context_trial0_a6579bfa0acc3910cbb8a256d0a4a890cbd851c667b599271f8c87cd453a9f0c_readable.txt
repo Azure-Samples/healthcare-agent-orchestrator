@@ -1,0 +1,504 @@
+USER:
+Given the presence of a KRAS p.G12C mutation, what are the potential benefits and risks of transitioning to KRAS-directed treatment with adagrasib? How might this change the patient's prognosis?
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the user’s goal and confirm the workflow plan and sequence.
+- Gather the minimum required patient information to enable agent-specific responses.
+- Orchestrate agent participation in a logical order; ensure each agent states needs and returns results.
+- Provide micro-updates after each agent response and outline next steps.
+- Prevent clinical recommendations from being given directly by me; route such content through the appropriate agent(s).
+- Validate that outputs meet each agent’s requirements and are aligned to the user’s question.
+
+Proposed plan and participation order:
+1) PatientHistory → retrieve the patient’s timeline and key oncology history using a valid patient ID.
+2) PatientStatus → compile a current, structured status (age, primary site, histology, stage, biomarkers, ECOG, prior treatments).
+3) ClinicalGuidelines → explain potential benefits and risks of transitioning to KRAS-directed treatment with adagrasib and how this might influence prognosis, based on the patient status.
+4) ClinicalTrials → identify relevant trials for KRAS p.G12C given the compiled patient status.
+5) MedicalResearch → summarize current evidence and outcomes data related to adagrasib in KRAS p.G12C (e.g., efficacy, safety profiles, subgroups).
+6) ReportCreation → optionally generate a tumor board-ready document pulling together the above.
+7) Radiology → optional; if you have imaging, Radiology can review. If no imaging is available, Radiology will note that and yield back.
+
+Special rule:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent should conclude with: "back to you: Orchestrator".
+
+User, to proceed:
+- Please provide the patient ID as a string so PatientHistory can retrieve the record.
+- If you do not have a patient ID, we can either:
+  - Proceed with a general evidence overview via MedicalResearch while we wait for details, or
+  - You can directly provide key details to enable PatientStatus to proceed: age, primary tumor site (e.g., NSCLC vs colorectal), histology, stage, ECOG performance status, full biomarker panel (including KRAS p.G12C and any co-alterations), prior treatments and dates, presence of brain metastases, notable comorbidities, and current medications.
+- Optional: If you have recent imaging (CT/MRI/X-ray) and want Radiology input, please share the imaging or confirm that none is available.
+
+Please confirm this plan. Once confirmed, I will begin by calling PatientHistory. If you prefer a general overview first (without patient specifics), I will begin with MedicalResearch instead.
+
+---
+
+USER:
+Orchestrator: Plan confirmed. Proceeding with the proposed workflow. Initiating PatientHistory for patient_4 now.
+
+PatientHistory: Attempting retrieval for patient ID "patient_4".
+- Data sources searched: oncology EHR summary, prior clinic notes, pathology, molecular profiling, systemic therapy administration logs, radiology impressions, and problem list.
+- Result: No structured record for "patient_4" is available in the shared workspace. To proceed, please supply key details so we can construct the status:
+  - Primary tumor type and histology (e.g., NSCLC adenocarcinoma vs colorectal adenocarcinoma)
+  - Stage and sites of disease; presence/absence of brain metastases
+  - ECOG performance status
+  - Biomarker panel: KRAS p.G12C confirmed; any co-mutations (e.g., STK11, KEAP1, TP53), PD-L1 (if NSCLC), MSI/MMR/TMB (if CRC/other)
+  - Prior lines of therapy with dates and best responses (e.g., platinum/IO, docetaxel, anti-EGFR if CRC, etc.)
+  - Comorbidities and current medications (for potential interactions, QTc risk, hepatic function)
+  - Recent labs (AST/ALT, bilirubin, creatinine) and QTc if available
+back to you: Orchestrator
+
+Orchestrator: Micro-update: PatientHistory could not retrieve a record for patient_4. While we await minimal clinical details from you, I’ll proceed with a general evidence overview to inform potential benefits/risks of transitioning to adagrasib for KRAS p.G12C. After that, we can tailor recommendations once we have the patient specifics. Moving to MedicalResearch.
+
+MedicalResearch: General evidence summary for KRAS p.G12C and adagrasib (MRTX849)
+
+Indications and setting
+- Non–small cell lung cancer (NSCLC): Adagrasib is FDA-approved for KRAS p.G12C–mutant NSCLC after at least one prior systemic therapy. Most data are in patients previously treated with platinum-based chemotherapy and immunotherapy.
+- Colorectal cancer (CRC): Adagrasib monotherapy has modest activity; combination with anti-EGFR therapy (e.g., cetuximab) shows markedly improved response rates. Regulatory status varies by region; some combinations have received approvals/priority reviews.
+- Other tumors (e.g., pancreatic, biliary, gynecologic): Early-phase data show activity but are not broadly approved.
+
+Efficacy in NSCLC
+- KRYSTAL-1 (phase 1/2, previously treated NSCLC):
+  - Objective response rate (ORR) ~43%.
+  - Median progression-free survival (PFS) ~6.5 months.
+  - Median duration of response (DoR) ~12 months.
+  - Intracranial activity: In a dedicated cohort with untreated brain metastases, intracranial ORR ~30–35% with meaningful intracranial disease control.
+- KRYSTAL-12 (phase 3 vs docetaxel; reported 2024): Met its primary endpoint with superior PFS versus docetaxel in previously treated KRAS G12C NSCLC; ORR improved versus docetaxel. OS data immature at last report.
+
+Efficacy in CRC
+- Monotherapy ORR is low (~19% or less).
+- Combination with cetuximab or panitumumab:
+  - ORR ~30–46%, disease control rate high, with median PFS ~6–7 months in heavily pretreated cohorts.
+  - These combinations address adaptive EGFR feedback signaling, a known resistance mechanism in CRC.
+
+Safety and risk profile (adagrasib 600 mg BID)
+- Common adverse events: Nausea, diarrhea, vomiting, decreased appetite, fatigue; most are grade 1–2 but grade ≥3 GI events can occur.
+- Hepatotoxicity: Elevated AST/ALT reported; risk increased with recent/ongoing immunotherapy exposure. Monitor liver tests regularly; consider spacing from PD-1/PD-L1 therapy and cautious re-challenge.
+- QTc prolongation: Known risk; obtain baseline and periodic ECGs, correct electrolytes, and avoid/add caution with other QT-prolonging drugs.
+- Drug interactions: Adagrasib can inhibit CYP3A, CYP2C9, CYP2D6 and P-gp; be cautious with sensitive substrates (e.g., warfarin, certain DOACs, some antiarrhythmics, opioids, antidepressants). Review concomitant medications closely.
+- Rare: ILD/pneumonitis; new/worsening respiratory symptoms warrant evaluation.
+
+Potential benefits of transitioning to adagrasib (general)
+- Targeted mechanism for KRAS p.G12C with meaningful response rates in NSCLC after chemo/IO and demonstrated intracranial activity.
+- Oral therapy with manageable toxicity for most patients; quality-of-life benefits may be seen relative to cytotoxic chemotherapy.
+- In CRC, using adagrasib with anti-EGFR therapy can confer clinically meaningful responses where options are limited.
+
+Potential risks and considerations
+- GI toxicity and hepatotoxicity may necessitate dose interruptions/reductions.
+- QTc prolongation risk and significant drug–drug interactions may limit use or require careful management.
+- Prior exposure to another KRAS G12C inhibitor (e.g., sotorasib) can confer cross-resistance; subsequent benefit from switching is often limited.
+- Co-mutation context (e.g., KEAP1) may be associated with lower response or shorter benefit; brain metastases may still respond but require close monitoring.
+
+How prognosis might change (general)
+- NSCLC: Transitioning to adagrasib after standard therapies can improve disease control versus single-agent chemotherapy (e.g., docetaxel), with higher response rates and longer PFS on average. Individual prognosis depends on performance status, co-mutations, burden and sites of disease (especially CNS), and tolerance to therapy.
+- CRC: In later lines, adagrasib plus anti-EGFR therapy can improve response and PFS versus best supportive care or single-agent options, potentially extending time to progression. Overall survival benefit is evolving and may be influenced by subsequent therapies.
+- Brain metastases: The intracranial activity of adagrasib can favorably influence prognosis in patients with CNS involvement compared to agents with poor CNS penetration.
+
+Key unknowns without patient specifics
+- Tumor type and line of therapy (determines likelihood of benefit).
+- Co-mutation profile (e.g., STK11/KEAP1) and PD-L1 (if NSCLC).
+- Extent of CNS disease, hepatic function, and concomitant meds that may increase risk.
+back to you: Orchestrator
+
+Orchestrator: Micro-update: We’ve summarized general benefits, risks, and expected impact on prognosis with adagrasib for KRAS p.G12C. Next, I’ll ask a focused comparative evidence question so we can position adagrasib relative to sotorasib and account for co-mutations/resistance, then we’ll be ready to personalize guidance once we receive patient_4’s specifics.
+
+MedicalResearch: Given the KRAS p.G12C mutation, what is the clinical evidence supporting use of KRAS inhibitors (e.g., adagrasib vs. sotorasib) in this context? Are there known resistance patterns or co-mutations (e.g., STK11, KEAP1) that affect efficacy? Please provide a concise, comparative summary suitable for clinical decision-making. After responding, yield back to the Orchestrator.
+
+---
+
+ASSISTANT (agent id: MedicalResearch):
+I will use Microsoft GraphRAG to retrieve information with the following search terms: adagrasib KRAS G12C benefits risks NSCLC CRC Sources. Now querying Microsoft GraphRAG.
+{"prompt":"adagrasib KRAS G12C benefits risks NSCLC CRC Sources"}
+An error occurred while invoking the function graph_rag-process_prompt: Cannot serialize non-str key None
+I have used Microsoft GraphRAG to retrieve the information. However, I encountered a technical issue invoking the Microsoft GraphRAG tool (error: “Cannot serialize non-str key None”) and could not retrieve any content or sources. Because the project guidelines require that I use Microsoft GraphRAG as the sole data source and present only its returned text and Sources, I cannot provide the requested evidence summary until I can successfully query the tool.
+
+Next steps I can take:
+- Retry the Microsoft GraphRAG query once the tool issue is resolved.
+- If you can confirm that I should proceed after a tool reset, I will immediately re-run targeted searches with the following explicit search terms:
+  - “adagrasib KRAS G12C NSCLC KRYSTAL-1 ORR PFS DoR intracranial activity safety Sources”
+  - “adagrasib colorectal cancer KRAS G12C anti-EGFR cetuximab panitumumab efficacy safety Sources”
+  - “KRYSTAL-12 adagrasib vs docetaxel PFS ORR Sources”
+  - “adagrasib safety hepatotoxicity QTc prolongation drug interactions immunotherapy Sources”
+- Alternatively, if you prefer, share any specific sub-questions (e.g., CNS activity, sequencing after sotorasib, co-mutation impact), and I will run focused GraphRAG queries for those once the tool is available.
+
+Please let me know if you’d like me to attempt the queries again now or wait for confirmation that the GraphRAG tool is functioning.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm the objective and keep the plan aligned with your question.
+- Identify missing patient-specific details needed for agent responses.
+- Coordinate agent participation in sequence; ensure each agent yields back.
+- Provide micro-updates after each agent’s input.
+- Avoid making clinical recommendations myself; route evidence and guidance through agents.
+- Validate outputs for completeness and move to next agent.
+
+Micro-update: PatientHistory could not find a record for patient_4. MedicalResearch provided a general evidence overview for adagrasib in KRAS p.G12C disease; a deeper comparative query (adagrasib vs sotorasib) encountered a temporary search tool issue and will be retried later. Next, we need minimal clinical details from you so PatientStatus can proceed; then ClinicalGuidelines can address benefits/risks and likely impact on prognosis in your patient’s context.
+
+Quick evidence highlights from MedicalResearch (general, not patient-specific):
+- Potential benefits: In KRAS G12C–mutant NSCLC after prior therapy, adagrasib shows meaningful responses (ORR ~43%), median PFS ~6.5 months, and intracranial activity; oral administration may support quality of life. In CRC, activity improves notably when combined with an anti-EGFR agent (e.g., cetuximab).
+- Key risks: GI AEs (nausea/diarrhea/vomiting), transaminase elevations (hepatotoxicity; caution near immunotherapy), QTc prolongation (ECGs/electrolytes and drug interaction review needed), and drug–drug interactions (CYP3A/2C9/2D6 and P-gp). Cross-resistance can limit benefit if a prior KRAS G12C inhibitor was used.
+
+Plan and sequence (unchanged, pending your details):
+1) PatientStatus → compile current structured status.
+2) ClinicalGuidelines → explain benefits/risks of transitioning to adagrasib and how prognosis may change, based on PatientStatus.
+3) ClinicalTrials → identify relevant KRAS G12C trials given the status.
+4) MedicalResearch → finalize comparative nuances (adagrasib vs sotorasib; co-mutations) once the tool issue clears.
+5) ReportCreation → optional tumor board document.
+6) Radiology → optional if you share imaging.
+Special rule: Each agent, after completing their task, must yield the chat back to me (the Orchestrator) by concluding with: “back to you: Orchestrator”.
+
+User, to proceed, please provide the following for patient_4:
+- Primary tumor and histology (e.g., NSCLC adenocarcinoma vs colorectal adenocarcinoma)
+- Stage and sites of disease; presence/absence of brain metastases
+- ECOG performance status
+- Biomarkers: confirm KRAS p.G12C; co-mutations (e.g., STK11, KEAP1, TP53); PD-L1 (if NSCLC); MSI/MMR/TMB (if CRC/other)
+- Prior therapies with dates and best response; note any prior KRAS G12C inhibitor exposure (e.g., sotorasib)
+- Comorbidities and current medications (to assess QTc risk and drug interactions)
+- Recent labs (AST/ALT, bilirubin, creatinine) and ECG QTc if available
+- Optional: Any recent imaging (CT/MRI/X-ray) for Radiology review
+
+Micro-update: Once you share these details, I will call PatientStatus to compile the patient’s current status, then move to ClinicalGuidelines for a patient-tailored discussion of adagrasib’s benefits/risks and its potential impact on prognosis. Would you like me to proceed in this order?
+
+---
+
+USER:
+Orchestrator: Plan confirmed and aligned with the objective. Proceeding to Step 1.
+
+PatientHistory: Please retrieve the full oncology timeline and key clinical data for patient_4. Specifically:
+- Demographics: age, sex
+- Primary tumor site and histology
+- Stage at diagnosis and current stage; sites of disease; presence/absence of brain metastases
+- Molecular biomarkers: confirm KRAS p.G12C and report co-mutations (e.g., STK11, KEAP1, TP53), PD-L1 (if NSCLC), MSI/MMR/TMB (if CRC/other), and any prior KRAS inhibitor exposure
+- Prior systemic therapies, local therapies (surgery/radiation), lines of therapy with dates, regimens, best responses, and reasons for discontinuation
+- Current performance status (ECOG), comorbidities, and current medications
+- Recent labs (AST/ALT, bilirubin, creatinine) and ECG QTc if available
+- Any notable adverse events from prior therapies
+- Most recent imaging summary (CT/MRI/PET), including intracranial findings if applicable
+
+If the record for patient_4 cannot be found, please explicitly state that, note what identifiers are missing or alternative lookup options, and provide guidance on the minimum data needed for downstream agents to proceed.
+
+Please conclude with: “back to you: Orchestrator”.
+
+---
+
+ASSISTANT (agent id: PatientHistory):
+Here is the complete patient data organized chronologically for clear understanding. This includes all relevant information for a tumor board review:
+- 2021-03-27: Patient demographics and current status (for MTB overview)
+    - 59-year-old female with metastatic non-small cell lung cancer (adenocarcinoma) of the left lung, stage T4N3M1a (IVA). Initial systemic therapy with weekly carboplatin/paclitaxel transitioned to q3-week carboplatin/paclitaxel plus pembrolizumab for 6 cycles (completed 2020-09-24), followed by maintenance pembrolizumab starting 2020-12-28. Molecular profiling (2020-08-10) showed KRAS p.G12C mutation; PD-L1 negative. Serial imaging in 2020 showed partial response; 2021 CT (02-15) showed slight increase in the lingular mass with improved hilar adenopathy; PET/CT on 2021-03-22 demonstrated progression with increased FDG-avid left lung mass and new/increased FDG-avid left hilar/infrahilar lymphadenopathy. As of 2021-03-27, plan is to discontinue pembrolizumab and initiate KRAS-directed therapy with adagrasib; patient referred for second opinion. Immune-related hypothyroidism managed with levothyroxine (TSH 159 on 2020-08-11 → treated; 2021-02-08 TSH 1.09; dose reduced to 75 mcg on 2021-03-01 after low TSH; 2021-03-20 thyroid labs WNL). Dysphagia due to Schatzki ring treated with EGD and balloon dilation on 2021-03-11, with symptomatic improvement. Coronary artery disease noted on imaging; cardiology consult completed 2021-03-12; PET/CT MPI with MFR scheduled for 2021-04-27.
+    - Source: [Reason for visit: Follow-up for non-small cell lung cancer T4N3M1a (IVA). Completed treatment with carbo/taxol/keytruda x6 cycles on 2020-09-24. Currently on…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/0/source/0.html)
+    - Source: [Reason for visit: Follow-up for non-small cell lung cancer T4N3M1a (IVA). Completed treatment with carbo/taxol/keytruda x6 cycles on 2020-09-24. Currently on…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/0/source/1.html)
+- 2020-01-24: Follow-up CT chest identifies persistent lingular opacity and nodules
+    - Follow-up CT chest (non-contrast) showed continued pulmonary opacity in the lingula suspicious for malignancy, slight enlargement of additional pulmonary nodules (including a new 2.5 mm right middle lobe nodule and an 8 mm left upper lobe nodule), and continued mediastinal and left hilar adenopathy. Pulmonology referral recommended.
+    - Source: [Follow-up CT chest without contrast on 2020-01-24: Impression: 1. Continued presence of pulmonary opacity in the lingula, with no apparent air bronchograms.…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/1/source/0.html)
+- 2020-03-07: Baseline PET/CT staging
+    - PET/CT demonstrated a hypermetabolic lingular mass (3.4 x 3.8 cm), numerous hypermetabolic mediastinal nodes (including subcarinal 1.4 cm), an 8 mm hypermetabolic right lung base nodule, and a left supraclavicular node, consistent with stage IV disease.
+    - Source: [2020-03-07: PET/CT hypermetabolic lingular mass approx 3.4 x 3.8 cm with numerous mediastinal nodes, 8 mm pulmonary nodule in the right lung base, and…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/2/source/0.html)
+    - Source: [A PET scan on 2020-03-07 showed a left-sided supraclavicular lymph node (5 mm, SUV 3.6), a hypermetabolic lingular mass (3.4 x 3.8 cm, SUV 18.4), and a…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/2/source/1.html)
+- 2020-03-30: Diagnostic bronchoscopy with EBUS-FNA confirms metastatic adenocarcinoma
+    - EBUS-guided FNA of mediastinal nodes (stations 7 and 4R) and transbronchial FNA of the left lingula confirmed metastatic non-small cell carcinoma, favor adenocarcinoma; BAL from LLL also positive.
+    - Source: [2020-03-30: Bronchoscopy with EBUS-guided FNA. Pathology diagnosis/interpretation: A. Lymph node, 7, EBUS guided fine needle aspiration -- metastatic non-small…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/3/source/0.html)
+    - Source: [EBUS on 2020-03-30: Diagnosis/Interpretation: a. Lymph node, 7, EBUS guided fine needle aspiration -- metastatic non-small cell carcinoma, favor…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/3/source/1.html)
+- 2020-04-22: Initial medical oncology evaluation and staging
+    - Presented with chest heaviness/pain; earlier CT negative for PE but showed lingular consolidation, bilateral pulmonary nodules, mediastinal and left hilar adenopathy. Clinical impression: likely stage IV NSCLC; plan to start systemic chemotherapy (carboplatin/paclitaxel) with intent to transition to pembrolizumab; radiation to be considered based on response.
+    - Source: [Jane M. Doe is a 59-year-old woman who presented in early December with increased chest heaviness and chest pain. A CT scan was performed to evaluate for…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/4/source/0.html)
+- 2020-04-30: Chemotherapy education; planned weekly paclitaxel/carboplatin (weekly regimen)
+    - Chemo education prior to first treatment. Planned weekly regimen: paclitaxel 135 mg IV and carboplatin 200 mg IV on day 1 of a 7‑day cycle (weekly), with potential dose adjustments as needed.
+    - Source: [jane m doe is a 59 y.O. Female here for chemotherapy education prior to c1d1 of taxol + carboplatin. Chemotherapy protocol (reference): cycle 1 (treatment on…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/5/source/0.html)
+- 2020-05-26: Transition plan to q3‑week carboplatin/paclitaxel (with continued agents)
+    - One more weekly dose approved; will skip the following week for CT chest, then transition to chemotherapy once every 3 weeks starting on 2020-06-10 with the same medications.
+    - Source: [Patient ok for 1 more weekly dose of chemotherapy. Will not do chemotherapy next week but will get ct scan of her chest. Will then plan on chemotherapy once…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/6/source/0.html)
+- 2020-06-10: Cycle 1 Day 1 (q21-day) carboplatin/paclitaxel + pembrolizumab initiated
+    - Initiated q3-week regimen including pembrolizumab 200 mg IV, paclitaxel 300 mg IV, and carboplatin 550 mg IV with standard premedications. Tolerated without complications.
+    - Source: [2020-06-10 1006 CDT: Pembrolizumab (Keytruda) 200 mg in NaCl 0.9% 100 ml infusion, 200 mg, Intravenous, New bag 2020-06-10 1049 CDT: Paclitaxel (Taxol) 300 mg…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/7/source/0.html)
+- 2020-08-04: Interim PET/CT shows partial response to treatment
+    - Significant decrease in size and metabolic activity in mediastinal and left hilar nodes and in the primary lingular lesion (now 2.4 x 2.0 cm, SUV max 10.3 vs 17.6). No new hypermetabolic nodules; no suspicious abdominal/pelvic metastases.
+    - Source: [Findings: within the chest there has been significant improvement and uptake of the lymph nodes in the mediastinum and left hilum. The lungs demonstrate…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/8/source/0.html)
+- 2020-08-10: Molecular profiling (NGS): KRAS p.G12C; PD-L1 negative
+    - NGS returned showing KRAS p.G12C mutation; PD-L1 negative. This informs eligibility for KRAS-directed therapy at progression.
+    - Source: [- 2020-08-10 NGS returned showing KRAS p.G12C mutation. PD-L1 neg.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/9/source/0.html)
+- 2020-08-11: Immune-related hypothyroidism detected; levothyroxine initiated
+    - TSH markedly elevated at 159; levothyroxine started at 25 mcg daily. Plan to recheck TSH the next day and monitor weekly CBC/CMP.
+    - Source: [Patients tsh resulted very high at 159. Dr. Miller would like her to start levothyroxine 25 mcg daily. We will recheck tsh tomorrow when patient has treatment.…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/10/source/0.html)
+- 2020-09-24: Cycle 6 Day 1 carboplatin/paclitaxel + pembrolizumab (completion of induction)
+    - Completed 6th q3-week cycle with pembrolizumab 200 mg IV, paclitaxel 300 mg IV, and carboplatin 550 mg IV. This completed 6 cycles of triplet therapy.
+    - Source: [Cycle #6, Day 1 2020-09-24 1003 CDT: Pembrolizumab (Keytruda) 200 mg in NaCl 0.9% 100 ml infusion, 200 mg intravenous, new bag 2020-09-24 1039 CDT: Paclitaxel…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/11/source/0.html)
+    - Source: [Completed treatment with carbo/taxol/keytruda x6 cycles on 2020-09-24.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/11/source/1.html)
+- 2020-10-22: PET/CT demonstrates ongoing partial response
+    - Lingular nodule decreased in SUV (6.9 from 10.3) and slight size reduction; several mediastinal/hilar nodes with decreased SUVs; overall impression of partial response to therapy; no extra-thoracic metastases.
+    - Source: [2020-10-22: PET: Thorax: Twenty-seven by 22 millimeter lingular nodule now has a max SUV of 6.9; previously 29 by 24 millimeters with a max SUV of 10.3. -10…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/12/source/0.html)
+- 2020-12-10: Consult: maintenance pembrolizumab recommended; no consolidative radiation
+    - At outside consult, recommendation was to proceed with maintenance pembrolizumab and to avoid consolidative radiation; re-imaging every 3 months advised.
+    - Source: [2020-12-10: Patient recently met with Dr. and was recommended maintenance pembrolizumab and he recommended against consolidative radiation. Recommended re-…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/13/source/0.html)
+    - Source: [On 2020-12-10, the patient met with Dr. and was recommended maintenance pembrolizumab and advised against consolidative radiation.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/13/source/1.html)
+- 2020-12-28: Maintenance pembrolizumab initiated (monotherapy)
+    - Pembrolizumab 200 mg IV administered as Cycle 1, Day 1 of maintenance therapy; treatment completed without problems.
+    - Source: [Medication Administration: - Pembrolizumab (Keytruda) 200 mg in NaCl 0.9% 100 ml infusion Dose: 200 mg Time: 2020-12-28 1406 CST Treatment Plan/Comments:…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/14/source/0.html)
+- 2021-02-08: Labs stable on maintenance; pembrolizumab continued 2021-02-09
+    - TSH 1.09 with stable labs; maintenance pembrolizumab continued on 2021-02-09.
+    - Source: [2021-02-08: Patient's labs are stable. TSH: 1.09. Continued treatment with Keytruda on 2021-02-09.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/15/source/0.html)
+- 2021-02-15: CT chest (non-contrast): slight increase in lingular mass; improved left hilar adenopathy
+    - Lingular mass increased to 3.6 x 2.5 cm (from 2.7 x 2.4 cm). Left hilar adenopathy somewhat improved; no new adenopathy or new nodules; prior 5 mm RLL nodule resolved; LLL nodule now 10 x 4 mm. Coronary artery disease noted.
+    - Source: [The lingular mass is now measured at 3.6 x 2.5 cm on image 92 of series 2. This was previously measured at 2.7 x 2.4 cm. Left hilar lymphadenopathy appears…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/16/source/0.html)
+- 2021-03-01: Thyroid function low TSH; levothyroxine decreased to 75 mcg; new dysphagia symptoms
+    - TSH low at 0.041 with normal free T4; levothyroxine dose decreased to 75 mcg. Patient reported dysphagia.
+    - Source: [2021-03-01: TSH low at 0.041, free T4 WNL at 1.54. Decreased levothyroxine dose to 75 mcg. Patient c/o dysphagia.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/17/source/0.html)
+- 2021-03-11: EGD with balloon dilation for Schatzki ring; biopsies benign
+    - EGD revealed a tight stricture at the GE junction from chronic fibrosis consistent with Schatzki’s ring; balloon dilation performed up to 15 mm for 2 minutes without complications. Gastric antrum and duodenal biopsies showed normal mucosa and were negative (including for Helicobacter).
+    - Source: [The z line appeared regular, but there was a tight stricture with narrowing at the ge junction from chronic fibrosis, consistent with shatzki's ring. Dilation…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/18/source/0.html)
+    - Source: [Final diagnosis: a) duodenum, biopsy: 1. Normal duodenal mucosa 2. Negative for celiac disease and other enteropathy b) stomach, antrum, biopsy: 1. Normal…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/18/source/1.html)
+- 2021-03-12: Cardiology evaluation; cardiac imaging scheduled
+    - Cardiology consult completed. PET/CT myocardial perfusion imaging with MFR scheduled for 2021-04-27 to rule out significant CAD.
+    - Source: [4. Coronary artery disease: Seen on CT. Consult placed to cardiology for further evaluation. Consult completed on 2021-03-12. Patient scheduled for a PET/CT…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/19/source/0.html)
+- 2021-03-20: Oncology follow-up: disease appears slowly progressing; plan PET/CT and consider KRAS-directed therapy
+    - At follow-up, disease appeared to be slowly progressing on recent imaging; PET/CT scheduled for 2021-03-22 prior to next Keytruda dose. Consideration for radiation and/or KRAS-directed therapy and second opinion discussed.
+    - Source: [Patient due for treatment on 2021-03-21 with Keytruda, but rescheduled to 2021-03-22 after the PET scan. Disease appears to be slowly progressing. Will assess…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/20/source/0.html)
+- 2021-03-22: PET/CT demonstrates disease progression; Keytruda administered same day
+    - PET/CT showed increased intensely FDG-avid 4.1 cm left lung mass and new/increased intensely FDG-avid left hilar and infrahilar lymphadenopathy, consistent with progressive disease. Pembrolizumab was administered that day, prior to change in systemic therapy plan.
+    - Source: [2021-03-22: Keytruda administered. PET/CT impression: 1. Increased intensely FDG avid 4.1 cm left lung mass, likely increased metabolically active…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/21/source/0.html)
+- 2021-03-27: Therapy change planned due to progression: discontinue pembrolizumab; start adagrasib (KRAS-directed) and obtain second opinion
+    - In light of progression on PET/CT, plan is to discontinue pembrolizumab and start adagrasib; referral to Dr. Ravih for second opinion.
+    - Source: [Received Keytruda. As disease has progressed, will plan to discontinue pembrolizumab and start KRAS-directed treatment with adagrasib. Have patient follow up…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/22/source/0.html)
+- 2021-03-27: Upcoming appointments arranged
+    - Lab appointment on 2021-04-10 at 08:31, follow-up with Dr. Miller on 2021-04-11 at 11:01, with treatment after at 11:31 (same day, upstairs).
+    - Source: [Lab appointment in - 2021-04-10 at 8:31am. Follow up with dr. Miller is scheduled for 2021-04-11 at 11:01am. -treatment will be right after at 11:31am upstairs.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/23/source/0.html)
+
+back to you: Orchestrator
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm objective and sequence; keep all contributions focused on your question.
+- Use PatientHistory data to populate PatientStatus and identify any missing elements.
+- Route to ClinicalGuidelines for a tailored discussion of benefits/risks and prognosis impact; avoid giving recommendations myself.
+- Engage ClinicalTrials, MedicalResearch, Radiology, and ReportCreation to round out options, evidence, imaging context, and a consolidated report.
+- Provide micro-updates after each agent response and ensure each agent yields back to me.
+- Ask for any missing critical data from you to refine outputs.
+
+Micro-update: PatientHistory has returned a detailed timeline for patient_4, confirming KRAS p.G12C NSCLC with progression after chemo-immunotherapy and a plan to start adagrasib. Next, I’ll have PatientStatus compile a structured current status for downstream agents.
+
+PatientStatus, please compile the current structured status for patient_4 using the data below. Note unknowns explicitly and list any additional data you need to refine the status:
+- Demographics: 59-year-old female
+- Primary site/histology: Non-small cell lung cancer, adenocarcinoma, left lung
+- Stage: IV (T4N3M1a, IVA) at diagnosis; current disease confined to thorax by imaging reports; no documented extrathoracic disease; brain metastases not documented
+- Biomarkers: KRAS p.G12C positive (NGS 2020-08-10); PD-L1 negative; co-mutations (STK11/KEAP1/TP53) not reported; no prior KRAS inhibitor exposure
+- Prior systemic therapy:
+  - 2020-06-10 to 2020-09-24: Carboplatin + paclitaxel + pembrolizumab q3 weeks x6; best response: partial response
+  - 2020-12-28 to 2021-03-22: Maintenance pembrolizumab; progression on PET/CT 2021-03-22
+- Local therapy: No consolidative radiation; no surgery
+- Current plan: Discontinue pembrolizumab; initiate adagrasib (as of 2021-03-27) and pursue second opinion
+- Performance status: ECOG not documented
+- Comorbidities: Coronary artery disease (under cardiology evaluation), immune-related hypothyroidism on levothyroxine; Schatzki ring s/p dilation
+- Current medications: Levothyroxine 75 mcg daily; others not listed
+- Recent labs/ECG: TSH normalized on therapy; AST/ALT/bilirubin/creatinine and QTc not provided
+- Most recent imaging: PET/CT 2021-03-22 with increased FDG-avid 4.1 cm left lung mass and new/increased avid left hilar/infrahilar nodes; no reported extra-thoracic disease
+Please conclude with: “back to you: Orchestrator”.
+
+---
+
+ASSISTANT (agent id: PatientStatus):
+Planned actions:
+- Review available PatientHistory data for completeness.
+- Identify any missing required characteristics.
+- Request the missing item(s) from PatientHistory.
+- Once received, compile and present the structured current status.
+- Validate that all required characteristics are included; if not, request follow-up data.
+
+Required characteristics check:
+- Age: available (59-year-old)
+- Patient gender: available (female)
+- Staging: available (Stage IV, T4N3M1a [IVA])
+- Primary site: available (left lung)
+- Histology: available (non-small cell lung cancer, adenocarcinoma)
+- Biomarkers: available (KRAS p.G12C positive; PD-L1 negative; no additional co-mutations reported)
+- Treatment history: available (carboplatin/paclitaxel + pembrolizumab induction with PR; maintenance pembrolizumab; progression on 2021-03-22; plan to start adagrasib)
+- ECOG performance status: missing
+
+I cannot present the full status until all required characteristics are available.
+
+PatientHistory, can you provide me with the patient’s ECOG performance status at the most recent encounter (around 2021-03-22 to 2021-03-27)? If available, please also include any documented changes in ECOG over the prior two visits.
+
+back to you: Orchestrator
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm objective and keep sequence tight to answer your question.
+- Fill the missing data PatientStatus needs to proceed.
+- Move to ClinicalGuidelines for a tailored benefits/risks and prognosis discussion; I will not provide clinical recommendations myself.
+- Provide micro-updates at each stage and ensure every agent yields back to me.
+- Engage remaining agents (ClinicalTrials, MedicalResearch, Radiology, ReportCreation) to round out options, evidence, and a consolidated report.
+
+Micro-update: PatientHistory has provided a detailed timeline confirming KRAS p.G12C NSCLC with progression after chemo-immunotherapy. PatientStatus needs ECOG to compile the formal status. I’ll request this from PatientHistory now so we can proceed to ClinicalGuidelines.
+
+PatientHistory, please proceed with the following for patient_4:
+- Extract and report ECOG performance status at the most recent encounter (2021-03-22 to 2021-03-27 timeframe). If not explicitly stated, return “not documented.”
+- If available, include ECOG from the prior two visits as well.
+- While reviewing, please also confirm:
+  - Presence/absence of brain metastases or most recent CNS imaging status.
+  - Most recent liver/kidney labs (AST, ALT, total bilirubin, creatinine) and any available ECG QTc.
+  - Current medication list beyond levothyroxine (include any QT-prolonging agents or strong CYP3A/2C9/2D6 substrates/inhibitors if noted).
+If any item is not found, state “not documented.”
+
+Special rule reminder: After completing your task, yield the chat back to me by concluding with: “back to you: Orchestrator”.
+
+---
+
+ASSISTANT (agent id: PatientHistory):
+Here is the complete patient data organized chronologically for clear understanding. This includes all relevant information for a tumor board review:
+- 2021-03-27: Patient demographics and current status (for MTB overview)
+    - 59-year-old female with metastatic non-small cell lung cancer (adenocarcinoma) of the left lung, stage T4N3M1a (IVA). Initial systemic therapy with weekly carboplatin/paclitaxel transitioned to q3-week carboplatin/paclitaxel plus pembrolizumab for 6 cycles (completed 2020-09-24), followed by maintenance pembrolizumab starting 2020-12-28. Molecular profiling (2020-08-10) showed KRAS p.G12C mutation; PD-L1 negative. Serial imaging in 2020 showed partial response; 2021 CT (02-15) showed slight increase in the lingular mass with improved hilar adenopathy; PET/CT on 2021-03-22 demonstrated progression with increased FDG-avid left lung mass and new/increased FDG-avid left hilar/infrahilar lymphadenopathy. As of 2021-03-27, plan is to discontinue pembrolizumab and initiate KRAS-directed therapy with adagrasib; patient referred for second opinion. Immune-related hypothyroidism managed with levothyroxine (TSH 159 on 2020-08-11 → treated; 2021-02-08 TSH 1.09; dose reduced to 75 mcg on 2021-03-01 after low TSH; 2021-03-20 thyroid labs WNL). Dysphagia due to Schatzki ring treated with EGD and balloon dilation on 2021-03-11, with symptomatic improvement. Coronary artery disease noted on imaging; cardiology consult completed 2021-03-12; PET/CT MPI with MFR scheduled for 2021-04-27.
+    - Source: [Reason for visit: Follow-up for non-small cell lung cancer T4N3M1a (IVA). Completed treatment with carbo/taxol/keytruda x6 cycles on 2020-09-24. Currently on…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/0/source/0.html)
+    - Source: [Reason for visit: Follow-up for non-small cell lung cancer T4N3M1a (IVA). Completed treatment with carbo/taxol/keytruda x6 cycles on 2020-09-24. Currently on…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/0/source/1.html)
+- 2020-01-24: Follow-up CT chest identifies persistent lingular opacity and nodules
+    - Follow-up CT chest (non-contrast) showed continued pulmonary opacity in the lingula suspicious for malignancy, slight enlargement of additional pulmonary nodules (including a new 2.5 mm right middle lobe nodule and an 8 mm left upper lobe nodule), and continued mediastinal and left hilar adenopathy. Pulmonology referral recommended.
+    - Source: [Follow-up CT chest without contrast on 2020-01-24: Impression: 1. Continued presence of pulmonary opacity in the lingula, with no apparent air bronchograms.…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/1/source/0.html)
+- 2020-03-07: Baseline PET/CT staging
+    - PET/CT demonstrated a hypermetabolic lingular mass (3.4 x 3.8 cm), numerous hypermetabolic mediastinal nodes (including subcarinal 1.4 cm), an 8 mm hypermetabolic right lung base nodule, and a left supraclavicular node, consistent with stage IV disease.
+    - Source: [2020-03-07: PET/CT hypermetabolic lingular mass approx 3.4 x 3.8 cm with numerous mediastinal nodes, 8 mm pulmonary nodule in the right lung base, and…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/2/source/0.html)
+    - Source: [A PET scan on 2020-03-07 showed a left-sided supraclavicular lymph node (5 mm, SUV 3.6), a hypermetabolic lingular mass (3.4 x 3.8 cm, SUV 18.4), and a…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/2/source/1.html)
+- 2020-03-30: Diagnostic bronchoscopy with EBUS-FNA confirms metastatic adenocarcinoma
+    - EBUS-guided FNA of mediastinal nodes (stations 7 and 4R) and transbronchial FNA of the left lingula confirmed metastatic non-small cell carcinoma, favor adenocarcinoma; BAL from LLL also positive.
+    - Source: [2020-03-30: Bronchoscopy with EBUS-guided FNA. Pathology diagnosis/interpretation: A. Lymph node, 7, EBUS guided fine needle aspiration -- metastatic non-small…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/3/source/0.html)
+    - Source: [EBUS on 2020-03-30: Diagnosis/Interpretation: a. Lymph node, 7, EBUS guided fine needle aspiration -- metastatic non-small cell carcinoma, favor…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/3/source/1.html)
+- 2020-04-22: Initial medical oncology evaluation and staging
+    - Presented with chest heaviness/pain; earlier CT negative for PE but showed lingular consolidation, bilateral pulmonary nodules, mediastinal and left hilar adenopathy. Clinical impression: likely stage IV NSCLC; plan to start systemic chemotherapy (carboplatin/paclitaxel) with intent to transition to pembrolizumab; radiation to be considered based on response.
+    - Source: [Jane M. Doe is a 59-year-old woman who presented in early December with increased chest heaviness and chest pain. A CT scan was performed to evaluate for…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/4/source/0.html)
+- 2020-04-30: Chemotherapy education; planned weekly paclitaxel/carboplatin (weekly regimen)
+    - Chemo education prior to first treatment. Planned weekly regimen: paclitaxel 135 mg IV and carboplatin 200 mg IV on day 1 of a 7‑day cycle (weekly), with potential dose adjustments as needed.
+    - Source: [jane m doe is a 59 y.O. Female here for chemotherapy education prior to c1d1 of taxol + carboplatin. Chemotherapy protocol (reference): cycle 1 (treatment on…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/5/source/0.html)
+- 2020-05-26: Transition plan to q3‑week carboplatin/paclitaxel (with continued agents)
+    - One more weekly dose approved; will skip the following week for CT chest, then transition to chemotherapy once every 3 weeks starting on 2020-06-10 with the same medications.
+    - Source: [Patient ok for 1 more weekly dose of chemotherapy. Will not do chemotherapy next week but will get ct scan of her chest. Will then plan on chemotherapy once…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/6/source/0.html)
+- 2020-06-10: Cycle 1 Day 1 (q21-day) carboplatin/paclitaxel + pembrolizumab initiated
+    - Initiated q3-week regimen including pembrolizumab 200 mg IV, paclitaxel 300 mg IV, and carboplatin 550 mg IV with standard premedications. Tolerated without complications.
+    - Source: [2020-06-10 1006 CDT: Pembrolizumab (Keytruda) 200 mg in NaCl 0.9% 100 ml infusion, 200 mg, Intravenous, New bag 2020-06-10 1049 CDT: Paclitaxel (Taxol) 300 mg…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/7/source/0.html)
+- 2020-08-04: Interim PET/CT shows partial response to treatment
+    - Significant decrease in size and metabolic activity in mediastinal and left hilar nodes and in the primary lingular lesion (now 2.4 x 2.0 cm, SUV max 10.3 vs 17.6). No new hypermetabolic nodules; no suspicious abdominal/pelvic metastases.
+    - Source: [Findings: within the chest there has been significant improvement and uptake of the lymph nodes in the mediastinum and left hilum. The lungs demonstrate…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/8/source/0.html)
+- 2020-08-10: Molecular profiling (NGS): KRAS p.G12C; PD-L1 negative
+    - NGS returned showing KRAS p.G12C mutation; PD-L1 negative. This informs eligibility for KRAS-directed therapy at progression.
+    - Source: [- 2020-08-10 NGS returned showing KRAS p.G12C mutation. PD-L1 neg.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/9/source/0.html)
+- 2020-08-11: Immune-related hypothyroidism detected; levothyroxine initiated
+    - TSH markedly elevated at 159; levothyroxine started at 25 mcg daily. Plan to recheck TSH the next day and monitor weekly CBC/CMP.
+    - Source: [Patients tsh resulted very high at 159. Dr. Miller would like her to start levothyroxine 25 mcg daily. We will recheck tsh tomorrow when patient has treatment.…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/10/source/0.html)
+- 2020-09-24: Cycle 6 Day 1 carboplatin/paclitaxel + pembrolizumab (completion of induction)
+    - Completed 6th q3-week cycle with pembrolizumab 200 mg IV, paclitaxel 300 mg IV, and carboplatin 550 mg IV. This completed 6 cycles of triplet therapy.
+    - Source: [Cycle #6, Day 1 2020-09-24 1003 CDT: Pembrolizumab (Keytruda) 200 mg in NaCl 0.9% 100 ml infusion, 200 mg intravenous, new bag 2020-09-24 1039 CDT: Paclitaxel…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/11/source/0.html)
+    - Source: [Completed treatment with carbo/taxol/keytruda x6 cycles on 2020-09-24.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/11/source/1.html)
+- 2020-10-22: PET/CT demonstrates ongoing partial response
+    - Lingular nodule decreased in SUV (6.9 from 10.3) and slight size reduction; several mediastinal/hilar nodes with decreased SUVs; overall impression of partial response to therapy; no extra-thoracic metastases.
+    - Source: [2020-10-22: PET: Thorax: Twenty-seven by 22 millimeter lingular nodule now has a max SUV of 6.9; previously 29 by 24 millimeters with a max SUV of 10.3. -10…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/12/source/0.html)
+- 2020-12-10: Consult: maintenance pembrolizumab recommended; no consolidative radiation
+    - At outside consult, recommendation was to proceed with maintenance pembrolizumab and to avoid consolidative radiation; re-imaging every 3 months advised.
+    - Source: [2020-12-10: Patient recently met with Dr. and was recommended maintenance pembrolizumab and he recommended against consolidative radiation. Recommended re-…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/13/source/0.html)
+    - Source: [On 2020-12-10, the patient met with Dr. and was recommended maintenance pembrolizumab and advised against consolidative radiation.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/13/source/1.html)
+- 2020-12-28: Maintenance pembrolizumab initiated (monotherapy)
+    - Pembrolizumab 200 mg IV administered as Cycle 1, Day 1 of maintenance therapy; treatment completed without problems.
+    - Source: [Medication Administration: - Pembrolizumab (Keytruda) 200 mg in NaCl 0.9% 100 ml infusion Dose: 200 mg Time: 2020-12-28 1406 CST Treatment Plan/Comments:…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/14/source/0.html)
+- 2021-02-08: Labs stable on maintenance; pembrolizumab continued 2021-02-09
+    - TSH 1.09 with stable labs; maintenance pembrolizumab continued on 2021-02-09.
+    - Source: [2021-02-08: Patient's labs are stable. TSH: 1.09. Continued treatment with Keytruda on 2021-02-09.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/15/source/0.html)
+- 2021-02-15: CT chest (non-contrast): slight increase in lingular mass; improved left hilar adenopathy
+    - Lingular mass increased to 3.6 x 2.5 cm (from 2.7 x 2.4 cm). Left hilar adenopathy somewhat improved; no new adenopathy or new nodules; prior 5 mm RLL nodule resolved; LLL nodule now 10 x 4 mm. Coronary artery disease noted.
+    - Source: [The lingular mass is now measured at 3.6 x 2.5 cm on image 92 of series 2. This was previously measured at 2.7 x 2.4 cm. Left hilar lymphadenopathy appears…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/16/source/0.html)
+- 2021-03-01: Thyroid function low TSH; levothyroxine decreased to 75 mcg; new dysphagia symptoms
+    - TSH low at 0.041 with normal free T4; levothyroxine dose decreased to 75 mcg. Patient reported dysphagia.
+    - Source: [2021-03-01: TSH low at 0.041, free T4 WNL at 1.54. Decreased levothyroxine dose to 75 mcg. Patient c/o dysphagia.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/17/source/0.html)
+- 2021-03-11: EGD with balloon dilation for Schatzki ring; biopsies benign
+    - EGD revealed a tight stricture at the GE junction from chronic fibrosis consistent with Schatzki’s ring; balloon dilation performed up to 15 mm for 2 minutes without complications. Gastric antrum and duodenal biopsies showed normal mucosa and were negative (including for Helicobacter).
+    - Source: [The z line appeared regular, but there was a tight stricture with narrowing at the ge junction from chronic fibrosis, consistent with shatzki's ring. Dilation…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/18/source/0.html)
+    - Source: [Final diagnosis: a) duodenum, biopsy: 1. Normal duodenal mucosa 2. Negative for celiac disease and other enteropathy b) stomach, antrum, biopsy: 1. Normal…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/18/source/1.html)
+- 2021-03-12: Cardiology evaluation; cardiac imaging scheduled
+    - Cardiology consult completed. PET/CT myocardial perfusion imaging with MFR scheduled for 2021-04-27 to rule out significant CAD.
+    - Source: [4. Coronary artery disease: Seen on CT. Consult placed to cardiology for further evaluation. Consult completed on 2021-03-12. Patient scheduled for a PET/CT…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/19/source/0.html)
+- 2021-03-20: Oncology follow-up: disease appears slowly progressing; plan PET/CT and consider KRAS-directed therapy
+    - At follow-up, disease appeared to be slowly progressing on recent imaging; PET/CT scheduled for 2021-03-22 prior to next Keytruda dose. Consideration for radiation and/or KRAS-directed therapy and second opinion discussed.
+    - Source: [Patient due for treatment on 2021-03-21 with Keytruda, but rescheduled to 2021-03-22 after the PET scan. Disease appears to be slowly progressing. Will assess…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/20/source/0.html)
+- 2021-03-22: PET/CT demonstrates disease progression; Keytruda administered same day
+    - PET/CT showed increased intensely FDG-avid 4.1 cm left lung mass and new/increased intensely FDG-avid left hilar and infrahilar lymphadenopathy, consistent with progressive disease. Pembrolizumab was administered that day, prior to change in systemic therapy plan.
+    - Source: [2021-03-22: Keytruda administered. PET/CT impression: 1. Increased intensely FDG avid 4.1 cm left lung mass, likely increased metabolically active…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/21/source/0.html)
+- 2021-03-27: Therapy change planned due to progression: discontinue pembrolizumab; start adagrasib (KRAS-directed) and obtain second opinion
+    - In light of progression on PET/CT, plan is to discontinue pembrolizumab and start adagrasib; referral to Dr. Ravih for second opinion.
+    - Source: [Received Keytruda. As disease has progressed, will plan to discontinue pembrolizumab and start KRAS-directed treatment with adagrasib. Have patient follow up…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/22/source/0.html)
+- 2021-03-27: Upcoming appointments arranged
+    - Lab appointment on 2021-04-10 at 08:31, follow-up with Dr. Miller on 2021-04-11 at 11:01, with treatment after at 11:31 (same day, upstairs).
+    - Source: [Lab appointment in - 2021-04-10 at 8:31am. Follow up with dr. Miller is scheduled for 2021-04-11 at 11:01am. -treatment will be right after at 11:31am upstairs.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_timeline/entry/23/source/0.html)
+- 2021-03-27 to prior visits: ECOG, CNS, labs, and current meds summary for treatment planning
+    - ECOG performance status:
+        - 2021-03-27: not documented.
+        - 2021-03-20: ECOG 1.
+        - 2020-04-30: ECOG 1.
+        - Sources: [Heme|Onc progress note date of service: 2021-03-27 We reviewed her CT scans and brain MRI done here together and compared them with multiple prior scans.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_data_answer/551b3b4d-5651-4e8e-9148-3b798bce0a13/source/0.html) | [ECOG scale (0-4): 1 - ALT (SGPT) 16 IU/L - AST (SGOT) 30 IU/L - Bilirubin, total 0.4 mg/dL - Creatinine 0.84 mg/dL - Cyclobenzaprine (Flexeril) 10 mg tablet,…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_data_answer/551b3b4d-5651-4e8e-9148-3b798bce0a13/source/1.html) | [Chemotherapy education visit date of visit: 2020-04-30 Ecog performance status:1](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_data_answer/551b3b4d-5651-4e8e-9148-3b798bce0a13/source/2.html)
+    - CNS status:
+        - Brain metastases: not documented/absent in chart; no abnormal CNS findings referenced.
+        - Most recent CNS imaging: brain MRI referenced without abnormalities; date/impression not documented.
+        - Source: [Heme|Onc progress note date of service: 2021-03-27 We reviewed her CT scans and brain MRI done here together and compared them with multiple prior scans.](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_data_answer/551b3b4d-5651-4e8e-9148-3b798bce0a13/source/0.html)
+    - Recent labs (most recent values and date: 2021-03-20):
+        - AST 30 IU/L; ALT 16 IU/L; total bilirubin 0.4 mg/dL; creatinine 0.84 mg/dL.
+        - Source: [ECOG scale (0-4): 1 - ALT (SGPT) 16 IU/L - AST (SGOT) 30 IU/L - Bilirubin, total 0.4 mg/dL - Creatinine 0.84 mg/dL - Cyclobenzaprine (Flexeril) 10 mg tablet,…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_data_answer/551b3b4d-5651-4e8e-9148-3b798bce0a13/source/1.html)
+    - ECG:
+        - QTc: not documented.
+    - Current medications beyond levothyroxine (with QT/CYP notes):
+        - Cyclobenzaprine 10 mg tablet TID PRN (QT prolongation risk; CYP1A2/3A4/2D6 substrate).
+        - Ibuprofen 800 mg q8h PRN (CYP2C9 substrate; not QT-prolonging).
+        - Oxycodone 2.5–5 mg q6h PRN (CYP3A4 and CYP2D6 substrate; not QT-prolonging).
+        - Pregabalin 150 mg HS (not CYP; not QT-prolonging).
+        - Rosuvastatin 20 mg daily (minimal CYP; not QT-prolonging).
+        - Trazodone 100 mg HS PRN (QT prolongation risk; CYP3A4 substrate).
+        - No strong CYP3A/CYP2C9/CYP2D6 inhibitors/inducers documented.
+        - Source: [ECOG scale (0-4): 1 - ALT (SGPT) 16 IU/L - AST (SGOT) 30 IU/L - Bilirubin, total 0.4 mg/dL - Creatinine 0.84 mg/dL - Cyclobenzaprine (Flexeril) 10 mg tablet,…](https://app-hao-lmat-evx.azurewebsites.net/view/a6579bfa0acc3910cbb8a256d0a4a890cbd851c667b599271f8c87cd453a9f0c/patient_4/patient_data_answer/551b3b4d-5651-4e8e-9148-3b798bce0a13/source/1.html)
+
+back to you: Orchestrator
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Keep the workflow aligned with your question about benefits/risks and prognosis with adagrasib.
+- Use the retrieved chart data to compile a complete, structured PatientStatus.
+- Route to ClinicalGuidelines for a tailored benefits/risks and prognosis discussion; I will not provide recommendations myself.
+- Engage ClinicalTrials to surface relevant KRAS G12C trials; invite Radiology and ReportCreation as appropriate.
+- Provide micro-updates after each agent response and ensure each agent yields back to me.
+
+Micro-update: PatientHistory has now provided ECOG (most recently documented as 1 on 2021-03-20), CNS status (no brain metastases documented; brain MRI referenced without abnormalities), recent LFT/renal labs within normal limits (3/20/21), QTc not documented, and a current med list that includes cyclobenzaprine and trazodone (QT-prolonging) plus several CYP substrates. Next, I’ll have PatientStatus compile the structured status so ClinicalGuidelines can address adagrasib’s benefits/risks and potential impact on prognosis in this patient.
+
+PatientStatus, please compile the structured current status for patient_4. Use the following, noting any uncertainties explicitly:
+- Demographics: 59-year-old female
+- Primary site/histology: Non-small cell lung cancer, adenocarcinoma, left lung
+- Stage: IV (T4N3M1a, IVA) at diagnosis; current progression confined to thorax (left lung mass; left hilar/infrahilar nodes); no documented extrathoracic disease
+- CNS: Brain metastases not documented; brain MRI referenced without abnormalities; no dedicated report available
+- Biomarkers: KRAS p.G12C positive (NGS 2020-08-10); PD-L1 negative; co-mutations (STK11/KEAP1/TP53) not reported; no prior KRAS inhibitor exposure
+- Prior systemic therapy:
+  - 2020-06-10 → 2020-09-24: Carboplatin + paclitaxel + pembrolizumab q3w x6; best response: partial response
+  - 2020-12-28 → 2021-03-22: Maintenance pembrolizumab; progressive disease on PET/CT 2021-03-22
+- Local therapy: No consolidative radiation; no surgery
+- Current plan: Discontinue pembrolizumab; initiate adagrasib (KRAS-directed therapy) per 2021-03-27 note; second opinion referral placed
+- ECOG performance status: Most recently documented ECOG 1 (2021-03-20); ECOG not documented on 2021-03-27
+- Comorbidities: Coronary artery disease (under evaluation), immune-related hypothyroidism (on levothyroxine), Schatzki ring s/p dilation
+- Current medications of note (beyond levothyroxine 75 mcg daily):
+  - Cyclobenzaprine 10 mg TID PRN (QT-prolongation risk; CYP1A2/3A4/2D6 substrate)
+  - Trazodone 100 mg HS PRN (QT-prolongation risk; CYP3A4 substrate)
+  - Oxycodone 2.5–5 mg q6h PRN (CYP3A4/2D6 substrate)
+  - Ibuprofen 800 mg q8h PRN (CYP2C9 substrate); Pregabalin 150 mg HS; Rosuvastatin 20 mg daily
+  - No strong CYP3A/CYP2C9/CYP2D6 inhibitors or inducers documented
+- Most recent labs (2021-03-20): AST 30 IU/L; ALT 16 IU/L; total bilirubin 0.4 mg/dL; creatinine 0.84 mg/dL
+- ECG: QTc not documented
+Please present:
+- A concise, structured status summary
+- Any additional data needs or monitoring considerations relevant to targeted therapy with adagrasib (e.g., QTc baseline)
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Conclude with: “back to you: Orchestrator”.
+
+Next steps after PatientStatus:
+- ClinicalGuidelines → explain potential benefits and risks of transitioning to adagrasib now and how prognosis may change, based on the compiled status.
+- ClinicalTrials → list active/relevant KRAS G12C trials for which this patient might qualify.
+- Radiology → optional; if needed, comment on imaging context; if no images are available for review, please state that.
+- ReportCreation → optional; produce a tumor board-ready document summarizing the above. Would you like me to invoke ReportCreation after ClinicalGuidelines and ClinicalTrials?
+
+---
+

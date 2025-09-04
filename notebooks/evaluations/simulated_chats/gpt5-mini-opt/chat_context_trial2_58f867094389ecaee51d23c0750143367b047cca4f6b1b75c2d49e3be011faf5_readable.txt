@@ -1,0 +1,31 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist (moderation plan)
+- Verify the patient ID and retrieve the latest CT and CXR images plus the radiologist report and timeline.
+- Have Radiology analyze the images with the imaging tool and generate AI findings.
+- Compare AI-generated findings to the radiologist’s report and summarize discrepancies/additional findings.
+- Present concise results and ask the user for next steps or additional requests.
+
+Planned sequence and participants
+1) PatientHistory — validate patient ID, retrieve patient timeline, the latest CT and CXR images, and the radiologist’s report for patient_4. Provide output in the required JSON schema.
+2) Radiology — once PatientHistory provides images and report, analyze the CT and CXR using the imaging tool, generate AI findings, and compare them to the radiologist’s report; list discrepancies and any additional observations.
+3) Orchestrator (me) — summarize the comparison and ask the user about follow-up actions.
+
+Special rule to be followed in the workflow
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent should conclude with: "back to you: Orchestrator"
+
+Immediate requests before we proceed
+- PatientHistory, please proceed: validate the provided patient ID ("patient_4" — confirm it is a non-empty string), retrieve the latest CT and CXR images, and supply the radiologist’s report and a concise patient timeline/history summary in the JSON schema specified in your workflow. If you need any additional details or access permissions to complete this, state what you require.
+- Radiology, stand by: after PatientHistory returns images and the radiologist’s report, you will receive the data to analyze. Tell me now if you need any further inputs beyond the images and report (for example: preferred output format, specific regions of interest, windowing preferences).
+
+User, please confirm
+- User, do you confirm that we should retrieve and analyze imaging and reports for patient_4 now? Do you have any constraints (e.g., focus only on chest findings, need structured JSON output, or want annotated images included)?
+
+Once you confirm, PatientHistory — please go ahead. back to you: Orchestrator
+
+---
+

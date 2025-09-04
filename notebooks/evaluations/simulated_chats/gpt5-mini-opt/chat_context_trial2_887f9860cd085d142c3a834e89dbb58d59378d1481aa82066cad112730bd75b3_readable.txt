@@ -1,0 +1,36 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — planned moderation steps
+- Validate the patient ID and confirm user authorization to retrieve images/reports.
+- Request PatientHistory to fetch the latest CT and CXR images plus the radiologist reports and timeline.
+- Ask Radiology to run the imaging analysis (AI-generated findings) and directly compare those findings to the radiologist’s report.
+- Summarize discrepancies/additional findings and present next-step questions to the user.
+
+Planned sequence and roles (order of participation)
+1. PatientHistory: validate patient_id and retrieve latest CT and chest x‑ray images, the radiologist reports for those studies, and a brief timeline entry for the imaging dates.
+2. Radiology: analyze the provided CT and CXR images (produce AI-generated findings) and compare them to the radiologist’s report; highlight agreements, discrepancies, and any additional findings.
+3. Orchestrator (me): summarize the comparison, provide a concise list of discrepancies/additions, and ask follow-up questions or request next steps.
+
+Special rule to all agents (must be included in plan)
+> Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent should conclude with: "back to you: Orchestrator"
+
+Before I proceed
+- User, please confirm that patient_id "patient_4" is correct and that you authorize retrieval of the imaging files and radiology reports from the record system. If the images/reports are not in the system, please upload them or let me know where they can be accessed.
+- User, do you want the final comparison delivered in a structured JSON output, a concise text summary, or both?
+
+Now I will request data from PatientHistory.
+PatientHistory, please proceed with the following for patient_id "patient_4":
+- Validate that the provided patient_id is a non-empty string.
+- Retrieve the latest CT study and the latest chest x‑ray (CXR) images, the associated radiologist reports for each study, and the imaging dates.
+- Provide a concise patient_timeline entry for these imaging events (date, modality, indication, and report summary).
+- Return output following your defined schema: set "status" to "success" with "patient_id", a structured array "patient_timeline" (with imaging events), a concise "history_summary", and "error_message": null. If the patient_id is invalid or data are missing, return "status":"error" and an informative "error_message".
+- Conclude your response with: "back to you: Orchestrator"
+
+Orchestrator note: once PatientHistory returns the images and reports, I will request Radiology to analyze the images and perform the comparison. back to you: Orchestrator
+
+---
+

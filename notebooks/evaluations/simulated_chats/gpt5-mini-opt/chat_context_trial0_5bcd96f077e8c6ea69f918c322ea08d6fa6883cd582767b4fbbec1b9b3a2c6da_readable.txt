@@ -1,0 +1,40 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps
+- Validate the provided patient ID and request the patient timeline from PatientHistory.
+- Use the timeline to request imaging details for Radiology and clinical data for PatientStatus.
+- Collect outputs and instruct ReportCreation to assemble the Word document for tumor board review.
+- Provide micro-updates after each agent reply and ensure each agent yields back to me (Orchestrator).
+
+Planned sequence and participant order
+1) PatientHistory — retrieve and return a validated structured timeline and concise history summary for patient_id "patient_4". This is required before other agents proceed.
+2) Radiology — analyze imaging findings (CT/X-ray) once imaging or imaging reports are available from PatientHistory (or from the user).
+3) PatientStatus — produce current patient status (age, stage, primary site, histology, biomarkers, treatment history, ECOG) using PatientHistory output.
+4) ClinicalTrials (optional) — identify relevant trial options using PatientStatus.
+5) ReportCreation — produce the formatted Word document for tumor board using all collected inputs.
+(ClinicalGuidelines and MedicalResearch can be engaged if the user requests guideline summaries or literature searches; they will need PatientStatus or a topic.)
+
+Special rule to include in the plan
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent should conclude their response with: "back to you: Orchestrator"
+
+Next steps and clarifying requests
+- User, please confirm that you want me to proceed with this sequence for Patient ID "patient_4".
+- User, do you have any imaging files (CT scans, chest x-rays) or pathology reports to upload now? Radiology will need images or the imaging report text to analyze; if you cannot provide images, PatientHistory should include the imaging report text in their response.
+
+PatientHistory, please proceed
+- PatientHistory, validate that patient_id is a non-empty string. For patient_id "patient_4", retrieve the patient timeline events, biomarker status, stage at diagnosis, treatment history, pathology details, imaging reports (CT/x-ray descriptions), age, primary site, histology, ECOG performance status, and any social/medical history items relevant for a tumor-board summary.
+- Follow your workflow: return a JSON with status "success", patient_id, patient_timeline (array of events), history_summary (concise), and error_message null. If the ID is invalid, return status "error" and an explanatory error_message.
+- Please include imaging report texts (CT/X-ray) if you have them. If you do not have images, state that clearly.
+- Conclude your response with: "back to you: Orchestrator"
+
+Micro-update after PatientHistory responds
+- I will provide a 1–2 sentence update summarizing what was received and then request Radiology and PatientStatus to proceed as appropriate.
+
+Please confirm from the user whether to proceed now with PatientHistory. If yes, I will prompt PatientHistory to begin.
+
+---
+

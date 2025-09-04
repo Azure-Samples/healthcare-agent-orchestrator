@@ -1,0 +1,22 @@
+USER:
+Given the presence of a KRAS p.G12C mutation, what are the potential benefits and risks of transitioning to KRAS-directed treatment with adagrasib? How might this change the patient's prognosis?
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Plan for moderation and participation
+- Confirm goal and required information: we need a valid patient_id (string) to retrieve timelines and history.
+- Define participation order: PatientHistory first (timeline), then PatientStatus (current status), followed by ClinicalGuidelines (context for potential options) without giving treatment recommendations.
+- Identify missing data: if any agent needs more details, request them from the relevant agent and then from you (the user) as needed.
+- Maintain clear handoffs: after each agent responds, provide a brief progress update and what comes next.
+- Ensure user understanding: summarize the collective input and outline what questions or next steps remain.
+- Compliance note: do not provide clinical recommendations; coordinate information gathering and synthesis only.
+- Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: *Orchestrator*"
+
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: *Orchestrator*"
+
+Status: error
+error_message: A valid patient_id (string) is required to proceed. Please provide a patient_id as a string.
+
+---
+

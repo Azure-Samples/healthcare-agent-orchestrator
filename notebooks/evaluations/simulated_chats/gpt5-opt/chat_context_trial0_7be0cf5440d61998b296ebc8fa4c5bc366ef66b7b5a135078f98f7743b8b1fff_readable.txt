@@ -1,0 +1,30 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the objective and confirm the workflow with you.
+- Identify required data elements and which agent will supply each.
+- Sequence agents to retrieve patient timeline, derive current status, and search trials.
+- Surface and resolve any missing inputs (e.g., location) by asking you directly.
+- After each agent’s response, give a brief progress update and next step.
+- Ensure each agent yields control back to me and that all outputs are concise and structured.
+
+Proposed plan and agent order:
+1) PatientHistory: Retrieve the timeline and history for patient_4.
+2) PatientStatus: Convert the history into a structured current status (tumor type, stage, histology, KRAS mutation status, treatment history, ECOG).
+3) ClinicalTrials: Use the patient status and your location/travel preferences to identify active and suitable clinical trials, including phase and contact info.
+Special rule: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+User, please confirm the plan and provide:
+- Geographic location: city, state/province, and country for patient_4.
+- Maximum travel distance you’re willing to consider (miles/km) and whether remote/virtual components are acceptable.
+- Any trial phase preferences (e.g., include Phase 1, or limit to Phase 2/3).
+- Any site preferences or exclusions (e.g., must be within a specific health system).
+
+Once you confirm and share the location details, I will proceed with PatientHistory for patient_4, then PatientStatus, and finally ClinicalTrials to produce the trial list with phases and contact information.
+
+---
+

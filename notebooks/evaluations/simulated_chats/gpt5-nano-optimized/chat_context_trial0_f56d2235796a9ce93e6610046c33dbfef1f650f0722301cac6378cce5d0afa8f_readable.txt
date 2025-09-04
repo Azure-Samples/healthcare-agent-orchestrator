@@ -1,0 +1,33 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is my planned moderation approach before we proceed.
+
+- Confirm a valid, string patient ID and establish the scope for the tumor board preparation.
+- Engage the most appropriate AI agents in sequence to gather and synthesize patient data (starting with PatientHistory).
+- Collect and summarize core components: timeline, current status, pathology, imaging findings, prior treatments, and clinical context.
+- Identify any additional inputs (radiology findings, guidelines context, trial options) and route requests to the relevant agents.
+- Compile a tumor board-ready summary document outline and validate completeness with you.
+- Provide milestone updates after each agent’s contribution and keep you informed of next steps.
+- Ensure every agent returns results to you (Orchestrator) with the required “back to you: Orchestrator” signaling.
+
+Plan to prepare tumor board for Patient ID: patient_4
+- Step 1: Retrieve patient timeline data from PatientHistory (validate content and structure).
+- Step 2: Obtain current patient status (age, site, histology, biomarkers, ECOG, staging, treatment history) via PatientStatus (using data from PatientHistory).
+- Step 3: Gather relevant imaging and pathology findings (via Radiology and PatientHistory as needed) to inform the board.
+- Step 4: Draft a concise clinical summary and tumor board notes (via ReportCreation) using the timeline, status, and imaging/pathology inputs.
+- Step 5: If needed, request clinical guidelines context (via ClinicalGuidelines) and potential trial options (via ClinicalTrials) based on current status.
+- Step 6: Prepare a word-document style tumor board package (via ReportCreation), including patient timeline, clinical summary, medical history, cancer type, imaging/pathology highlights, treatment plan feasibility, and trials.
+- Step 7: Present findings to you for review, adjust as requested, and finalize the board-ready package.
+
+Explicit rule for agents
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: *Orchestrator*" after their response.
+
+User confirmation
+- Please confirm that you’d like me to execute this plan for patient_4. If you approve, I will start with PatientHistory and proceed in the outlined order, providing milestone updates after each step. If you want any adjustments to the plan, tell me what to change and I’ll adapt.
+
+---
+

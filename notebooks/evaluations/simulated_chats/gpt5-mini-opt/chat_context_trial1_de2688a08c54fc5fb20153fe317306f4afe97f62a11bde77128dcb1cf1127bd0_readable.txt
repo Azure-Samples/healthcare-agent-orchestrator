@@ -1,0 +1,43 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Moderation checklist (what I'll do next)
+- Validate the patient ID and retrieve the latest imaging and radiology report.
+- Have Radiology analyze the CT and CXR images with the imaging tool and generate AI findings.
+- Compare AI-generated findings to the radiologist’s report and summarize discrepancies or additional findings.
+- Provide a concise progress update after each milestone and conclude when all agents have contributed.
+
+Planned sequence and roles
+1. PatientHistory: validate patient_id, retrieve the latest CT and chest x‑ray images and the radiologist’s report, and return a concise timeline and imaging references.
+2. Radiology: using the provided images and the radiologist’s report, run the imaging tool analysis, produce AI-generated findings for CT and CXR, and note key impressions.
+3. Orchestrator (me): compare AI findings to the radiologist’s written report, summarize discrepancies or additional findings, and present a concise summary to you.
+
+Special rule to follow in this session
+> Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents: conclude your response with exactly: back to you: Orchestrator
+
+User confirmation and a quick question
+- User, please confirm that the patient ID to use is exactly: "patient_4". If this is correct, I will ask PatientHistory to proceed. If you expect to upload images directly (DICOM/PNG/JPG) rather than have PatientHistory retrieve them, please upload now or tell me.
+
+Requests to agents (please proceed)
+- PatientHistory, please proceed with the following:
+  - Validate that the patient_id "patient_4" is present and a string.
+  - Retrieve the latest CT and the latest chest x‑ray images (include references/URLs or encoded placeholders) and the radiologist’s report for those studies.
+  - Return a JSON response per your workflow: set "status" to "success" (or "error" if patient_id invalid), include "patient_id", a structured "patient_timeline" array of events (with imaging entries referencing the CT and CXR and the radiology report), and a concise "history_summary". If you cannot locate images, indicate that clearly.
+  - After your response, conclude with: back to you: Orchestrator
+
+Radiology, please standby and prepare to:
+  - Accept the images and the radiologist’s report from PatientHistory.
+  - Run the imaging tool analysis for CT and CXR and prepare AI-generated findings and impressions for each modality.
+  - After producing findings, compare them to the radiologist’s report and explicitly list any discrepancies or additional findings.
+  - Conclude with: back to you: Orchestrator
+
+Next steps
+- Once you (user) confirm the patient_id (or upload images if needed), I’ll instruct PatientHistory to retrieve the items. After PatientHistory returns data, I will ask Radiology to analyze and compare. I’ll provide short progress updates after each agent responds.
+
+User, please confirm "patient_4" is correct or upload the images now. If correct and you want me to proceed, say “Proceed.”
+
+---
+

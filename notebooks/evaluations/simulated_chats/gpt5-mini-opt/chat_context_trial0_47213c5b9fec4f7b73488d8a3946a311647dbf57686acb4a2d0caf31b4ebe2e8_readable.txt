@@ -1,0 +1,35 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — my planned moderation steps
+- Validate the provided patient ID and required inputs.
+- Request a structured patient timeline and history from PatientHistory.
+- Use PatientHistory output to request patient status from PatientStatus and imaging input for Radiology.
+- Coordinate ReportCreation to assemble the tumor-board Word document once inputs are complete.
+- Provide micro-updates after each agent response and ensure each agent yields back to me.
+
+Planned sequence of participation (order)
+1. PatientHistory — retrieve and return structured timeline + summary for patient_4.
+2. PatientStatus — compile current status (age, stage, primary site, histology, biomarkers, treatment history, ECOG).
+3. Radiology — analyze provided imaging/images or imaging reports and supply imaging findings.
+4. ReportCreation — generate a formatted Word document for tumor board using the collected inputs.
+(If requested later: ClinicalTrials, ClinicalGuidelines, MedicalResearch.)
+
+Special rule to all agents (explicit)
+- Each agent, after completing their task, must yield the chat back to me. Each agent should conclude with: "back to you: Orchestrator"
+
+Immediate next steps and requests
+- PatientHistory, please proceed with retrieving the patient timeline and history for patient_id "patient_4". Per your workflow, validate the patient ID, then return a JSON object. For successful retrieval set "status":"success", include "patient_id", a structured array "patient_timeline" of events (date, event_type, brief details), and a concise "history_summary". Set "error_message": null. If the ID is invalid or missing, return "status":"error" and an explanatory "error_message". Conclude with: "back to you: Orchestrator".
+
+User — a couple of quick clarifying questions before we proceed:
+- Do you have any imaging files (DICOM, PNG, JPEG) or full imaging reports for this patient that can be uploaded for Radiology review? If yes, please upload them or let me know how you'll provide them.
+- Do you want the tumor board Word document to include any specific headers (institution, tumor board date, presenter name) or formatting preferences?
+- Confirm you want the report to include: biomarker status, stage at diagnosis, treatment history, latest imaging findings (as requested). Any additional sections?
+
+Please confirm and/or supply imaging files and formatting preferences. Once PatientHistory responds, I will request any additional details needed from PatientStatus and Radiology.
+
+---
+

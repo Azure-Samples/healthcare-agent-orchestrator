@@ -1,0 +1,38 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist:
+- Confirm objective and outline the multi-agent plan with clear sequence and roles
+- Validate patient ID and gather core clinical data via PatientHistory
+- Coordinate derivation of current patient status and identify any missing details
+- Orchestrate domain-specific inputs (radiology, guidelines, clinical trials, research) and resolve data gaps
+- Compile all outputs into a tumor board-ready document via ReportCreation
+- Provide milestone updates after each agent’s response and next steps
+
+Proposed plan and participation order:
+- Step 1 — PatientHistory: Retrieve a structured timeline and concise history for patient_id "patient_4".
+- Step 2 — PatientStatus: Create a current clinical status summary (age, stage, primary site, histology, biomarkers, treatment history, ECOG). If any items are missing, I will loop back to you or PatientHistory.
+- Step 3 — Radiology: Provide radiology insights if imaging is available. If imaging files are not available, Radiology will note the gap and we will proceed with any radiology report text from PatientHistory.
+- Step 4 — ClinicalGuidelines: Generate guideline-based therapeutic options based on PatientStatus.
+- Step 5 — ClinicalTrials: Identify relevant trials tailored to PatientStatus.
+- Step 6 — MedicalResearch: Summarize key literature relevant to this case (topic determined from PatientStatus and your preferences).
+- Step 7 — ReportCreation: Assemble a tumor board Word document integrating timeline, summaries, imaging, pathology, guideline options, trials, and key references.
+
+Special rule — agent handoff:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+User, please confirm:
+- Do you approve this plan and order?
+- Do you have any imaging files (CT, MRI, PET, X-ray) to share, or should we proceed using only the narrative imaging reports in the chart?
+- Any specific guideline set to reference (e.g., NCCN, ESMO) or regional preferences?
+- Any particular clinical question(s) you want emphasized at tumor board (e.g., perioperative strategy, biomarker-directed therapy, sequencing after progression)?
+- Deadline and format preferences for the tumor board packet (e.g., Word .docx, slide deck)? Any institutional template to follow?
+- Any additional documents to include (pathology PDFs, prior tumor board notes, genomic reports)?
+
+If you confirm, I will immediately proceed by prompting PatientHistory with patient_id "patient_4".
+
+---
+

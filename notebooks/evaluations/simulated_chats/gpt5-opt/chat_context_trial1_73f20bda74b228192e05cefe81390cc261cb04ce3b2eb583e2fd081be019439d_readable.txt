@@ -1,0 +1,38 @@
+USER:
+Can you scan all pathology and molecular testing to see if these biomarkers are present
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify your goal and the exact data you want extracted
+- Confirm required inputs and access (patient ID, target biomarkers, source documents)
+- Engage the minimal set of agents needed for this task (starting with PatientHistory)
+- Orchestrate handoffs and keep you updated after each agent’s response
+- Validate outputs for completeness and format, then summarize findings
+- Offer optional next steps only if you request them
+
+Plan and participation order:
+1) You provide:
+- Patient ID (string; required by PatientHistory)
+- The list of biomarkers you want checked (e.g., EGFR exon 19 del, ALK fusion, PD-L1 TPS, MSI, TMB, BRCA1/2, KRAS G12C, BRAF V600E, etc.)
+- Any preferences: include negatives? show all historical vs only most recent? include VAF/copy number? include test method (IHC/FISH/NGS/PCR), specimen type, and dates?
+
+2) PatientHistory will retrieve the patient’s timeline data and surface pathology and molecular testing details from the record. Each agent, after completing their task, must yield the chat back to me (the Orchestrator). PatientHistory, please conclude with: “back to you: Orchestrator.”
+
+3) Orchestrator will scan the returned pathology/molecular results for the requested biomarkers and produce a concise presence/absence/indeterminate table with source citations (report name/date/method), plus any notes (e.g., variant nomenclature, VAF, amplification).
+
+4) Optional (only if you request):
+- PatientStatus can compile a current-status summary focusing on known biomarkers and their most recent results. PatientStatus would also conclude with: “back to you: Orchestrator.”
+- ReportCreation can generate a document summarizing the biomarker findings for tumor board use. ReportCreation would also conclude with: “back to you: Orchestrator.”
+
+User confirmation needed:
+- Please confirm this plan.
+- User, can you provide:
+  - The patient ID (string)?
+  - The exact list of biomarkers you want us to check?
+  - Preferences: include negative/indeterminate results? show all historical results or most recent only? include method (IHC/FISH/NGS/PCR), specimen type, dates, and quantitative details (e.g., PD-L1 TPS, TMB, VAF)?
+  - If our system does not already have the pathology/molecular reports, can you upload or paste their content (even de-identified)?
+
+---
+

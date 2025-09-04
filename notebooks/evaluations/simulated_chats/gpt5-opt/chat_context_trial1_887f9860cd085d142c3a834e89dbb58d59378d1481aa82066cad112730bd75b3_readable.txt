@@ -1,0 +1,38 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist:
+- Clarify the user’s goal and confirm the workflow plan and agents to involve
+- Gather required inputs (patient ID validation, imaging availability, radiology report text)
+- Coordinate agents in sequence and ensure each yields control back
+- Provide micro-updates after each agent’s response
+- Summarize results and next steps, and invite follow-up
+
+Plan and participation order:
+1) PatientHistory: Retrieve the latest CT and CXR entries for patient_4, including study dates, accession numbers, image links/files suitable for analysis, and the full radiologist report text/impression for each study.
+2) Radiology: Use the imaging tool to analyze the provided CXR images and, if CT images are available in a viewable format, analyze those as well; then compare AI-generated findings to the radiologist’s report and list discrepancies or additional findings.
+3) Orchestrator: Summarize discrepancies and additional findings concisely for you.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents must conclude with: “back to you: Orchestrator”.
+
+User confirmation:
+- Please confirm that you’d like me to proceed with the above plan.
+- If available, please confirm that the latest CT and CXR images and the corresponding radiologist reports for patient_4 are accessible via your system. If not, please upload or provide links to the images and paste the report text here.
+
+If you confirm, I will proceed as follows.
+
+PatientHistory, please proceed with:
+- patient_id: "patient_4"
+- Task: Retrieve the most recent CT and CXR studies including:
+  - Study dates and accession numbers
+  - Direct links or file references to the images suitable for analysis by Radiology
+  - The full finalized radiologist report text (or impression) for each study
+  - Any relevant timeline context (reason for exam, comparisons mentioned)
+Remember to return a JSON response per your schema and conclude with: “back to you: Orchestrator”.
+
+---
+

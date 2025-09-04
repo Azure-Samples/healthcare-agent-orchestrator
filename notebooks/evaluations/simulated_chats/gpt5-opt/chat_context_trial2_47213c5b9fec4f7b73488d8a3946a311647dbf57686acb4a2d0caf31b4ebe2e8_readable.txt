@@ -1,0 +1,30 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm the plan and output needs with you
+- Retrieve the patient’s timeline and history
+- Determine availability of imaging data and extract latest imaging findings
+- Compile current patient status from available data
+- Generate a formatted Word document for tumor board presentation
+- Provide milestone updates and coordinate agent handoffs
+
+Proposed plan and participation order:
+1) PatientHistory: Retrieve the full timeline and history for patient_4, including any documented biomarker status, stage at diagnosis, treatment history, and imaging reports or image references.
+2) Radiology: If actual chest X-ray images are available, analyze them and summarize findings. If no images are available, we will proceed using the imaging reports from PatientHistory.
+3) PatientStatus: Summarize the current patient status (age, stage, primary site, histology, biomarkers, treatment history, ECOG) using data from PatientHistory.
+4) ReportCreation: Generate a formatted Word document suitable for tumor board review, incorporating the timeline, clinical summary, medical/social history, cancer type, CT/X-ray findings, pathology findings, and treatment history.
+
+Special rule:
+Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: “back to you: Orchestrator”
+
+User, please confirm:
+- May I proceed with this plan for Patient ID: “patient_4”?
+- Do you have any imaging files (e.g., chest X-ray) you’d like Radiology to analyze, or should we rely on the latest imaging report in the chart?
+- Any preferences for the Word document (e.g., hospital letterhead, anonymization level, inclusion of images or only textual summaries)?
+
+---
+

@@ -1,0 +1,24 @@
+USER:
+Given the presence of a KRAS p.G12C mutation, what are the potential benefits and risks of transitioning to KRAS-directed treatment with adagrasib? How might this change the patient's prognosis?
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Here is my plan for this discussion:
+- Clarify and obtain a valid patient identifier to ground any history-specific context.
+- Retrieve and summarize the patient’s timeline and relevant history (via the PatientHistory agent) once the ID is provided.
+- Provide high-level, non-actionable information about adagrasib (KRAS G12C-directed therapy): mechanism, general benefits/risks observed in trials, and factors that commonly influence prognosis.
+- If needed, bring in general guidelines and research context (via ClinicalGuidelines and MedicalResearch) to frame where this therapy fits in the broader landscape.
+- Synthesize a neutral, patient-specific-context overview for discussion with the user, then identify any missing details to tailor the next steps (without giving clinical treatment guidance).
+
+Milestone updates:
+- Milestone 1: Plan established and waiting for patient ID to retrieve history.
+- Milestone 2: Agent input will be summarized, then we proceed to a general information framing about adagrasib.
+- Milestone 3: If you provide more details, we’ll incorporate clinical-context specifics and summarize.
+
+Important instruction: Each agent, after completing their task, must yield the chat back to you (Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+
+User, please provide a patient_id as a string (e.g., "patient-1234"). Once I have the ID, I’ll engage the appropriate agents to retrieve history and share a concise, non-clinical overview of potential benefits/risks and how prognosis might change with KRAS-directed therapy using adagrasib. If you’d like, I can also outline questions to discuss with the treating clinician.
+
+---
+

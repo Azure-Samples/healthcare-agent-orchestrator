@@ -1,0 +1,36 @@
+USER:
+Given the KRAS p.G12C mutation in patient_4, summarize current treatment options including KRAS inhibitors, chemo-immunotherapy, and emerging trial drugs. Include efficacy, risk profile, and how this may affect prognosis
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the objective and define which agents need to participate
+- Validate and retrieve the patient’s timeline/history using the provided patient ID
+- Derive a concise current patient status to ground subsequent agents
+- Coordinate guideline-based options, trial landscape, and supporting research evidence
+- Collect any imaging or document needs; note gaps if inputs are unavailable
+- Provide micro-updates after each agent and ensure each yields back control
+- Summarize the collective output and ask for next steps
+
+Proposed plan and participation order:
+1) PatientHistory: Retrieve and summarize the timeline for patient_4 to anchor the discussion.
+2) PatientStatus: Convert the history into a concise current status (age, primary site, histology, stage, biomarkers, ECOG, prior therapies).
+3) ClinicalGuidelines: Summarize current option categories relevant to KRAS p.G12C (e.g., KRAS inhibitors, chemo-immunotherapy) including typical efficacy/risk profiles; no patient-specific recommendations.
+4) ClinicalTrials: Outline emerging trial drugs and active trial directions that match the status of patient_4.
+5) MedicalResearch: Provide recent evidence on efficacy, safety, resistance, and implications for prognosis in KRAS p.G12C.
+6) Radiology: Note if any imaging is available; if none, state what would be needed for radiology insights.
+7) ReportCreation: Compile a concise tumor board–style document once upstream inputs are available.
+
+Special rule — agent handoff:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Please conclude with: “back to you: Orchestrator”.
+
+User, please confirm:
+- Confirm that we should proceed with this plan for patient_4.
+- If available, do you have any recent imaging (e.g., chest X-ray/CT) or pathology reports you want included?
+- Any urgent topics you want emphasized (e.g., CNS disease, prior toxicities, comorbidities)?
+
+On your confirmation, I will start by requesting the timeline from PatientHistory for patient_4.
+
+---
+

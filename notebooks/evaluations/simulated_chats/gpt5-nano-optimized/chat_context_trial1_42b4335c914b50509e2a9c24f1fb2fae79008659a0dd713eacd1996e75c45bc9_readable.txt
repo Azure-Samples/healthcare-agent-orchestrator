@@ -1,0 +1,38 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Moderation plan and expectations
+- Confirm and lock in the patient identifier (patient_4) and clearly define the data to collect: biomarker status, stage at diagnosis, treatment history, and latest imaging findings.
+- Coordinate data gathering across specialized agents (PatientHistory for timeline and biomarkers, Radiology for imaging findings) and identify any data gaps.
+- Synthesize a concise diagnostic summary from the collected data, ensuring no clinical treatment recommendations are provided.
+- Generate a formatted Word document content via ReportCreation that is ready for tumor board presentation, including sections for timeline, clinical summary, biomarker/staging data, imaging findings, pathology, treatment history, and any relevant notes.
+- After each agent contributes, receive a brief progress update and then return control to me (Orchestrator) with the required signaling.
+- Obtain user confirmation before finalizing/exporting the Word document; show a preview and allow edits if needed.
+- Deliver the final Word document content or a downloadable export-ready file and offer follow-up assistance.
+
+Important operational note
+> Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator" after their response.
+
+Planned sequence and next steps (requires your confirmation to proceed)
+- Step 1: Gather patient history and biomarker/stage data.
+  - Agent: PatientHistory
+  - What I’ll request: Retrieve structured patient timeline, biomarker status, stage at diagnosis, histology, cancer type, and treatment history for patient_id = "patient_4".
+  - Return to Orchestrator: I’ll summarize and note any data gaps.
+- Step 2: Retrieve latest imaging findings.
+  - Agent: Radiology
+  - What I’ll request: Provide latest imaging findings (CT/MRI/X-ray reports) and any notable measurements or radiology comments for patient_4.
+  - Return to Orchestrator: I’ll extract key findings for the diagnostic summary.
+- Step 3: Compile diagnostic summary and prepare Word document content.
+  - Agent: ReportCreation
+  - What I’ll request: Produce a Word-document-ready report including patient timeline, clinical summary, biomarker and staging data, imaging findings, pathology, treatment history, and clinical trials status if available.
+  - Return to Orchestrator: I’ll present a formatted document outline and ready-to-export content.
+- Step 4: Review and finalize export.
+  - I’ll present a preview, confirm with you, then export as a Word document suitable for tumor board presentation.
+
+Please confirm you’d like me to proceed with data gathering for patient_4 and to generate the Word document now. If you have any additional preferences (section ordering, specific formatting, or disclosures to include), tell me and I’ll incorporate them before generating the document.
+
+---
+

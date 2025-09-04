@@ -1,0 +1,22 @@
+USER:
+Given the KRAS p.G12C mutation in patient_4, summarize current treatment options including KRAS inhibitors, chemo-immunotherapy, and emerging trial drugs. Include efficacy, risk profile, and how this may affect prognosis
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist
+- Confirm the patient ID and retrieve the structured patient timeline from PatientHistory.
+- Request PatientStatus to synthesize current clinical status from that timeline.
+- Ask MedicalResearch, ClinicalGuidelines, and ClinicalTrials for focused summaries (efficacy, risks, prognosis impact, and ongoing trials).
+- Present agent outputs in sequence, provide brief milestone updates, and then summarize collectively.
+- Ask you to confirm next steps or provide missing clinical details.
+
+Planned sequence and rule
+- Order of participation: PatientHistory → PatientStatus → MedicalResearch → ClinicalGuidelines → ClinicalTrials.
+- Special rule to all agents: Each agent, after completing their task, must yield the chat back to me (the Orchestrator) and conclude with: "back to you: Orchestrator".
+- User, please confirm that I should proceed with patient_id "patient_4" as provided. If you prefer a different ID or wish to add/clarify clinical details (age, stage, performance status, prior treatments), please state them now.
+
+If you confirm, I will ask PatientHistory to retrieve the patient's timeline for "patient_4". PatientStatus will then synthesize status from that timeline, followed by the other agents focusing on KRAS p.G12C–specific options.
+
+---
+

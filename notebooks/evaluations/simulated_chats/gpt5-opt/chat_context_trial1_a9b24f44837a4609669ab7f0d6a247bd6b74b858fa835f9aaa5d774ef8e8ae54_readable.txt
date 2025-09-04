@@ -1,0 +1,31 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation checklist:
+- Clarify the user’s goal and confirm the action plan and agent sequence
+- Gather the patient’s timeline and core data elements from PatientHistory
+- Derive a concise current status via PatientStatus based on retrieved data
+- Determine availability of imaging files for Radiology; otherwise rely on reported findings
+- Compile inputs into a formatted Word document via ReportCreation
+- Provide micro-updates after each agent’s response and coordinate next steps
+
+Proposed plan and agent order:
+1) PatientHistory: Retrieve the full timeline and summary for patient_4, including stage at diagnosis, biomarkers, treatment history, and imaging reports.
+2) PatientStatus: Generate a concise current status using age, staging, primary site, histology, biomarkers, treatment history, and ECOG from PatientHistory.
+3) Radiology (conditional): If imaging files are available (e.g., chest X-ray), provide radiology insights. If not, we will use the latest imaging report text from PatientHistory.
+4) ReportCreation: Produce a formatted Word document for tumor board, incorporating the patient timeline, clinical summary, medical/social history, cancer type, CT/X-ray and pathology findings, treatment history/plan, and an optional clinical trials section.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents: conclude with “back to you: Orchestrator”.
+
+User, please confirm:
+- Shall I proceed with the above plan and sequence for patient_4?
+- Do you want us to include a “Relevant Clinical Trials” section? If yes, I will add a step for the ClinicalTrials agent.
+- Do you have any imaging files (e.g., recent chest X-ray or CT) to upload for Radiology, or should we use the latest imaging report from the chart?
+- Any preferred file name for the Word document (e.g., “patient_4_tumor_board_summary.docx”)?
+
+---
+

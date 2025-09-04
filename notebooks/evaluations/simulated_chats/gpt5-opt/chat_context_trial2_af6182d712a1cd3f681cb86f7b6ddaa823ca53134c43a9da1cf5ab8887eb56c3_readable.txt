@@ -1,0 +1,38 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the user’s goal and confirm the multi-agent plan and sequence.
+- Identify which agents must be engaged and what each needs to proceed.
+- Gather foundational data (patient history) before dependent tasks.
+- Resolve missing inputs by querying the appropriate agent or the user.
+- Orchestrate handoffs and enforce “yield back” to maintain flow.
+- Summarize progress at each milestone and produce the final deliverable.
+
+Plan and participation order:
+- Step 1 — PatientStatus (needs check): I will confirm exactly what details PatientStatus requires so we can collect them efficiently.
+- Step 2 — PatientHistory: Retrieve the timeline and history for patient_4, including staging at diagnosis, biomarkers, treatments, and imaging reports.
+- Step 3 — Radiology: If you can provide imaging files (CT, MRI, PET, X-ray), Radiology will review them; if not, Radiology will note the limitation and defer to report text.
+- Step 4 — PatientStatus: Using the extracted details, PatientStatus will summarize the current status.
+- Step 5 — ClinicalTrials (optional): If you want clinical trial options included in the tumor board document, we will request them based on PatientStatus.
+- Step 6 — ClinicalGuidelines (note): We will not request treatment recommendations in this workflow to avoid clinical advice; the agent will acknowledge and yield.
+- Step 7 — ReportCreation: Compile a formatted Word document for tumor board, using the gathered timeline, clinical summary, imaging/pathology findings, biomarker status, staging at diagnosis, and treatment history. If ClinicalTrials are requested, those will be included as a section.
+
+Special rule — ALWAYS:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents, conclude with: “back to you: Orchestrator”.
+
+Before proceeding, I need your confirmation and a couple of choices:
+- User, do you confirm this plan and participation order?
+- User, do you want ClinicalTrials information included in the tumor board document?
+- User, do you have any imaging files (CT/MRI/PET/X-ray) to upload for Radiology review? If yes, please provide them. If no, we’ll rely on the latest imaging findings from the chart text.
+- User, any additional details you want emphasized (e.g., relevant social history, comorbidities, allergies) that may not be in the chart?
+
+If you confirm, I will proceed immediately with Steps 1 and 2:
+- PatientStatus, please explicitly list the exact fields you require to produce the current status for patient_4 so we can verify completeness before your step. Remember to end with “back to you: Orchestrator”.
+- PatientHistory, please retrieve and return the structured timeline and concise history summary for patient_4. Include any available: staging at diagnosis, primary site, histology, biomarker status, treatment history (with dates/lines), and latest imaging findings. Use your required JSON schema and end with “back to you: Orchestrator”.
+
+---
+

@@ -1,0 +1,36 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify objectives, required outputs, and constraints for a tumor board preparation
+- Confirm the plan and collect any missing inputs from you before engaging agents
+- Sequence agents logically so each has the inputs they need from prior steps
+- After each agent’s response, provide a micro-update and request/route any missing details
+- Ensure each agent yields back control to me and that no clinical advice comes from me directly
+- Validate completeness and assemble a final summary and report handoff
+
+Proposed plan and sequence for Patient ID: patient_4:
+- PatientHistory: Retrieve a structured timeline and concise history summary for patient_4. Then yield back. Note: Will only proceed with a valid patient ID string, which you’ve provided.
+- PatientStatus: Build the current oncologic status (age, staging, primary site, histology, biomarkers, treatment history, ECOG) using PatientHistory outputs. Then yield back.
+- Radiology: Review available chest X-ray images (and other images if provided) and provide radiology insights. If no images are available, Radiology will note limitations or request them. Then yield back.
+- ClinicalGuidelines: Provide guideline-based treatment considerations using PatientStatus. Then yield back.
+- ClinicalTrials: Identify trial options suitable for the patient using PatientStatus. Then yield back.
+- ReportCreation: Compile a tumor board Word document incorporating the patient timeline, clinical summary, imaging and pathology findings, and the treatment considerations and trials. Then yield back.
+- MedicalResearch: Add brief research highlights (e.g., key studies or evolving standards) relevant to the case. Then yield back.
+
+Special rule — ALWAYS: Each agent, after completing their task, must yield the chat back to me (the Orchestrator) by concluding with: “back to you: Orchestrator”.
+
+Before we proceed, please confirm:
+- Confirm the patient ID: patient_4 is correct.
+- Imaging: Do you have chest X-ray or other imaging (e.g., PNG/JPG for X-ray) you want Radiology to analyze? If yes, please upload or provide a link. If not, should we proceed without Radiology image analysis?
+- Trials location preference: What geographic location(s) should ClinicalTrials prioritize (city/state/country or “any”)?
+- Research focus: Any specific topics you want MedicalResearch to emphasize (e.g., a biomarker, line of therapy, resistance mechanisms)?
+- Report preferences: Default is a Word document (.docx). Any specific template or section headings you require?
+
+Once you confirm, I will begin with PatientHistory for patient_4.
+
+---
+

@@ -1,0 +1,41 @@
+USER:
+Analyze the latest CT and CXR images for patient_4 using the imaging tool, compare AI-generated findings to the radiologistâ€™s report, and summarize any discrepancies or additional findings.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Checklist — planned moderation steps
+- Confirm valid patient ID and access to the latest CT and CXR images and the radiologist report.
+- Ask PatientHistory to retrieve the imaging files, image metadata, and the radiologist report for that patient.
+- Ask Radiology what image formats/metadata they require and then have Radiology analyze the images and compare AI-generated findings to the radiologist’s report.
+- Provide micro-updates after each agent response, then summarize discrepancies/additional findings and ask the user for next steps.
+
+Planned sequence and participation order
+1. PatientHistory — validate patient ID, retrieve latest CT and chest x‑ray images (files or links), imaging metadata (dates, series info, slice thickness, contrast phase), and the radiologist’s written report. PatientHistory must return structured output per its workflow checklist and JSON schema.
+2. Radiology — once images and report are available, analyze the CT and CXR (using the imaging tool), produce AI-generated findings, compare them to the radiologist’s report, and summarize discrepancies or additional findings.
+3. Orchestrator — provide micro-updates after each agent response and deliver the final concise summary comparing findings. Note: No clinical recommendations will be provided.
+
+Special rule to all agents and user
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator) and conclude with: "back to you: Orchestrator"
+
+First actions — requests for information
+- PatientHistory, please proceed with the following for patient_4:
+  - Validate that the provided patient ID is a non-empty string.
+  - Retrieve the latest CT (specify date) and latest chest x-ray (specify date) image files or secure links, include image metadata (modality, acquisition date/time, slice thickness, contrast usage/phase, series identifiers).
+  - Retrieve the radiologist’s written report(s) for those exams.
+  - Return output matching your required schema: status, patient_id, patient_timeline (including imaging events with links/attachments and the report text), history_summary, and error_message as null if successful.
+  - Conclude with "back to you: Orchestrator"
+
+- Radiology, while PatientHistory retrieves things, please confirm what you need to perform the imaging analysis:
+  - Preferred image formats (DICOM required? JPEG acceptable?), required series (e.g., chest CT — lung and mediastinal windows, CXR frontal and lateral), minimal acceptable image quality/metadata (slice thickness, contrast phase), and any annotation outputs you will provide.
+  - Also confirm the expected output format: AI-generated findings (structured), comparison to radiologist report (point-by-point), and final discrepancy/additional-finding summary.
+  - Conclude with "back to you: Orchestrator"
+
+User input needed
+- User, can you confirm that patient_4 is the correct patient ID and that you want analysis of the most recent CT and chest x‑ray? If PatientHistory cannot access the images directly, can you upload the DICOM files (preferred) or high-resolution images for both exams, and/or paste the radiologist’s report text here?
+- If uploading, please indicate whether both studies are chest-limited (CT chest) and whether contrast was used on the CT.
+
+Please confirm the plan so we can proceed.
+
+---
+

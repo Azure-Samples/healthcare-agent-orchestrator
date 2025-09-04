@@ -1,0 +1,37 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm scope, inputs, and user preferences; outline the workflow and agent order
+- Collect the patient timeline and data foundation
+- Synthesize current status and identify gaps
+- Gather optional analyses (imaging, guidelines, trials) based on available data
+- Compile the tumor board document and flag missing items for follow-up
+- Provide milestone updates and next steps after each agent response
+
+Proposed plan and participation order:
+1) PatientHistory: Retrieve and summarize the full timeline for patient_4.
+2) PatientStatus: Derive the current clinical status (age, staging, primary site, histology, biomarkers, treatment history, ECOG) from PatientHistory.
+3) Radiology: If you provide imaging files/reports (CT, chest X-ray), analyze and summarize key findings; otherwise we will use text reports from PatientHistory.
+4) ClinicalGuidelines (optional): Provide guideline-based options informed by PatientStatus.
+5) ClinicalTrials: Identify potential trial options using PatientStatus.
+6) ReportCreation: Assemble a tumor board-ready document including timeline, clinical summary, medical/social history, cancer type, imaging findings, pathology, current plan, and clinical trials.
+7) MedicalResearch (optional): If you have research questions or topics, we will pull targeted literature.
+
+Special rule — agent handoff:
+Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents, please conclude with: "back to you: Orchestrator".
+
+User, please confirm:
+- May I proceed with this plan for patient_4?
+- Do you want ClinicalGuidelines to include guideline-based options in the report?
+- Do you have any imaging to upload (CT, chest X-ray) or radiology reports, and any pathology reports? If yes, please provide or specify where to retrieve them.
+- Can you share any of the following if not already in the chart: ECOG performance status, known biomarkers (e.g., PD-L1, NGS panel), key comorbidities/allergies, prior systemic therapies with dates, and any specific clinical questions you want the tumor board to address?
+- Any institution-specific template or formatting requirements for the tumor board document, and your deadline?
+
+Once you confirm, I will begin with PatientHistory for patient_4 and provide a milestone update before moving to the next agent.
+
+---
+

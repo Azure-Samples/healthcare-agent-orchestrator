@@ -1,0 +1,31 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the user goal and confirm required inputs.
+- Propose a step-by-step plan with participating agents and what each will deliver.
+- Collect missing details from the user (especially geographic location and any constraints).
+- Sequentially engage agents, ensuring each returns needed outputs and yields back control.
+- Provide brief progress updates after each agent’s response.
+- Summarize results and offer next steps.
+
+Proposed plan and participation order:
+- PatientHistory: Retrieve patient_4’s timeline and key clinical details from records.
+- PatientStatus: Summarize current status (age, tumor type, stage, histology, KRAS status, treatment history, ECOG).
+- ClinicalTrials: Identify active, location-appropriate clinical trials that match patient_4’s tumor type, stage, KRAS mutation, and treatment history; include trial phase and site contact details.
+Special rule: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent will conclude with: “back to you: Orchestrator”.
+
+User, please confirm:
+1) Confirm the patient ID is “patient_4”.
+2) Provide the patient’s geographic preference for trial matching:
+- Home base (city, state/province, country) and acceptable travel radius (e.g., 50 miles/80 km, statewide, nationwide, or specific countries).
+- Any site preferences or restrictions (e.g., academic centers only, specific hospitals).
+3) Optional but helpful: any recent changes not yet in the chart (e.g., new treatment since last note, updated ECOG, new biomarker results).
+
+Once you confirm, I will proceed with PatientHistory for patient_4, then PatientStatus, then ClinicalTrials in that order.
+
+---
+

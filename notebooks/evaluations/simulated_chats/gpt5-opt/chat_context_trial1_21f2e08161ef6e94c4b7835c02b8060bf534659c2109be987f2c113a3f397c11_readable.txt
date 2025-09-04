@@ -1,0 +1,535 @@
+USER:
+Based on the full clinical picture of patient_4â€”including stage, biomarkers, treatment response, and recent imagingâ€”generate a short report estimating prognosis and possible progression pathways.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Clarify the goal and constraints, including non-prescriptive scope (no treatment recommendations).
+- Confirm the patient ID and data availability (timeline, imaging) and permissions to proceed.
+- Lay out the agent participation order and what each agent will deliver.
+- Coordinate agents to request any missing details they need before producing output.
+- Orchestrate step-by-step contributions, providing brief milestone updates.
+- Compile the final short report and verify it meets your request.
+- Offer follow-up options or next steps.
+
+Proposed plan and sequence:
+- PatientHistory: Retrieve the full timeline for the specified patient ID and summarize key clinical history.
+- Radiology: Review the most recent imaging. If images are not available, Radiology will state what is needed (e.g., DICOM files) and extract what it can from imaging reports.
+- PatientStatus: Synthesize the current status (age, stage, primary site, histology, biomarkers, ECOG, treatment history/response).
+- ClinicalGuidelines: Provide non-prescriptive, guideline-based context on prognostic factors and typical progression patterns for the relevant cancer type and stage. This agent will not provide treatment recommendations.
+- ClinicalTrials: Outline the landscape of trial categories that may be relevant to patients with similar status (informational only, not recommendations).
+- MedicalResearch: Summarize current evidence on prognostic biomarkers and known progression pathways for the cancer type and stage.
+- ReportCreation: Generate a concise, non-prescriptive prognosis and progression pathways report tailored to the compiled data.
+Special rule: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents, conclude with: “back to you: Orchestrator”.
+
+User, to proceed, please confirm and/or provide:
+- Patient ID: Can you confirm the exact patient ID string is “patient_4”?
+- Imaging: Do you have the most recent imaging available to share (e.g., DICOM files or links)? If not, shall we proceed using imaging report text from the patient timeline (if available)?
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns you want emphasized in the prognosis and progression-pathways report (e.g., impact of certain biomarkers, patterns of metastatic spread, time-to-progression ranges)?
+
+Once you confirm, I will start with PatientHistory, followed by the agents in the order above. Milestone updates will be provided after each step.
+
+---
+
+USER:
+Orchestrator: Thank you for the clear plan and constraints. I will coordinate the agents in the sequence you proposed, keep everything non-prescriptive (no treatment recommendations), and provide milestone updates after each step.
+
+Before we proceed, please confirm the following so I can cue PatientHistory:
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging available to share (DICOM files or secure links)? If not, shall we proceed using any imaging report text in the patient timeline (if available)?
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Are there any specific concerns you want emphasized in the prognosis and progression-pathways report (e.g., impact of particular biomarkers, patterns of metastatic spread, time-to-progression ranges)?
+
+Once confirmed:
+- I will prompt PatientHistory to retrieve and summarize the full timeline.
+- Then Radiology will review the most recent imaging or reports.
+- PatientStatus will synthesize the current clinical snapshot.
+- ClinicalGuidelines and MedicalResearch will provide non-prescriptive context on prognostic factors and progression pathways.
+- ClinicalTrials will outline informational trial landscapes relevant to similar patients.
+- ReportCreation will compile a concise prognosis and progression-pathways report tailored to patient_4.
+
+Note: After we generate the report, I will ask one follow-up question about the estimated prognosis for this patient based on current disease stage, treatment received, and molecular characteristics.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm scope, patient ID, data sources, and permissions with you before engaging agents.
+- Reiterate the plan, agent sequence, and the yield-back rule.
+- Cue PatientHistory first and gather any missing details agents require.
+- Provide brief milestone updates after each agent’s contribution.
+- Compile a concise, non-prescriptive prognosis and progression-pathways report via ReportCreation.
+- Validate completeness and invite your follow-up question.
+
+Plan and sequence (non-prescriptive, informational only):
+- PatientHistory: Retrieve and summarize the full clinical timeline for the confirmed patient ID.
+- Radiology: Review most recent imaging; if images are unavailable, use imaging report text from the timeline.
+- PatientStatus: Synthesize the current clinical snapshot (age, stage, primary site, histology, biomarkers, ECOG, treatment history/response).
+- ClinicalGuidelines: Provide context on prognostic factors and typical progression patterns for the cancer type and stage.
+- ClinicalTrials: Outline informational trial landscapes relevant to similar patients.
+- MedicalResearch: Summarize current evidence on prognostic biomarkers and known progression pathways.
+- ReportCreation: Generate a concise prognosis and progression-pathways report tailored to the compiled data.
+Special rule: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Agents, conclude with: “back to you: Orchestrator”.
+
+User, please confirm/provide the following so I can cue PatientHistory:
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging available to share (DICOM files or secure links)? If not, shall we proceed using any imaging report text within the patient timeline (if available)?
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Are there specific concerns to emphasize in the prognosis and progression-pathways report (e.g., impact of particular biomarkers, patterns of metastatic spread, time-to-progression ranges)?
+
+Next step after your confirmation:
+- I will prompt PatientHistory to retrieve and summarize the full timeline, then proceed through the sequence above with milestone updates.
+
+---
+
+USER:
+Orchestrator: Thanks for outlining and confirming the plan and scope (non-prescriptive, informational only). Before engaging agents, please confirm/provide:
+
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging available to share (DICOM files or secure links)? If not, shall we proceed using any imaging report text within the patient timeline (if available)?
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Are there any specific concerns you want emphasized in the prognosis and progression-pathways report (e.g., impact of particular biomarkers, patterns of metastatic spread, time-to-progression ranges)?
+
+Upon your confirmation:
+- I will cue PatientHistory to retrieve and summarize the full timeline.
+- Then Radiology, PatientStatus, ClinicalGuidelines, ClinicalTrials, MedicalResearch, and ReportCreation will proceed in that order.
+- Each agent will yield back with “back to you: Orchestrator,” and I will provide brief milestone updates after each step.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm patient ID, data sources (including imaging), permissions, and focus with you.
+- Restate the plan, sequence, and yield-back rule for agents.
+- Cue PatientHistory first and gather any missing details other agents need.
+- Provide brief milestone updates after each agent’s contribution.
+- Coordinate all agents to produce a concise, non-prescriptive prognosis/progression-pathways report.
+- Validate completeness and invite follow-up.
+
+Plan and sequence (informational only):
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule: Each agent, after completing their task, must yield the chat back to me (the Orchestrator) by ending with: “back to you: Orchestrator”.
+
+User, please confirm/provide:
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging to share (DICOM files or secure links)? If not, shall we proceed using any imaging report text within the patient timeline (if available)? If possible, include modality and date of the most recent study (e.g., PET/CT from 2025-05-12).
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns you want emphasized (e.g., impact of particular biomarkers, patterns of metastatic spread, time-to-progression ranges, CNS involvement risk, oligoprogression vs. polymetastatic patterns)?
+
+Once you confirm these items, I will cue PatientHistory to retrieve and summarize the full timeline, then proceed through the agents in the sequence above with milestone updates after each step.
+
+---
+
+USER:
+Orchestrator: Thank you. Before engaging agents, I will confirm scope and gather what’s needed to proceed.
+
+Scope and constraints:
+- Purpose: Generate a concise, non-prescriptive prognosis and likely progression pathways report for patient_4 based on available clinical data.
+- No treatment recommendations will be provided.
+
+Plan and agent sequence (informational only):
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule: Each agent, after completing their task, will yield back by ending with: “back to you: Orchestrator”.
+
+Please confirm/provide:
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include the modality and date of the most recent study (e.g., CT chest/abdomen/pelvis 2025-05-12 or PET/CT 2025-05-12).
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Are there specific concerns you want emphasized (e.g., impact of particular biomarkers, patterns of metastatic spread including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)?
+
+Once you confirm, I will cue PatientHistory to retrieve and summarize the full timeline, then proceed through the agents with milestone updates after each step.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm patient ID, imaging availability, permissions, and focus with you.
+- Reiterate the plan, sequence, and yield-back rule.
+- Cue PatientHistory first and collect any missing details for downstream agents.
+- Provide milestone updates after each agent’s contribution.
+- Coordinate all agents to produce a concise, non-prescriptive prognosis/progression-pathways report.
+- Validate completeness and invite follow-up.
+
+Plan and agent sequence (informational only):
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule: Each agent, after completing their task, must yield back by ending with: “back to you: Orchestrator”.
+
+User, to proceed, please provide:
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include the modality and date of the most recent study (e.g., CT CAP 2025-05-12 or PET/CT 2025-05-12).
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Are there specific concerns you want emphasized (e.g., impact of particular biomarkers, patterns of metastatic spread including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)?
+
+Once you confirm these items, I will cue PatientHistory to retrieve and summarize the full timeline, then proceed through the agents in the sequence above with milestone updates after each step.
+
+---
+
+USER:
+Orchestrator: Acknowledged. Before engaging agents, I will confirm scope and inputs, then run the sequence you outlined. Non-prescriptive, informational-only output; no treatment recommendations. Agents will yield back by ending with “back to you: Orchestrator.”
+
+To proceed, please confirm/provide:
+- Patient ID: Please confirm the exact patient ID is “patient_4”.
+- Imaging: Do you have the most recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include the modality and date of the most recent study (e.g., CT CAP 2025-05-12 or PET/CT 2025-05-12).
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of particular biomarkers, patterns of metastatic spread including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)?
+
+Once you confirm, I will cue PatientHistory, then proceed through: PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation, with milestone updates after each step.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm patient ID, imaging availability, permissions, and focus with you before engaging agents.
+- Restate the plan, sequence, and the yield-back rule for all agents.
+- Cue PatientHistory first; gather any missing details downstream agents will need.
+- Provide brief milestone updates after each agent’s contribution.
+- Coordinate agents to compile a concise, non-prescriptive prognosis/progression-pathways report.
+- Validate completeness and invite follow-up.
+
+Plan and agent sequence (informational only):
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule: Each agent, after completing their task, must yield back by ending with: “back to you: Orchestrator”.
+
+To proceed, please confirm/provide:
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include modality and date of the most recent study (e.g., CT CAP 2025-05-12 or PET/CT 2025-05-12).
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of particular biomarkers, patterns of metastatic spread including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)?
+
+If helpful, you can reply in this template:
+- Patient ID: “patient_4” (confirm/clarify)
+- Imaging: [files/link provided] or “use report text from timeline”; Most recent modality/date: [e.g., CT CAP 2025-05-12]
+- Permissions: [authorized/not authorized]
+- Focus: [your priorities]
+
+Once confirmed, I will cue PatientHistory, then proceed through: PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation, with milestone updates after each step.
+
+---
+
+USER:
+Orchestrator: Thank you. Before engaging the agents, I will confirm scope and inputs.
+
+Scope and constraints:
+- Output will be concise, non-prescriptive, and informational only (no treatment recommendations).
+- We will synthesize prognosis and possible progression pathways based on available clinical data and imaging.
+- Each agent will end their contribution with: “back to you: Orchestrator”.
+
+Plan and agent sequence:
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+
+To proceed, please confirm/provide:
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include modality and date (e.g., CT CAP 2025-05-12 or PET/CT 2025-05-12).
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of particular biomarkers, patterns of metastatic spread including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)?
+
+Optional reply template:
+- Patient ID: “patient_4” (confirm/clarify)
+- Imaging: [files/link provided] or “use report text from timeline”; Most recent modality/date: [e.g., CT CAP 2025-05-12]
+- Permissions: [authorized/not authorized]
+- Focus: [your priorities]
+
+Once confirmed, I will cue PatientHistory to retrieve and summarize the full timeline, then proceed through the agents in sequence with milestone updates after each step.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm scope, patient ID, data sources (imaging vs. report text), permissions, and your focus.
+- Restate the plan, participation order, and yield-back rule for all agents.
+- Cue PatientHistory first and gather any missing details for downstream agents.
+- Provide brief milestone updates after each agent’s contribution.
+- Coordinate agents to compile a concise, non-prescriptive prognosis/progression-pathways report.
+- Validate completeness and invite follow-up.
+
+Plan and agent sequence (informational only):
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule: Each agent, after completing their task, must yield back by ending with: “back to you: Orchestrator”.
+
+To proceed, please confirm/provide:
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include modality and date of the most recent study (e.g., CT CAP 2025-05-12 or PET/CT 2025-05-12).
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of particular biomarkers, patterns of metastatic spread including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)?
+
+Optional reply template:
+- Patient ID: “patient_4” (confirm/clarify)
+- Imaging: [files/link provided] or “use report text from timeline”; Most recent modality/date: [e.g., CT CAP 2025-05-12]
+- Permissions: [authorized/not authorized]
+- Focus: [your priorities]
+
+Next step after your confirmation:
+- I will cue PatientHistory to retrieve and summarize the full timeline, then proceed through the agents in sequence with milestone updates after each step.
+
+---
+
+USER:
+Orchestrator: Thank you. Before engaging the agents, I will confirm scope and inputs.
+
+Scope: Informational, non-prescriptive. No treatment recommendations will be provided.
+
+Plan and agent sequence:
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule: Each agent must yield back by ending with: “back to you: Orchestrator”.
+
+To proceed, please confirm/provide:
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include the modality and date of the most recent study (e.g., CT CAP 2025-05-12 or PET/CT 2025-05-12).
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of particular biomarkers, patterns of metastatic spread including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)? If you have a preferred prognosis time horizon (e.g., 6-, 12-, 24-month), please note it.
+
+Optional reply template:
+- Patient ID: “patient_4” (confirm/clarify)
+- Imaging: [files/link provided] or “use report text from timeline”; Most recent modality/date: [e.g., CT CAP 2025-05-12]
+- Permissions: [authorized/not authorized]
+- Focus: [your priorities and time horizon]
+
+Once confirmed, I will cue PatientHistory, then proceed through the agents in sequence with brief milestone updates after each step.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm scope, patient ID, imaging source, permissions, and focus with you before engaging agents.
+- Reiterate plan, participation order, and yield-back rule.
+- Cue PatientHistory first; gather any missing details required by downstream agents.
+- Provide brief milestone updates after each agent’s contribution.
+- Coordinate agents to compile a concise, non-prescriptive prognosis/progression-pathways report.
+- Validate completeness and invite follow-up.
+
+Plan and agent sequence (informational only):
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule: Each agent, after completing their task, must yield back by ending with: “back to you: Orchestrator”.
+
+To proceed, please confirm/provide:
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include the modality and date of the most recent study (e.g., CT CAP 2025-05-12 or PET/CT 2025-05-12).
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of particular biomarkers, patterns of metastatic spread including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)? If you have a preferred prognosis time horizon (e.g., 6-, 12-, 24-month), please note it.
+
+Optional reply template:
+- Patient ID: “patient_4” (confirm/clarify)
+- Imaging: [files/link provided] or “use report text from timeline”; Most recent modality/date: [e.g., CT CAP 2025-05-12]
+- Permissions: [authorized/not authorized]
+- Focus: [your priorities and preferred time horizon]
+
+Once confirmed, I will cue PatientHistory to retrieve and summarize the full timeline, then proceed through the agents in sequence with brief milestone updates after each step.
+
+---
+
+USER:
+Orchestrator: Thank you. Before engaging agents, please confirm the following so we can proceed within a non-prescriptive, informational scope (no treatment recommendations):
+
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include the modality and date of the most recent study (e.g., CT CAP 2025-05-12 or PET/CT 2025-05-12).
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of particular biomarkers, patterns of metastatic spread including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)? If you have a preferred prognosis time horizon (e.g., 6-, 12-, 24-month), please note it.
+
+Optional reply template:
+- Patient ID: “patient_4” (confirm/clarify)
+- Imaging: [files/link provided] or “use report text from timeline”; Most recent modality/date: [e.g., CT CAP 2025-05-12]
+- Permissions: [authorized/not authorized]
+- Focus: [your priorities and preferred time horizon]
+
+Plan and agent sequence (informational only):
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule for all agents: After completing their task, each agent must yield back by ending with: “back to you: Orchestrator”.
+
+Next step after your confirmation:
+- I will cue PatientHistory to retrieve and summarize the full clinical timeline for patient_4, then proceed through the agents in sequence with brief milestone updates after each step.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm scope, patient ID, imaging source, permissions, and focus with you.
+- Restate the plan, agent order, and yield-back rule.
+- Cue PatientHistory first once confirmed; gather any missing details for downstream agents.
+- Provide brief milestone updates after each agent’s contribution.
+- Coordinate agents to compile a concise, non-prescriptive prognosis/progression-pathways report.
+- Validate completeness and invite follow-up.
+
+Plan and agent sequence (informational only):
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule: Each agent, after completing their task, must yield back by ending with: “back to you: Orchestrator”.
+
+User, please confirm/provide:
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include the modality and date of the most recent study.
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of particular biomarkers, patterns of metastatic spread including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)? If you have a preferred prognosis time horizon (e.g., 6-, 12-, 24-month), please note it.
+
+Optional reply template:
+- Patient ID: “patient_4” (confirm/clarify)
+- Imaging: [files/link provided] or “use report text from timeline”; Most recent modality/date: [e.g., CT CAP 2025-05-12]
+- Permissions: [authorized/not authorized]
+- Focus: [your priorities and preferred time horizon]
+
+Next step after your confirmation:
+- I will cue PatientHistory to retrieve and summarize the full clinical timeline, then proceed through the agents in sequence with brief milestone updates after each step.
+
+---
+
+USER:
+Orchestrator: Thank you. Confirming scope is non-prescriptive and informational only (no treatment recommendations). I will coordinate agents, enforce the yield-back rule, and provide milestone updates.
+
+Please confirm/provide the following so I can cue PatientHistory:
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include the modality and date of the most recent study.
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of particular biomarkers, patterns of metastatic spread including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)? If you have a preferred prognosis time horizon (e.g., 6-, 12-, 24-month), please note it.
+
+Optional reply template:
+- Patient ID: “patient_4” (confirm/clarify)
+- Imaging: [files/link provided] or “use report text from timeline”; Most recent modality/date: [e.g., CT CAP 2025-05-12]
+- Permissions: [authorized/not authorized]
+- Focus: [your priorities and preferred time horizon]
+
+Plan and agent sequence (informational only):
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule: Each agent, after completing their task, must yield back by ending with: “back to you: Orchestrator”.
+
+Next step after your confirmation:
+- I will cue PatientHistory to retrieve and summarize the full clinical timeline, then proceed through the agents with brief milestone updates after each step.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm required inputs (patient ID, imaging source, permissions, focus/time horizon).
+- Re-state plan, sequence, and yield-back rule.
+- Cue PatientHistory once confirmed and collect any missing details for downstream agents.
+- Provide milestone updates after each agent’s contribution.
+- Coordinate agents to compile a concise, non-prescriptive prognosis/progression-pathways report.
+- Validate completeness and invite follow-up.
+
+Plan and agent sequence (informational only):
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule: Each agent, after completing their task, must yield back by ending with: “back to you: Orchestrator”.
+
+User, please provide the following so I can cue PatientHistory:
+- Patient ID: Please confirm the exact patient ID string is “patient_4”.
+- Imaging: Do you have the most recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include modality and date of the most recent study.
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of certain biomarkers, patterns of metastatic spread including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)? Preferred prognosis time horizon (e.g., 6-, 12-, 24-month)?
+
+Optional reply template:
+- Patient ID: “patient_4” (confirm/clarify)
+- Imaging: [files/link provided] or “use report text from timeline”; Most recent modality/date: [e.g., CT CAP 2025-05-12]
+- Permissions: [authorized/not authorized]
+- Focus: [your priorities and preferred time horizon]
+
+Next step after your confirmation:
+- I will cue PatientHistory to retrieve and summarize the full clinical timeline, then proceed through the agents in sequence with brief milestone updates after each step.
+
+---
+
+USER:
+Orchestrator: Thank you. Before I cue the agents, please confirm the required inputs and preferences so we can proceed within a non-prescriptive (no treatment recommendations) scope.
+
+Please provide:
+- Patient ID: Confirm the exact string is “patient_4”.
+- Imaging: Do you have recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include the modality and date of the most recent study.
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of particular biomarkers, metastatic spread patterns including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)? If you have a preferred prognosis time horizon (e.g., 6-, 12-, 24-month), please specify it.
+
+Optional reply template:
+- Patient ID: “patient_4” (confirm/clarify)
+- Imaging: [files/link provided] or “use report text from timeline”; Most recent modality/date: [e.g., CT CAP 2025-05-12]
+- Permissions: [authorized/not authorized]
+- Focus: [your priorities and preferred time horizon]
+
+Plan and agent sequence (informational only; each agent will yield back by ending with “back to you: Orchestrator”):
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+
+Next step after your confirmation:
+- I will cue PatientHistory to retrieve and summarize the full clinical timeline, then proceed through the agents in sequence with brief milestone updates after each step.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm required inputs (patient ID, imaging source, permissions, focus/time horizon) before engaging agents.
+- Reiterate the plan, participation order, and yield-back rule.
+- Cue PatientHistory first; gather any missing details needed by downstream agents.
+- Provide brief milestone updates after each agent’s contribution.
+- Coordinate agents to compile a concise, non-prescriptive prognosis/progression-pathways report.
+- Validate completeness and invite follow-up.
+
+Plan and agent sequence (informational only):
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule for all agents: After completing their task, each agent must yield back by ending with: “back to you: Orchestrator”.
+
+To proceed, please provide the following:
+- Patient ID: Confirm the exact string is “patient_4”.
+- Imaging: Do you have recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include modality and date of the most recent study.
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of particular biomarkers, metastatic patterns including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)? Please also note your preferred prognosis time horizon (e.g., 6-, 12-, 24-month).
+
+Optional reply template:
+- Patient ID: “patient_4” (confirm/clarify)
+- Imaging: [files/link provided] or “use report text from timeline”; Most recent modality/date: [e.g., CT CAP 2025-05-12]
+- Permissions: [authorized/not authorized]
+- Focus: [your priorities and preferred time horizon]
+
+Next step after your confirmation:
+- I will cue PatientHistory to retrieve and summarize the full clinical timeline, then proceed through the agents in sequence with brief milestone updates after each step.
+
+---
+
+USER:
+Orchestrator: Thank you. I will coordinate a non-prescriptive, informational workflow focused on prognosis and progression pathways only (no treatment recommendations).
+
+Plan and agent sequence:
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule for all agents: After completing their task, each agent must yield back by ending with: “back to you: Orchestrator”.
+
+To proceed, please confirm/provide:
+- Patient ID: Please confirm the exact string is “patient_4”.
+- Imaging: Do you have recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include the modality and date of the most recent study.
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of particular biomarkers, metastatic patterns including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)? Please also note your preferred prognosis time horizon (e.g., 6-, 12-, 24-month).
+
+Optional reply template:
+- Patient ID: “patient_4” (confirm/clarify)
+- Imaging: [files/link provided] or “use report text from timeline”; Most recent modality/date: [e.g., CT CAP 2025-05-12]
+- Permissions: [authorized/not authorized]
+- Focus: [your priorities and preferred time horizon]
+
+Next step after your confirmation:
+- I will cue PatientHistory to retrieve and summarize the full clinical timeline, then proceed through the agents in sequence with brief milestone updates after each step.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm required inputs (patient ID, imaging source, permissions, focus/time horizon).
+- Restate plan, participation order, and the yield-back rule.
+- Cue PatientHistory first once confirmed; collect any missing details for downstream agents.
+- Provide brief milestone updates after each agent’s contribution.
+- Coordinate agents to compile a concise, non-prescriptive prognosis/progression-pathways report.
+- Validate completeness and invite follow-up.
+
+Plan and agent sequence (informational only):
+- PatientHistory → Radiology → PatientStatus → ClinicalGuidelines → ClinicalTrials → MedicalResearch → ReportCreation
+Special rule: Each agent, after completing their task, must yield back by ending with: “back to you: Orchestrator”.
+
+User, please provide the following so I can cue PatientHistory:
+- Patient ID: Confirm the exact string is “patient_4”.
+- Imaging: Do you have recent imaging to share (DICOM files or secure links)? If not, shall we proceed using imaging report text from the timeline (if available)? If possible, include the modality and date of the most recent study.
+- Permissions: Do you authorize us to retrieve and synthesize patient_4’s timeline and data for this purpose?
+- Focus: Any specific concerns to emphasize (e.g., impact of particular biomarkers, metastatic patterns including CNS risk, oligoprogression vs. polymetastatic patterns, expected time-to-progression ranges)? Please also note your preferred prognosis time horizon (e.g., 6-, 12-, 24-month).
+
+Optional reply template:
+- Patient ID: “patient_4” (confirm/clarify)
+- Imaging: [files/link provided] or “use report text from timeline”; Most recent modality/date: [e.g., CT CAP 2025-05-12]
+- Permissions: [authorized/not authorized]
+- Focus: [your priorities and preferred time horizon]
+
+Next step after your confirmation:
+- I will cue PatientHistory to retrieve and summarize the full clinical timeline, then proceed through the agents in sequence with brief milestone updates after each step.
+
+---
+

@@ -1,0 +1,36 @@
+USER:
+Identify and list active clinical trials that patient_4 is eligible for, based on tumor type, stage, KRAS mutation status, treatment history, and geographic location. Include trial phase and contact info.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm the goal and outline a step-by-step plan with participating agents.
+- Collect any missing inputs from you that are required for downstream agents (e.g., geographic location).
+- Trigger PatientHistory to retrieve the patient’s record, then PatientStatus to synthesize current status.
+- Engage ClinicalTrials to identify matching trials using the status and your location constraints.
+- Provide milestone micro-updates after each agent’s response and coordinate handoffs.
+- Summarize final outputs and offer optional next steps (e.g., report creation) without making clinical recommendations.
+
+Plan and sequence (including the special rule):
+- Step 1: PatientHistory retrieves and summarizes the full history for patient_4.
+- Step 2: PatientStatus synthesizes the current status (tumor type, stage, KRAS status, prior treatments, ECOG, etc.).
+- Step 3: ClinicalTrials lists active trials for which patient_4 is potentially eligible, including phase and contact info, filtered by your geographic location/travel radius.
+- Special rule: Each agent, after completing their task, must yield the chat back to me (the Orchestrator). Each agent will conclude with: “back to you: Orchestrator”.
+
+Before we begin:
+- User, please provide:
+  - Patient_4’s geographic location (city, state/province, country).
+  - Maximum travel distance or regions you’d like us to consider.
+  - Whether you want all trial phases considered (I/II/III) or to limit to specific phases.
+  - Any site-of-care preferences (e.g., academic centers only) if relevant.
+
+If you confirm this plan and provide the above details, we will proceed as follows:
+- I will ask PatientHistory to pull patient_4’s timeline.
+- Then I will ask PatientStatus to produce the current status needed by ClinicalTrials.
+- Finally, I will ask ClinicalTrials to return a list of active trials with phase and contact information that match tumor type, stage, KRAS mutation status, treatment history, and your location/travel preferences.
+
+Please confirm the plan and share the location/travel details.
+
+---
+

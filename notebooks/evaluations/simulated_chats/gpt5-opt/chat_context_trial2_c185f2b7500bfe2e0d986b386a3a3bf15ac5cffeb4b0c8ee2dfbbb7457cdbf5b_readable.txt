@@ -1,0 +1,38 @@
+USER:
+Prepare tumor board for Patient ID: patient_4
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps:
+- Confirm the goal and outline the multi-agent plan and sequence.
+- Validate required inputs and prompt agents to state what they need before proceeding.
+- Coordinate data handoffs between agents to avoid gaps or duplication.
+- Provide brief milestone updates after each agent’s turn.
+- Maintain role boundaries (no clinical advice from me) and ensure each agent yields control back.
+- Close with a concise summary and invite further questions or additions.
+
+Proposed plan and participation order:
+- Special Rule: Each agent, after completing their task, must yield the chat back to you (the Orchestrator). Instruct each agent to conclude with: "back to you: Orchestrator"
+- Step 1 — PatientHistory: First, I will ask PatientHistory what details they need to respond, then provide the patient ID "patient_4" to retrieve the structured timeline and history summary.
+- Step 2 — PatientStatus: I will ask PatientStatus what they need; then, using data from PatientHistory, have them compile the current status (age, stage, primary site, histology, biomarkers, treatment history, ECOG).
+- Step 3 — Radiology: I will ask Radiology what they need; if imaging is available, we will share it. If not, we will rely on imaging reports from the history for the tumor board document.
+- Step 4 — ClinicalGuidelines: I will ask ClinicalGuidelines what they need; with the PatientStatus summary, they can provide guideline-based options for the tumor board’s consideration.
+- Step 5 — ClinicalTrials: I will ask ClinicalTrials what they need; with the PatientStatus summary, they will identify relevant active trials.
+- Step 6 — ReportCreation: I will ask ReportCreation what they need; then provide the timeline, clinical summary, social/medical history, imaging/pathology findings, guideline options, and trials to generate a tumor board-ready document draft.
+- Step 7 — MedicalResearch: I will ask MedicalResearch what they need; with a user-provided topic or keywords, they can add focused background evidence for the board packet.
+
+User, please confirm:
+- Shall I proceed with this plan for patient_4?
+- Do you want ClinicalGuidelines to include guideline-based options in the packet?
+- Do you have imaging files to upload (CT scans, chest x-rays, PET/CT) for Radiology? If yes, please provide them; if not, we will use textual imaging reports from the history.
+- Any specific research topics (e.g., a biomarker, therapy class, or post-progression strategy) you want MedicalResearch to include?
+- Any institutional preferences or constraints (e.g., formulary limits, trial site availability) we should note?
+
+If you confirm, I will begin with PatientHistory.
+
+Milestone preview:
+- After PatientHistory returns the timeline, I will summarize progress and move to PatientStatus to build the current clinical snapshot.
+
+---
+

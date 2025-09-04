@@ -1,0 +1,40 @@
+USER:
+Generate a comprehensive diagnostic summary for Patient ID: patient_4 including biomarker status, stage at diagnosis, treatment history, and latest imaging findings. Export the report as a formatted Word document for tumor board presentation.
+
+---
+
+ASSISTANT (agent id: Orchestrator):
+Planned moderation steps
+- Validate the provided patient ID and retrieve the structured patient timeline and history.
+- Use the patient timeline to generate the patient's current status (staging, histology, biomarkers, ECOG, treatment history).
+- Request radiology input on available imaging (or request images if none supplied), request clinical-trials matches, and assemble the tumor-board Word report.
+- Confirm with you any missing source documents (images, pathology reports) before final export and then produce the Word document.
+
+Planned sequence and participation order
+1. PatientHistory — validate patient_id and return structured timeline, history summary, and imaging/pathology reports if available. (Required first step.)
+2. PatientStatus — produce current patient status (age, staging, primary site, histology, biomarkers, treatment history, ECOG) using PatientHistory output.
+3. Radiology — provide radiology insights on available imaging; if no raw images are provided, comment on imaging reports from PatientHistory and request image files if needed.
+4. ClinicalTrials — screen for potentially relevant trials using PatientStatus output.
+5. ReportCreation — assemble a formatted Word document for tumor board using inputs from PatientHistory, PatientStatus, Radiology, and ClinicalTrials.
+Note: I will not request ClinicalGuidelines-generated treatment recommendations because you asked for a diagnostic summary and a tumor-board document; clinical treatment recommendations are outside my role here.
+
+Special rule to be followed
+- Each agent, after completing their task, must yield the chat back to me (the Orchestrator) and conclude with: "back to you: Orchestrator"
+
+Immediate next steps and requests
+- *User*, please confirm that the patient ID is exactly "patient_4" and provide any of the following source files if available: CT/PET/X-ray DICOMs or images, pathology report(s), and any recent clinical notes. If you do not have them, say "no files" and we will proceed using available chart-text only.
+- *PatientHistory*, please proceed:
+  - Validate that the provided patient_id ("patient_4") is present and is a string.
+  - Retrieve the relevant patient timeline data (diagnosis date, stage at diagnosis, biomarker results, histology/pathology summary, treatments and dates, imaging reports with dates and brief findings, social history relevant to tumor board).
+  - Return a JSON response matching your required schema. For a successful request, set "status" to "success", include "patient_id", a structured array "patient_timeline" (with dated events), and a concise "history_summary". Set "error_message" to null.
+  - If the patient_id is missing/invalid, return "status": "error" and an informative "error_message".
+  - Include any available CT/X-ray report findings (or note if raw images are available and how they can be provided).
+  - Conclude your response with: back to you: Orchestrator
+
+Micro-update protocol
+- After PatientHistory responds I will provide a 1–2 sentence micro-update summarizing progress and then call PatientStatus with the PatientHistory output.
+
+Proceed when ready.
+
+---
+
