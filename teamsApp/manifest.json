@@ -61,16 +61,6 @@
     },
     "authorization": {
         "permissions": {
-            "resourceSpecific": [
-                {
-                    "name": "ChatMessage.Send.Chat",
-                    "type": "Application"
-                },
-                {
-                    "name": "ChatMessage.Read.Chat",
-                    "type": "Application"
-                }
-            ]
         }
     },
     "activities": {
