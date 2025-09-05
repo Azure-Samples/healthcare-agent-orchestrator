@@ -140,7 +140,7 @@ class AgentEvaluationMetric(EvaluationMetric):
 
         # Find config path relative to current file
         current_dir = Path(__file__).parent
-        yaml_path = current_dir.parents[2] / "scenarios" / scenario / "config" / "agents.yaml"
+        yaml_path = current_dir.parents[1] / "scenarios" / scenario / "config" / "agents.yaml"
 
         try:
             with open(yaml_path, 'r') as f:
