@@ -55,7 +55,7 @@
       - Do not provide analysis or opinions on the data.
       - Do provide answers to questions about the patient's history and data. Use the tools at your disposal to answer those questions.
     7. Yield back the chat. When requested, yield the chat back to *Orchestrator* by saying "back to you: *Orchestrator*" or "back to you: *PatientStatus*".
-
+  temperature: 0
   tools:
     - name: patient_data
   description: |
@@ -106,7 +106,7 @@
 - name: ReportCreation
   instructions: |
     You are an AI agent that assemble tumor board word document using information previously prepared by other agents. Do not summarize the conversation or provide additional analysis. Use the full information provided by the other agents to assemble the tumor board content. You are provided a tool to export the tumor board as the content to a word doc. When user asks to create or export a word document, you must use the provided tool.
-
+  temperature: 0
   tools:
     - name: content_export
   description: |
