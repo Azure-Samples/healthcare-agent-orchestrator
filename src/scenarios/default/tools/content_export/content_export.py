@@ -24,6 +24,7 @@ from data_models.patient_data import PatientTimeline
 from data_models.plugin_configuration import PluginConfiguration
 from data_models.tumor_board_summary import ClinicalSummary, ClinicalTrial
 from routes.patient_data.patient_data_routes import get_chat_artifacts_url
+from utils.model_utils import model_supports_temperature
 
 from .timeline_image import create_timeline_images_by_height
 
@@ -204,7 +205,13 @@ class ContentExportPlugin:
 
         # Generate timeline
         # https://devblogs.microsoft.com/semantic-kernel/using-json-schema-for-structured-output-in-python-for-openai-models/
-        settings = AzureChatPromptExecutionSettings(response_format=ClinicalSummary)
+        if model_supports_temperature():
+            temperature = 0.0
+            logger.info(f"Using temperature setting: {temperature}")
+        else:
+            temperature = None
+            logger.info("Model does not support temperature setting")
+        settings = AzureChatPromptExecutionSettings(temperature=temperature, response_format=ClinicalSummary)
         chat_completion_service = self.kernel.get_service(service_id="default")
         chat_resp = await chat_completion_service.get_chat_message_content(chat_history=chat_history, settings=settings)
 
