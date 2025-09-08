@@ -10,7 +10,7 @@ from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob.aio import BlobServiceClient
 from semantic_kernel.contents.chat_history import ChatHistory
 
-from data_models.chat_context import ChatContext
+from data_models.chat_context import ChatContext, PatientContext
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +96,12 @@ class ChatContextAccessor:
                 "chat_history": chat_ctx.chat_history.serialize(),
                 "patient_id": chat_ctx.patient_id,
                 "patient_data": chat_ctx.patient_data,
+                "patient_contexts": {
+                    pid: {
+                        "patient_id": pctx.patient_id,
+                        "facts": pctx.facts
+                    } for pid, pctx in chat_ctx.patient_contexts.items()
+                },                
                 "display_blob_urls": chat_ctx.display_blob_urls,
                 "display_clinical_trials": chat_ctx.display_clinical_trials,
                 "output_data": chat_ctx.output_data,
@@ -111,6 +117,11 @@ class ChatContextAccessor:
         ctx = ChatContext(data["conversation_id"])
         ctx.chat_history = ChatHistory.restore_chat_history(data["chat_history"])
         ctx.patient_id = data["patient_id"]
+        for pid, stored in (data.get("patient_contexts") or {}).items():
+            ctx.patient_contexts[pid] = PatientContext(
+                patient_id=stored.get("patient_id", pid),
+                facts=stored.get("facts", {}) or {}
+            )
         ctx.patient_data = data["patient_data"]
         ctx.display_blob_urls = data["display_blob_urls"]
         ctx.display_clinical_trials = data["display_clinical_trials"]
