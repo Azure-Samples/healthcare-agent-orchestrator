@@ -173,8 +173,7 @@ def create_group_chat(
             logger.info(
                 f"Model does not support temperature. Setting temperature to None for agent {agent_config['name']}")
         settings = AzureChatPromptExecutionSettings(
-            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, temperature=temperature,
-            reasoning_effort='minimal')
+            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, temperature=temperature)
         arguments = KernelArguments(settings=settings)
         instructions = agent_config.get("instructions")
         if agent_config.get("facilitator") and instructions:
