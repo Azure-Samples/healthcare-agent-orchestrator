@@ -10,7 +10,7 @@
     "developer": {
         "name": "Microsoft",
         "mpnId": "",
-        "websiteUrl": "https://microsoft.comg",
+        "websiteUrl": "https://microsoft.com",
         "privacyUrl": "https://microsoft.com",
         "termsOfUseUrl": "https://microsoft.com"
     },
@@ -61,16 +61,6 @@
     },
     "authorization": {
         "permissions": {
-            "resourceSpecific": [
-                {
-                    "name": "ChatMessage.Send.Chat",
-                    "type": "Application"
-                },
-                {
-                    "name": "ChatMessage.Read.Chat",
-                    "type": "Application"
-                }
-            ]
         }
     },
     "activities": {
@@ -80,5 +70,9 @@
         "privateChannels",
         "sharedChannels"
     ],
-    "configurableTabs": []
+    "configurableTabs": [],
+    "webApplicationInfo": {
+        "id": "",
+        "resource": ""
+    }
 }

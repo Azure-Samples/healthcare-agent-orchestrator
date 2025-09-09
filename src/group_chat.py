@@ -30,6 +30,7 @@ from data_models.chat_context import ChatContext
 from data_models.plugin_configuration import PluginConfiguration
 from healthcare_agents import HealthcareAgent
 from healthcare_agents import config as healthcare_agent_config
+from utils.model_utils import model_supports_temperature
 
 DEFAULT_MODEL_TEMP = 0
 DEFAULT_TOOL_TYPE = "function"
@@ -55,7 +56,7 @@ def create_auth_callback(chat_ctx: ChatContext) -> Callable[..., Awaitable[Any]]
         return {'conversation-id': chat_ctx.conversation_id}
     return auth_callback
 
-
+# Need to introduce a CustomChatCompletionAgent and a CustomHistoryChannel because of issue https://github.com/microsoft/semantic-kernel/issues/12095
 class CustomHistoryChannel(ChatHistoryChannel):
     @override
     async def receive(self, history: list[ChatMessageContent],) -> None:
@@ -119,7 +120,7 @@ def create_group_chat(
             AzureChatCompletion(
                 service_id="default",
                 deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
-                api_version="2025-01-01-preview",
+                api_version="2025-04-01-preview",
                 ad_token_provider=app_ctx.cognitive_services_token_provider
             )
         )
@@ -164,8 +165,15 @@ def create_group_chat(
             else:
                 raise ValueError(f"Unknown tool type: {tool_type}")
 
+        if model_supports_temperature():
+            temperature = agent_config.get("temperature", DEFAULT_MODEL_TEMP)
+            logger.info(f"Setting model temperature for agent {agent_config['name']} to {temperature}")
+        else:
+            temperature = None
+            logger.info(
+                f"Model does not support temperature. Setting temperature to None for agent {agent_config['name']}")
         settings = AzureChatPromptExecutionSettings(
-            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42)
+            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, temperature=temperature)
         arguments = KernelArguments(settings=settings)
         instructions = agent_config.get("instructions")
         if agent_config.get("facilitator") and instructions:
@@ -181,8 +189,12 @@ def create_group_chat(
                                 chat_ctx=chat_ctx,
                                 app_ctx=app_ctx))
 
-    settings = AzureChatPromptExecutionSettings(
-        function_choice_behavior=FunctionChoiceBehavior.Auto(),  seed=42, response_format=ChatRule)
+    if model_supports_temperature():
+        settings = AzureChatPromptExecutionSettings(
+            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, temperature=0, response_format=ChatRule)
+    else:
+        settings = AzureChatPromptExecutionSettings(
+            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, response_format=ChatRule)
     arguments = KernelArguments(settings=settings)
 
     facilitator_agent = next((agent for agent in all_agents_config if agent.get("facilitator")), all_agents_config[0])
