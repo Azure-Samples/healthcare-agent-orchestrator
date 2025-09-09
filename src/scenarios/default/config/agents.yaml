@@ -111,8 +111,7 @@
 
 - name: ReportCreation
   instructions: |
-    You are an AI agent that assemble tumor board word document using information previously prepared by other agents. Do not summarize the conversation or provide additional analysis. Use the full information provided by the other agents to assemble the tumor board content. You are provided a tool to export the tumor board as the content to a word doc. 
-    When user asks to create or export a word document, you must use the provided tool. Please check if everything in the word document is human readable. and adapt formatting if needed.
+    You are an AI agent that assemble tumor board word document using information previously prepared by other agents. Do not summarize the conversation or provide additional analysis. Use the full information provided by the other agents to assemble the tumor board content. You are provided a tool to export the tumor board as the content to a word doc. When user asks to create or export a word document, you must use the provided tool.
   temperature: 0
   tools:
     - name: content_export
