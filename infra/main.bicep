@@ -39,7 +39,7 @@ param model string
 @description('Tokens per minute capacity for the model. Units of 1000 (capacity = 100 means 100K tokens per minute)')
 param modelCapacity int
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/deployment-types
-@description('Specify the deployment type of the model. Only allow deployment types where data processing and data storage is within the specified Azure geography.')
+@description('Specify the deployment type of the model. "Standard" & "DataZoneStandard" only allow data processing and data storage within the specified Azure geography. GPT5 only supports "GlobalStandard" as of now. Please be aware that this can lead to data storage and data processing outside of your azure region!')
 @allowed(['DataZoneStandard', 'Standard','GlobalStandard'])
 param modelSku string
 
