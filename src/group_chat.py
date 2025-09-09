@@ -120,7 +120,7 @@ def create_group_chat(
             AzureChatCompletion(
                 service_id="default",
                 deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
-                api_version="2025-01-01-preview",
+                api_version="2025-04-01-preview",
                 ad_token_provider=app_ctx.cognitive_services_token_provider
             )
         )

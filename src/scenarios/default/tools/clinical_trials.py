@@ -76,7 +76,7 @@ class ClinicalTrialsPlugin:
         self.chat_completion_service = AzureChatCompletion(
             service_id="reasoning-model",
             deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME_REASONING_MODEL"],
-            api_version="2024-12-01-preview",
+            api_version="2025-04-01-preview",
             endpoint=os.environ["AZURE_OPENAI_REASONING_MODEL_ENDPOINT"],
         )
 

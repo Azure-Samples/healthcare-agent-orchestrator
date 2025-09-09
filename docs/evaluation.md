@@ -164,7 +164,7 @@ from evaluation.metrics.agent_selection import AgentSelectionEvaluator
 
 llm_service = AzureChatCompletion(
     deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
-    api_version="2024-12-01-preview",
+    api_version="2025-04-01-preview",
     endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
 )
 
