@@ -56,7 +56,7 @@ def create_auth_callback(chat_ctx: ChatContext) -> Callable[..., Awaitable[Any]]
         return {'conversation-id': chat_ctx.conversation_id}
     return auth_callback
 
-
+# Need to introduce a CustomChatCompletionAgent and a CustomHistoryChannel because of issue https://github.com/microsoft/semantic-kernel/issues/12095
 class CustomHistoryChannel(ChatHistoryChannel):
     @override
     async def receive(self, history: list[ChatMessageContent],) -> None:
