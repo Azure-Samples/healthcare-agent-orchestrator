@@ -60,12 +60,13 @@ Given the patient's attributes, generate a search query following the example ab
 def create_plugin(plugin_config: PluginConfiguration) -> Kernel:
     return ClinicalTrialsPlugin(
         plugin_config.kernel,
-        chat_ctx=plugin_config.chat_ctx
+        chat_ctx=plugin_config.chat_ctx,
+        cognitive_services_token_provider=plugin_config.cognitive_services_token_provider
     )
 
 
 class ClinicalTrialsPlugin:
-    def __init__(self, kernel: Kernel, chat_ctx: ChatContext):
+    def __init__(self, kernel: Kernel, chat_ctx: ChatContext, cognitive_services_token_provider):
         self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.kernel = kernel
         self.clinical_trial_url = "https://clinicaltrials.gov/api/v2/studies/"
@@ -78,6 +79,7 @@ class ClinicalTrialsPlugin:
             deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME_REASONING_MODEL"],
             api_version="2025-04-01-preview",
             endpoint=os.environ["AZURE_OPENAI_REASONING_MODEL_ENDPOINT"],
+            ad_token_provider=cognitive_services_token_provider,
         )
 
     @kernel_function()

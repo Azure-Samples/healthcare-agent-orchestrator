@@ -57,6 +57,8 @@ def create_auth_callback(chat_ctx: ChatContext) -> Callable[..., Awaitable[Any]]
     return auth_callback
 
 # Need to introduce a CustomChatCompletionAgent and a CustomHistoryChannel because of issue https://github.com/microsoft/semantic-kernel/issues/12095
+
+
 class CustomHistoryChannel(ChatHistoryChannel):
     @override
     async def receive(self, history: list[ChatMessageContent],) -> None:
@@ -134,6 +136,7 @@ def create_group_chat(
             data_access=app_ctx.data_access,
             chat_ctx=chat_ctx,
             azureml_token_provider=app_ctx.azureml_token_provider,
+            cognitive_services_token_provider=app_ctx.cognitive_services_token_provider,
         )
         is_healthcare_agent = healthcare_agent_config.yaml_key in agent_config and bool(
             agent_config[healthcare_agent_config.yaml_key])
