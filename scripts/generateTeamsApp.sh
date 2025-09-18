@@ -37,8 +37,8 @@ fi
 # Ensure the output directory is created
 mkdir -p "$output"
 
-scriptDirectory=$(dirname "$(readlink -f "$0")")
-rootDirectory=$(dirname "$scriptDirectory")
+scriptDirectory="$(cd "$(dirname "$0")" && pwd)"
+rootDirectory="$(dirname "$scriptDirectory")"
 
 azure_bots=$(azd env get-value AZURE_BOTS)
 
@@ -78,7 +78,9 @@ echo "$azureBotsContent" | while IFS= read -r bot; do
         .description.short = $botName |
         .description.full = $botName |
         .icons.outline = ($botName + ".png")  |
-        .icons.color = ($botName + ".png") 
+        .icons.color = ($botName + ".png") |
+        .webApplicationInfo.id = $botId |
+        .webApplicationInfo.resource = "api://botid-$botId"
     ')
 
     # Define the new manifest file path

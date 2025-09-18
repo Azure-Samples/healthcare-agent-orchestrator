@@ -34,13 +34,13 @@ param appPlanName string = ''
 param appName string = ''
 
 @description('Gen AI model name and version to deploy')
-@allowed(['gpt-4o;2024-08-06', 'gpt-4.1;2025-04-14'])
+@allowed(['gpt-4o;2024-08-06','gpt-4.1;2025-04-14','gpt-5;2025-08-07','gpt-5-mini;2025-08-07','gpt-5-nano;2025-08-07','model-router;2025-08-07'])
 param model string
 @description('Tokens per minute capacity for the model. Units of 1000 (capacity = 100 means 100K tokens per minute)')
 param modelCapacity int
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/deployment-types
-@description('Specify the deployment type of the model. Only allow deployment types where data processing and data storage is within the specified Azure geography.')
-@allowed(['Standard', 'DataZoneStandard'])
+@description('Specify the deployment type of the model. "Standard" & "DataZoneStandard" only allow data processing and data storage within the specified Azure geography. GPT5 only supports "GlobalStandard" as of now. Please be aware that this can lead to data storage and data processing outside of your azure region!')
+@allowed(['DataZoneStandard', 'Standard','GlobalStandard'])
 param modelSku string
 
 @description('Location to deploy AI Services')
@@ -194,8 +194,9 @@ var names = {
   app: !empty(appName) ? appName : '${abbrs.webSitesAppService}${environmentName}-${uniqueSuffix}'
   aiServices: !empty(aiServicesName) ? aiServicesName : '${abbrs.cognitiveServicesAccounts}${environmentName}-${uniqueSuffix}'
   aiHub: !empty(aiHubName) ? aiHubName : '${abbrs.cognitiveServicesAccounts}hub-${environmentName}-${uniqueSuffix}'
-  storage: !empty(storageName) ? storageName : replace(replace('${abbrs.storageStorageAccounts}${environmentName}${uniqueSuffix}', '-', ''), '_', '')
-  appStorage: !empty(appStorageName) ? appStorageName : replace(replace('${abbrs.storageStorageAccounts}app${environmentName}${uniqueSuffix}', '-', ''), '_', '')
+  // Modified to next two lines to lower case the string per azure storage account naming conventions. This was causing a deployment error
+  storage: toLower(!empty(storageName) ? storageName : replace(replace('${abbrs.storageStorageAccounts}${environmentName}${uniqueSuffix}', '-', ''), '_', ''))
+  appStorage: toLower(!empty(appStorageName) ? appStorageName : replace(replace('${abbrs.storageStorageAccounts}app${environmentName}${uniqueSuffix}', '-', ''), '_', ''))
   keyVault: !empty(keyVaultName) ? keyVaultName : '${abbrs.keyVaultVaults}${environmentName}-${uniqueSuffix}'
   appInsights: !empty(appInsightsName) ? appInsightsName : '${abbrs.insightsComponents}${environmentName}-${uniqueSuffix}'
   ahdsWorkspaceName: replace('ahds${environmentName}${uniqueSuffix}', '-', '')

@@ -60,7 +60,9 @@ foreach ($bot in $azureBotsContent) {
     $manifestContent.description.full = $bot.name    
     $manifestContent.icons.color = $bot.name + ".png"
     $manifestContent.icons.outline = $bot.name + ".png"
-
+    $manifestContent.webApplicationInfo.id = $bot.botId
+    $manifestContent.webApplicationInfo.resource = "api://botid-$($bot.botId)"
+    
     # Define the new manifest file path
     $newManifestFilePath = Join-Path -Path $botOutputDirectory -ChildPath "manifest.json"
 

@@ -3,7 +3,7 @@
 
 import os
 from dataclasses import dataclass, field
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from semantic_kernel.contents.chat_history import ChatHistory
 
@@ -11,10 +11,10 @@ from semantic_kernel.contents.chat_history import ChatHistory
 @dataclass
 class PatientContext:
     """
-    Minimal per-patient context (future expansion point: facts, summary, provenance).
+    Minimal per-patient context for patient isolation.
     """
     patient_id: str
-    facts: Dict[str, Any] = field(default_factory=dict)  # placeholder for future enrichment
+    facts: Dict[str, Any] = field(default_factory=dict)
 
 
 class ChatContext:
@@ -22,17 +22,16 @@ class ChatContext:
         self.conversation_id = conversation_id
         self.chat_history = ChatHistory()
 
-        # Active patient (single pointer)
+        # Patient context fields
         self.patient_id = None
-
-        # All encountered patient contexts (allows switching back without re-extraction)
         self.patient_contexts: Dict[str, PatientContext] = {}
+        self.workflow_summary: Optional[str] = None
 
-        # Existing fields
+        # Legacy fields (preserved for compatibility)
         self.patient_data = []
         self.display_blob_urls = []
         self.display_image_urls = []
         self.display_clinical_trials = []
         self.output_data = []
-        self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.healthcare_agents = {}
+        self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

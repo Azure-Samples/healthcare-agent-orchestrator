@@ -1,13 +1,17 @@
-import json
 import logging
 import os
 import time
-from typing import Optional, Literal
+from typing import Optional, Literal, Tuple
 
 from semantic_kernel import Kernel
 from semantic_kernel.connectors.ai.open_ai.services.azure_chat_completion import AzureChatCompletion
-from semantic_kernel.connectors.ai.prompt_execution_settings import PromptExecutionSettings
+from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import (
+    AzureChatPromptExecutionSettings,
+)
 from semantic_kernel.contents import ChatHistory
+from semantic_kernel.functions import kernel_function
+
+from data_models.patient_context_models import PatientContextDecision
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +20,8 @@ AnalyzerAction = Literal["NONE", "CLEAR", "ACTIVATE_NEW", "SWITCH_EXISTING", "UN
 
 class PatientContextAnalyzer:
     """
-    Single LLM call decides patient context action and (if relevant) patient_id.
+    Patient context analyzer using Semantic Kernel structured output with JSON schema.
+    Follows Microsoft best practices for structured LLM outputs.
     """
 
     def __init__(
@@ -33,172 +38,203 @@ class PatientContextAnalyzer:
         if not self.deployment_name:
             raise ValueError("No deployment name for patient context analyzer.")
         self.api_version = api_version or os.getenv("AZURE_OPENAI_API_VERSION") or "2024-10-21"
+        self._token_provider = token_provider
 
         logger.info(f"PatientContextAnalyzer initialized with deployment: {self.deployment_name}")
 
         self._kernel = Kernel()
         self._kernel.add_service(
             AzureChatCompletion(
-                service_id="default",
+                service_id="patient_context_analyzer",
                 deployment_name=self.deployment_name,
                 api_version=self.api_version,
                 ad_token_provider=token_provider,
             )
         )
 
-    async def analyze(
-        self, user_text: str, prior_patient_id: Optional[str], known_patient_ids: list[str]
-    ) -> tuple[AnalyzerAction, Optional[str], float]:
-        start_time = time.time()
+    @kernel_function(
+        description="Analyze user input for patient context decisions",
+        name="analyze_patient_context",
+    )
+    async def analyze_decision(
+        self,
+        user_text: str,
+        prior_patient_id: Optional[str] = None,
+        known_patient_ids: Optional[list[str]] = None,
+    ) -> PatientContextDecision:
+        """
+        Analyze user input and return structured patient context decision.
 
-        logger.debug(f"Analyzing user input for patient context | Prior: {prior_patient_id}")
+        Args:
+            user_text: The user's input message
+            prior_patient_id: Current active patient ID (if any)
+            known_patient_ids: List of known patient IDs in this session
+
+        Returns:
+            PatientContextDecision: Structured decision with action, patient_id, and reasoning
+        """
+        if known_patient_ids is None:
+            known_patient_ids = []
 
         if not user_text or not user_text.strip():
-            duration = time.time() - start_time
-            logger.debug(f"Empty input received | Duration: {duration:.4f}s")
-            return "NONE", None, duration
+            return PatientContextDecision(
+                action="NONE",
+                patient_id=None,
+                reasoning="Empty or whitespace user input; no action needed."
+            )
 
-        # Existing system prompt and LLM call logic...
-        system_prompt = f"""
-You are a patient context analyzer for healthcare conversations.
+        system_prompt = f"""You are a patient context analyzer for healthcare conversations.
 
 TASK: Analyze user input and decide the appropriate patient context action.
 
-ACTIONS:
+AVAILABLE ACTIONS:
 - NONE: No patient context needed (general questions, greetings, system commands)
-- CLEAR: User wants to clear/reset patient context
-- ACTIVATE_NEW: User mentions a new patient ID not in known_patient_ids
+- CLEAR: User wants to clear/reset all patient context
+- ACTIVATE_NEW: User mentions a new patient ID not in the known patient list
 - SWITCH_EXISTING: User wants to switch to a different known patient
 - UNCHANGED: Continue with current patient context
 
 CURRENT STATE:
-- Prior patient ID: {prior_patient_id}
+- Active patient ID: {prior_patient_id or "None"}
 - Known patient IDs: {known_patient_ids}
 
-RULES:
+ANALYSIS RULES:
 1. Extract patient_id ONLY if action is ACTIVATE_NEW or SWITCH_EXISTING
-2. Patient IDs are typically "patient_X" format or explicit medical record numbers
-3. For CLEAR/NONE/UNCHANGED, set patient_id to null
+2. Patient IDs typically follow "patient_X" format or are explicit medical record numbers
+3. For CLEAR/NONE/UNCHANGED actions, set patient_id to null
 4. Prioritize explicit patient mentions over implicit context
+5. Keep reasoning brief and specific (max 50 words)
 
-RESPONSE FORMAT (JSON only):
-{{"action": "ACTION_NAME", "patient_id": "extracted_id_or_null", "reasoning": "brief_explanation"}}
-
-USER INPUT: {user_text}
-"""
+Respond with a structured JSON object matching the required schema."""
 
         try:
             chat_history = ChatHistory()
             chat_history.add_system_message(system_prompt)
-            chat_history.add_user_message(user_text)
+            chat_history.add_user_message(f"User input: {user_text}")
 
-            svc = self._kernel.get_service("default")
-            llm_start = time.time()
+            # Use AzureChatPromptExecutionSettings with response_format for structured output
+            execution_settings = AzureChatPromptExecutionSettings(
+                service_id="patient_context_analyzer",
+                max_tokens=200,
+                temperature=0.1,
+                response_format=PatientContextDecision,  # This generates the JSON schema automatically
+            )
+
+            svc = self._kernel.get_service("patient_context_analyzer")
 
             results = await svc.get_chat_message_contents(
                 chat_history=chat_history,
-                settings=PromptExecutionSettings(
-                    max_tokens=150,
-                    temperature=0.1,
-                    response_format={"type": "json_object"}
-                ),
+                settings=execution_settings,
             )
 
-            llm_duration = time.time() - llm_start
+            if not results or not results[0].content:
+                logger.warning("No response from patient context analyzer")
+                return PatientContextDecision(
+                    action="NONE",
+                    patient_id=None,
+                    reasoning="No response from analyzer; defaulting to NONE."
+                )
 
-            if not results:
-                raise ValueError("No LLM response received")
-
+            # Parse the structured response
             content = results[0].content
-            if not content:
-                logger.warning("Empty LLM response content")
-                duration = time.time() - start_time
-                return "NONE", None, duration
 
-            try:
-                parsed = json.loads(content)
-                action = parsed.get("action", "NONE")
-                pid = parsed.get("patient_id")
+            # Handle both string and already-parsed responses
+            if isinstance(content, str):
+                try:
+                    decision = PatientContextDecision.model_validate_json(content)
+                except Exception as e:
+                    logger.error(f"Failed to parse structured response: {e}")
+                    return PatientContextDecision(
+                        action="NONE",
+                        patient_id=None,
+                        reasoning=f"Parse error: {str(e)[:30]}..."
+                    )
+            elif isinstance(content, dict):
+                try:
+                    decision = PatientContextDecision.model_validate(content)
+                except Exception as e:
+                    logger.error(f"Failed to validate structured response: {e}")
+                    return PatientContextDecision(
+                        action="NONE",
+                        patient_id=None,
+                        reasoning=f"Validation error: {str(e)[:30]}..."
+                    )
+            else:
+                logger.warning(f"Unexpected response type: {type(content)}")
+                return PatientContextDecision(
+                    action="NONE",
+                    patient_id=None,
+                    reasoning="Unexpected response format; defaulting to NONE."
+                )
 
-                # Validation
-                valid_actions = ["NONE", "CLEAR", "ACTIVATE_NEW", "SWITCH_EXISTING", "UNCHANGED"]
-                if action not in valid_actions:
-                    logger.error(f"Invalid action from LLM: {action}")
-                    action = "NONE"
-                    pid = None
-
-                duration = time.time() - start_time
-                logger.info(
-                    f"Patient context analysis complete | Action: {action} | Patient: {pid} | Duration: {duration:.4f}s")
-                return action, pid, duration
-
-            except json.JSONDecodeError as je:
-                logger.error(f"Failed to parse LLM JSON response: {je}")
-                duration = time.time() - start_time
-                return "NONE", None, duration
-
-        except Exception as e:
-            duration = time.time() - start_time
-            logger.error(f"Patient context analysis failed: {e} | Duration: {duration:.4f}s")
-            return "NONE", None, duration
-
-    async def summarize_text(self, text: str, patient_id: str) -> str:
-        """Generate a patient-specific summary of conversation text."""
-        try:
-            system_prompt = f"""
-You are a clinical summarization assistant. Your ONLY task is to summarize the provided text for patient '{patient_id}'.
-
-**CRITICAL RULES:**
-1.  **FOCUS EXCLUSIVELY ON `{patient_id}`**: Ignore all information, notes, or mentions related to any other patient.
-2.  **DO NOT BLEND PATIENTS**: If the text mentions other patients (e.g., 'patient_4', 'patient_12'), you must NOT include them in the summary.
-3.  **BE CONCISE**: Create a short, bulleted list of 3-5 key points.
-4.  **NO FABRICATION**: If there is no relevant information for `{patient_id}` in the text, respond with "No specific information was discussed for patient {patient_id} in this segment."
-
-Summarize the following text:
----
-{text}
-"""
-
-            chat_history = ChatHistory()
-            chat_history.add_system_message(system_prompt)
-            chat_history.add_user_message("Please summarize this conversation.")
-
-            svc = self._kernel.get_service("default")
-            results = await svc.get_chat_message_contents(
-                chat_history=chat_history,
-                settings=PromptExecutionSettings(max_tokens=300, temperature=0.3),
+            logger.info(
+                f"Patient context decision: {decision.action} | "
+                f"Patient: {decision.patient_id} | "
+                f"Reasoning: {decision.reasoning}"
             )
 
-            return results[0].content if results and results[0].content else f"Summary unavailable for {patient_id}"
+            return decision
 
         except Exception as e:
-            logger.warning(f"Failed to generate summary: {e}")
-            return f"Summary generation failed for {patient_id}"
+            logger.error(f"Patient context analysis failed: {e}")
+            return PatientContextDecision(
+                action="NONE",
+                patient_id=None,
+                reasoning=f"Analysis error: {str(e)[:30]}..."
+            )
 
-    # Add this method to the PatientContextAnalyzer class
+    # Wrapper for backward compatibility - returns timing info
+    async def analyze_with_timing(
+        self,
+        user_text: str,
+        prior_patient_id: Optional[str],
+        known_patient_ids: list[str],
+    ) -> Tuple[PatientContextDecision, float]:
+        """
+        Analyze with timing information for backward compatibility.
+        """
+        start_time = time.time()
+
+        decision = await self.analyze_decision(
+            user_text=user_text,
+            prior_patient_id=prior_patient_id,
+            known_patient_ids=known_patient_ids,
+        )
+
+        duration = time.time() - start_time
+        return decision, duration
+
+    # Legacy wrapper (for existing callers)
+    async def analyze(
+        self,
+        user_text: str,
+        prior_patient_id: Optional[str],
+        known_patient_ids: list[str],
+    ) -> tuple[AnalyzerAction, Optional[str], float]:
+        """Legacy wrapper - use analyze_decision() for new code."""
+        decision, duration = await self.analyze_with_timing(
+            user_text, prior_patient_id, known_patient_ids
+        )
+        return decision.action, decision.patient_id, duration
 
     def reset_kernel(self):
         """Reset the kernel and service instance to prevent LLM state contamination between patients."""
         try:
-            if hasattr(self, '_kernel') and self._kernel:
-                # Store current configuration
+            if hasattr(self, "_kernel") and self._kernel:
                 current_deployment = self.deployment_name
                 current_api_version = self.api_version
+                token_provider = self._token_provider
 
-                # Create fresh kernel instance
                 self._kernel = Kernel()
-
-                # Re-add the service with same configuration
                 self._kernel.add_service(
                     AzureChatCompletion(
-                        service_id="default",
+                        service_id="patient_context_analyzer",
                         deployment_name=current_deployment,
                         api_version=current_api_version,
-                        ad_token_provider=None,  # Adjust if you use token provider
+                        ad_token_provider=token_provider,
                     )
                 )
 
-                logger.info("Kernel reset to prevent patient context contamination")
-
+                logger.info("Kernel reset completed for patient context isolation")
         except Exception as e:
             logger.warning(f"Error during kernel reset: {e}")

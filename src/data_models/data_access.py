@@ -16,8 +16,11 @@ from data_models.clinical_note_accessor import ClinicalNoteAccessor
 from data_models.fabric.fabric_clinical_note_accessor import FabricClinicalNoteAccessor
 from data_models.fhir.fhir_clinical_note_accessor import FhirClinicalNoteAccessor
 from data_models.image_accessor import ImageAccessor
+from data_models.patient_context_accessor import PatientContextRegistryAccessor
+from azure.identity.aio import get_bearer_token_provider
 
 logger = logging.getLogger(__name__)
+
 
 class UserDelegationKeyDelegate:
     def __init__(self, blob_service_client: BlobServiceClient):
@@ -81,19 +84,20 @@ class BlobSasDelegate(UserDelegationKeyDelegate):
 
 @dataclass(frozen=True)
 class DataAccess:
-    """ Data access layer for the application. """
+    """Data access layer for the application."""
     blob_sas_delegate: BlobSasDelegate
     chat_artifact_accessor: ChatArtifactAccessor
     chat_context_accessor: ChatContextAccessor
     clinical_note_accessor: ClinicalNoteAccessor
     image_accessor: ImageAccessor
+    patient_context_registry_accessor: PatientContextRegistryAccessor
 
 
 def create_data_access(
     blob_service_client: BlobServiceClient,
     credential: AsyncTokenCredential
 ) -> DataAccess:
-    """ Factory function to create a DataAccess object. """
+    """Factory function to create a DataAccess object."""
     # Create clinical note accessor based on the source
     clinical_notes_source = os.getenv("CLINICAL_NOTES_SOURCE")
     if clinical_notes_source == "fhir":
@@ -113,7 +117,12 @@ def create_data_access(
     return DataAccess(
         blob_sas_delegate=BlobSasDelegate(blob_service_client),
         chat_artifact_accessor=ChatArtifactAccessor(blob_service_client),
-        chat_context_accessor=ChatContextAccessor(blob_service_client),
+        chat_context_accessor=ChatContextAccessor(
+            blob_service_client,
+            cognitive_services_token_provider=get_bearer_token_provider(
+                credential, "https://cognitiveservices.azure.com/.default")
+        ),
         clinical_note_accessor=clinical_note_accessor,
         image_accessor=ImageAccessor(blob_service_client),
+        patient_context_registry_accessor=PatientContextRegistryAccessor(blob_service_client),
     )
