@@ -56,6 +56,11 @@ class ProceedUser:
             if self.followup_questions:
                 next_question = self.followup_questions.pop(0)
                 return f"Orchestrator: {next_question}"
+        if not self.followup_asked and self.followup_questions:
+            self.followup_asked = True
+            if self.followup_questions:
+                next_question = self.followup_questions.pop(0)
+                return f"Orchestrator: {next_question}"
         return "Orchestrator: proceed"
 
 
@@ -137,7 +142,7 @@ Remember to ask only one follow-up question at a time, waiting for the agent's r
             ChatHistory chat_history: The chat history containing messages from the user and agents.
 
         Returns:
-            list[ChatMessageContent]: List of new messages since the last user message.
+            str: String representation of the latest messages.
         """
         last_user_message_idx = -1
         for i, message in enumerate(chat_history.messages):
@@ -151,7 +156,7 @@ Remember to ask only one follow-up question at a time, waiting for the agent's r
         Transforms the chat history into a format suitable for the LLM simulation.
 
         Args:
-            messages: List of chat messages to transform.
+            ChatHistory chat_history: The chat history containing messages from the user and agents.
 
         Returns:
             str: String representation of the chat history.
@@ -168,9 +173,6 @@ class ChatSimulator:
     """
     Class to simulate a chat with a group of agents.
 
-    Handles patient context isolation during simulation by ensuring proper
-    patient context setup and cleanup between simulation runs.
-
     Attributes:
         simulated_user: The simulated user to interact with the agents.
         group_chat_kwargs: Additional arguments for the group chat.
@@ -181,6 +183,7 @@ class ChatSimulator:
             Can be loaded from a CSV file with `load_initial_queries`.
         followup_questions: Optional list of follow-up questions for the simulation.
             Can be loaded from a CSV file with `load_initial_queries`.
+        group_followups: Whether to group follow-up questions by initial query.
         trial_count: Number of trials for each initial query.
         max_turns: Maximum number of turns in the conversation.
         output_folder_path: Path to the folder where chat history will be saved.
@@ -239,18 +242,7 @@ class ChatSimulator:
             kwargs: Additional arguments to be passed to the group chat creation function.
         """
         if "chat_ctx" not in kwargs:
-            # Create chat context with patient context support
-            chat_context = ChatContext(chat_id)
-            # Extract patient ID from chat_id if it follows pattern
-            if "patient_" in chat_id:
-                parts = chat_id.split("_")
-                for i, part in enumerate(parts):
-                    if part == "patient" and i + 1 < len(parts):
-                        patient_id = f"patient_{parts[i + 1]}"
-                        chat_context.patient_id = patient_id
-                        logging.debug(f"Set patient context for simulation: {patient_id}")
-                        break
-            kwargs["chat_ctx"] = chat_context
+            kwargs["chat_ctx"] = ChatContext(chat_id)
         self.group_chat, self.chat_context = create_group_chat(**kwargs)
 
         return self
@@ -273,7 +265,6 @@ class ChatSimulator:
             initial_queries_column: Name of the column containing initial queries.
             followup_column: Name of the column containing follow-up questions.
             delimiter: Delimiter used in the CSV file (default is comma).
-            group_followups: Whether to group follow-up questions by initial query.
 
         Returns:
             self: Returns the instance for method chaining.
@@ -322,16 +313,14 @@ class ChatSimulator:
                         f"Setting up simulated user with initial query: {initial_query} and followups: {followup_questions}"
                     )
 
-                    # Create chat ID that includes patient information for context isolation
-                    chat_id = f"sim_{patient_id}_{trial}_{checkpoint_key[:8]}"
-                    self.setup_group_chat(chat_id, **self.group_chat_kwargs)
+                    self.setup_group_chat(checkpoint_key, **self.group_chat_kwargs)
 
                     await self.chat(patient_id, initial_query, followup_questions, self.max_turns)
                     self.save(f"chat_context_trial{trial}_{checkpoint_key}.json",
                               save_readable_history=self.save_readable_history)
                 except Exception as e:
                     logging.error(
-                        f"Error during conversation with initial query: {initial_query} and followup: {followup_questions[0] if followup_questions else 'None'}: {e}")
+                        f"Error during conversation with initial query: {initial_query} and followup: {followup_questions[0]}: {e}")
                     if self.raise_errors:
                         raise e
                     else:
@@ -368,7 +357,7 @@ class ChatSimulator:
             try:
                 new_user_message = await self.simulated_user.generate_user_message(self.group_chat.history)
             except Exception as e:
-                logging.error(f"Error generating user message: {e}")
+                print(f"Error generating user message: {e}")
                 break
 
             if self.simulated_user.is_complete:
@@ -435,8 +424,6 @@ class ChatSimulator:
             with open(readable_filename, 'w', encoding="utf-8") as f:
                 f.write(messages)
 
-        logging.info(f"Saved simulation results to {output_file_path}")
-
         return self
 
     def _print_message(self, message: ChatMessageContent):
@@ -462,7 +449,6 @@ class ChatSimulator:
             patients_id_column: Name of the column containing patient IDs.
             initial_queries_column: Name of the column containing initial queries.
             followup_column: Name of the column containing follow-up questions.
-            group_followups: Whether to group follow-up questions by initial query.
 
         Raises:
             ValueError: If the specified columns are not found in the CSV file.
@@ -471,7 +457,7 @@ class ChatSimulator:
             raise ValueError(f"Column '{initial_queries_column}' not found in the CSV file.")
 
         if patients_id_column not in reader.fieldnames:
-            raise ValueError(f"Column '{patients_id_column}' not found in the CSV file.")
+            raise ValueError(f"Columns '{patients_id_column}' not found in the CSV file.")
 
         followup_column_available = followup_column is not None and followup_column in reader.fieldnames
 
@@ -521,13 +507,10 @@ class ChatSimulator:
 
     def _save_checkpoint(self, query: str):
         """Save a completed query to the checkpoint file."""
-        with open(self.checkpoint_file, "a", encoding="utf-8") as f:
+        with open(self.checkpoint_file, "w+", encoding="utf-8") as f:
             f.write(f"{query}\n")
 
     def _generate_chat_unique_id(self, patient_id: str, initial_query: str, followup_questions: list[str]) -> str:
         """Generate a unique ID for the chat based on patient ID, initial query, and follow-up questions."""
         return hashlib.sha256(
             f"{patient_id}{initial_query}{"".join(followup_questions)}{type(self.simulated_user).__name__}".encode()).hexdigest()
-
-
-logger = logging.getLogger(__name__)

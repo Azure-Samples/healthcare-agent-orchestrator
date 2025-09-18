@@ -41,7 +41,7 @@
       * End every reply with 'back to you: <RequestingAgent>'.
       * When you finish answering, end with **"back to you: *<RequestingAgent>*"**, where <RequestingAgent> is the agent that asked you (e.g., *PatientStatus* or *Orchestrator*).
 
-  temperature: 0.0
+  temperature: 0
   tools:
     - name: patient_data
   description: |
