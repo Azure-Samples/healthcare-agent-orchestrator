@@ -4,12 +4,11 @@
 import importlib
 import logging
 import os
-from typing import Any, Awaitable, Callable, Tuple, override, override
+from typing import Any, Awaitable, Callable, Tuple, override
 
 from pydantic import BaseModel
 from semantic_kernel import Kernel
 from semantic_kernel.agents import AgentGroupChat, ChatCompletionAgent
-from semantic_kernel.agents.channels.chat_history_channel import ChatHistoryChannel
 from semantic_kernel.agents.channels.chat_history_channel import ChatHistoryChannel
 from semantic_kernel.agents.strategies.selection.kernel_function_selection_strategy import \
     KernelFunctionSelectionStrategy
@@ -20,8 +19,6 @@ from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_
     AzureChatPromptExecutionSettings
 from semantic_kernel.connectors.ai.open_ai.services.azure_chat_completion import AzureChatCompletion
 from semantic_kernel.connectors.openapi_plugin import OpenAPIFunctionExecutionParameters
-from semantic_kernel.contents.chat_history import ChatHistory
-from semantic_kernel.contents.chat_message_content import ChatMessageContent
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.contents.chat_message_content import ChatMessageContent
 from semantic_kernel.contents.history_reducer.chat_history_truncation_reducer import ChatHistoryTruncationReducer
@@ -91,53 +88,6 @@ def create_auth_callback(chat_ctx: ChatContext) -> Callable[..., Awaitable[Any]]
         return {'conversation-id': chat_ctx.conversation_id}
     return auth_callback
 
-# Need to introduce a CustomChatCompletionAgent and a CustomHistoryChannel because of issue https://github.com/microsoft/semantic-kernel/issues/12095
-
-
-class CustomHistoryChannel(ChatHistoryChannel):
-    @override
-    async def receive(self, history: list[ChatMessageContent],) -> None:
-        await super().receive(history)
-
-        for message in history[:-1]:
-            await self.thread.on_new_message(message)
-
-
-async def create_channel(
-    self, chat_history: ChatHistory | None = None, thread_id: str | None = None
-) -> CustomHistoryChannel:
-    """Create a ChatHistoryChannel.
-
-    Args:
-        chat_history: The chat history for the channel. If None, a new ChatHistory instance will be created.
-        thread_id: The ID of the thread. If None, a new thread will be created.
-
-    Returns:
-        An instance of AgentChannel.
-    """
-    from semantic_kernel.agents.chat_completion.chat_completion_agent import ChatHistoryAgentThread
-
-    CustomHistoryChannel.model_rebuild()
-
-    thread = ChatHistoryAgentThread(chat_history=chat_history, thread_id=thread_id)
-
-    if thread.id is None:
-        await thread.create()
-
-    messages = [message async for message in thread.get_messages()]
-
-    return CustomHistoryChannel(messages=messages, thread=thread)
-
-
-class CustomChatCompletionAgent(ChatCompletionAgent):
-    """Custom ChatCompletionAgent to override the create_channel method."""
-
-    @override
-    async def create_channel(
-        self, chat_history: ChatHistory | None = None, thread_id: str | None = None
-    ) -> CustomHistoryChannel:
-        return await create_channel(self, chat_history, thread_id)
-
 
 def inject_workflow_summary(chat_ctx: ChatContext) -> None:
     """Inject workflow summary if available."""
@@ -158,7 +108,7 @@ def inject_workflow_summary(chat_ctx: ChatContext) -> None:
             items=[TextContent(text=f"WORKFLOW_SUMMARY: {chat_ctx.workflow_summary}")]
         )
         chat_ctx.chat_history.messages.insert(1, summary_message)
-        logger.info(f"Injected workflow summary for patient {chat_ctx.patient_id}")
+        logger.info("Injected workflow summary for patient %s", chat_ctx.patient_id)
 
 
 async def generate_workflow_summary(
@@ -242,7 +192,7 @@ async def generate_workflow_summary(
             try:
                 workflow = WorkflowSummary.model_validate_json(content)
             except Exception as e:
-                logger.error(f"Failed to parse workflow summary: {e}")
+                logger.error("Failed to parse workflow summary: %s", e)
                 # Return fallback
                 from data_models.patient_context_models import WorkflowStep
                 return WorkflowSummary(
@@ -256,7 +206,7 @@ async def generate_workflow_summary(
             try:
                 workflow = WorkflowSummary.model_validate(content)
             except Exception as e:
-                logger.error(f"Failed to validate workflow summary: {e}")
+                logger.error("Failed to validate workflow summary: %s", e)
                 from data_models.patient_context_models import WorkflowStep
                 return WorkflowSummary(
                     patient_id=patient_id,
@@ -266,7 +216,7 @@ async def generate_workflow_summary(
                     reasoning=f"Validation error: {str(e)[:30]}..."
                 )
         else:
-            logger.warning(f"Unexpected workflow response type: {type(content)}")
+            logger.warning("Unexpected workflow response type: %s", type(content))
             from data_models.patient_context_models import WorkflowStep
             return WorkflowSummary(
                 patient_id=patient_id,
@@ -276,11 +226,11 @@ async def generate_workflow_summary(
                 reasoning="Unexpected response format"
             )
 
-        logger.info(f"Generated workflow summary with {len(workflow.steps)} steps for patient {patient_id}")
+        logger.info("Generated workflow summary with %d steps for patient %s", len(workflow.steps), patient_id)
         return workflow
 
     except Exception as e:
-        logger.error(f"Workflow summary generation failed: {e}")
+        logger.error("Workflow summary generation failed: %s", e)
         from data_models.patient_context_models import WorkflowStep
         return WorkflowSummary(
             patient_id=patient_id,
@@ -307,7 +257,7 @@ def create_group_chat(
     """
     participant_configs = participants or app_ctx.all_agent_configs
     participant_names = [cfg.get("name") for cfg in participant_configs]
-    logger.info(f"Creating group chat with participants: {participant_names}")
+    logger.info("Creating group chat with participants: %s", participant_names)
 
     # Inject workflow summary before creating agents
     inject_workflow_summary(chat_ctx)
@@ -371,18 +321,19 @@ def create_group_chat(
 
         if model_supports_temperature():
             temperature = agent_config.get("temperature", DEFAULT_MODEL_TEMP)
-            logger.info(f"Setting model temperature for agent {agent_config['name']} to {temperature}")
+            logger.info("Setting model temperature for agent %s to %s", agent_config['name'], temperature)
         else:
             temperature = None
-            logger.info(
-                f"Model does not support temperature. Setting temperature to None for agent {agent_config['name']}")
+            logger.info("Model does not support temperature. Setting temperature to None for agent %s",
+                        agent_config['name'])
+
         settings = AzureChatPromptExecutionSettings(
             function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, temperature=temperature)
         arguments = KernelArguments(settings=settings)
         instructions = agent_config.get("instructions")
         if agent_config.get("facilitator") and instructions:
             instructions = instructions.replace(
-                "{{aiAgents}}", "\n\t\t".join([f"- {agent['name']}: {agent["description"]}" for agent in all_agents_config]))
+                "{{aiAgents}}", "\n\t\t".join([f"- {agent['name']}: {agent['description']}" for agent in all_agents_config]))
 
         return (CustomChatCompletionAgent(kernel=agent_kernel,
                                           name=agent_config["name"],
@@ -393,13 +344,8 @@ def create_group_chat(
                                 chat_ctx=chat_ctx,
                                 app_ctx=app_ctx))
 
-    if model_supports_temperature():
-        settings = AzureChatPromptExecutionSettings(
-            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, temperature=0, response_format=ChatRule)
-    else:
-        settings = AzureChatPromptExecutionSettings(
-            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, response_format=ChatRule)
-    arguments = KernelArguments(settings=settings)
+    # Create kernel for orchestrator functions (THIS WAS MISSING!)
+    orchestrator_kernel = _create_kernel_with_chat_completion()
 
     # Find facilitator agent
     facilitator_agent = next((agent for agent in all_agents_config if agent.get("facilitator")), all_agents_config[0])
@@ -433,7 +379,7 @@ def create_group_chat(
 
             # Store workflow summary in chat context
             chat_ctx.workflow_summary = workflow.model_dump_json()
-            logger.info(f"Generated new workflow summary for patient {chat_ctx.patient_id}")
+            logger.info("Generated new workflow summary for patient %s", chat_ctx.patient_id)
 
     selection_function = KernelFunctionFromPrompt(
         function_name="selection",
@@ -510,10 +456,10 @@ def create_group_chat(
         try:
             rule = ChatRule.model_validate_json(str(result.value[0]))
             should_terminate = rule.verdict == "yes"
-            logger.debug(f"Termination decision: {should_terminate} | Reasoning: {rule.reasoning}")
+            logger.debug("Termination decision: %s | Reasoning: %s", should_terminate, rule.reasoning)
             return should_terminate
         except Exception as e:
-            logger.error(f"Termination function error: {e}")
+            logger.error("Termination function error: %s", e)
             return False  # Fallback to continue conversation
 
     def evaluate_selection(result):
@@ -522,10 +468,10 @@ def create_group_chat(
             rule = ChatRule.model_validate_json(str(result.value[0]))
             selected_agent = rule.verdict if rule.verdict in [agent["name"]
                                                               for agent in all_agents_config] else facilitator
-            logger.debug(f"Selected agent: {selected_agent} | Reasoning: {rule.reasoning}")
+            logger.debug("Selected agent: %s | Reasoning: %s", selected_agent, rule.reasoning)
             return selected_agent
         except Exception as e:
-            logger.error(f"Selection function error: {e}")
+            logger.error("Selection function error: %s", e)
             return facilitator  # Fallback to facilitator
 
     chat = AgentGroupChat(
@@ -557,5 +503,5 @@ def create_group_chat(
         ),
     )
 
-    logger.info(f"Group chat created successfully with {len(agents)} agents")
+    logger.info("Group chat created successfully with %d agents", len(agents))
     return (chat, chat_ctx)
