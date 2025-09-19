@@ -4,11 +4,12 @@
 import importlib
 import logging
 import os
-from typing import Any, Awaitable, Callable, Tuple, override
+from typing import Any, Awaitable, Callable, Tuple, override, override
 
 from pydantic import BaseModel
 from semantic_kernel import Kernel
 from semantic_kernel.agents import AgentGroupChat, ChatCompletionAgent
+from semantic_kernel.agents.channels.chat_history_channel import ChatHistoryChannel
 from semantic_kernel.agents.channels.chat_history_channel import ChatHistoryChannel
 from semantic_kernel.agents.strategies.selection.kernel_function_selection_strategy import \
     KernelFunctionSelectionStrategy
@@ -19,6 +20,8 @@ from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_
     AzureChatPromptExecutionSettings
 from semantic_kernel.connectors.ai.open_ai.services.azure_chat_completion import AzureChatCompletion
 from semantic_kernel.connectors.openapi_plugin import OpenAPIFunctionExecutionParameters
+from semantic_kernel.contents.chat_history import ChatHistory
+from semantic_kernel.contents.chat_message_content import ChatMessageContent
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.contents.chat_message_content import ChatMessageContent
 from semantic_kernel.contents.history_reducer.chat_history_truncation_reducer import ChatHistoryTruncationReducer
@@ -33,7 +36,7 @@ from data_models.plugin_configuration import PluginConfiguration
 from data_models.patient_context_models import WorkflowSummary
 from healthcare_agents import HealthcareAgent
 from healthcare_agents import config as healthcare_agent_config
-
+from utils.model_utils import model_supports_temperature
 
 DEFAULT_MODEL_TEMP = 0
 DEFAULT_TOOL_TYPE = "function"
@@ -84,7 +87,56 @@ def create_auth_callback(chat_ctx: ChatContext) -> Callable[..., Awaitable[Any]]
     Returns:
         A callable that returns an authentication token.
     """
-    return lambda: {'conversation-id': chat_ctx.conversation_id, }
+    async def auth_callback():
+        return {'conversation-id': chat_ctx.conversation_id}
+    return auth_callback
+
+# Need to introduce a CustomChatCompletionAgent and a CustomHistoryChannel because of issue https://github.com/microsoft/semantic-kernel/issues/12095
+
+
+class CustomHistoryChannel(ChatHistoryChannel):
+    @override
+    async def receive(self, history: list[ChatMessageContent],) -> None:
+        await super().receive(history)
+
+        for message in history[:-1]:
+            await self.thread.on_new_message(message)
+
+
+async def create_channel(
+    self, chat_history: ChatHistory | None = None, thread_id: str | None = None
+) -> CustomHistoryChannel:
+    """Create a ChatHistoryChannel.
+
+    Args:
+        chat_history: The chat history for the channel. If None, a new ChatHistory instance will be created.
+        thread_id: The ID of the thread. If None, a new thread will be created.
+
+    Returns:
+        An instance of AgentChannel.
+    """
+    from semantic_kernel.agents.chat_completion.chat_completion_agent import ChatHistoryAgentThread
+
+    CustomHistoryChannel.model_rebuild()
+
+    thread = ChatHistoryAgentThread(chat_history=chat_history, thread_id=thread_id)
+
+    if thread.id is None:
+        await thread.create()
+
+    messages = [message async for message in thread.get_messages()]
+
+    return CustomHistoryChannel(messages=messages, thread=thread)
+
+
+class CustomChatCompletionAgent(ChatCompletionAgent):
+    """Custom ChatCompletionAgent to override the create_channel method."""
+
+    @override
+    async def create_channel(
+        self, chat_history: ChatHistory | None = None, thread_id: str | None = None
+    ) -> CustomHistoryChannel:
+        return await create_channel(self, chat_history, thread_id)
 
 
 def inject_workflow_summary(chat_ctx: ChatContext) -> None:
@@ -272,7 +324,7 @@ def create_group_chat(
             AzureChatCompletion(
                 service_id="default",
                 deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
-                api_version="2024-10-21",
+                api_version="2025-04-01-preview",
                 ad_token_provider=app_ctx.cognitive_services_token_provider
             )
         )
@@ -310,15 +362,22 @@ def create_group_chat(
                     execution_settings=OpenAPIFunctionExecutionParameters(
                         auth_callback=create_auth_callback(chat_ctx),
                         server_url_override=server_url_override,
-                        enable_payload_namespacing=True
+                        enable_payload_namespacing=True,
+                        timeout=None
                     )
                 )
             else:
                 raise ValueError(f"Unknown tool type: {tool_type}")
 
-        temperature = agent_config.get("temperature", DEFAULT_MODEL_TEMP)
+        if model_supports_temperature():
+            temperature = agent_config.get("temperature", DEFAULT_MODEL_TEMP)
+            logger.info(f"Setting model temperature for agent {agent_config['name']} to {temperature}")
+        else:
+            temperature = None
+            logger.info(
+                f"Model does not support temperature. Setting temperature to None for agent {agent_config['name']}")
         settings = AzureChatPromptExecutionSettings(
-            function_choice_behavior=FunctionChoiceBehavior.Auto(), temperature=temperature, seed=42)
+            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, temperature=temperature)
         arguments = KernelArguments(settings=settings)
         instructions = agent_config.get("instructions")
         if agent_config.get("facilitator") and instructions:
@@ -334,8 +393,13 @@ def create_group_chat(
                                 chat_ctx=chat_ctx,
                                 app_ctx=app_ctx))
 
-    # Create kernel for orchestrator functions
-    orchestrator_kernel = _create_kernel_with_chat_completion()
+    if model_supports_temperature():
+        settings = AzureChatPromptExecutionSettings(
+            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, temperature=0, response_format=ChatRule)
+    else:
+        settings = AzureChatPromptExecutionSettings(
+            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, response_format=ChatRule)
+    arguments = KernelArguments(settings=settings)
 
     # Find facilitator agent
     facilitator_agent = next((agent for agent in all_agents_config if agent.get("facilitator")), all_agents_config[0])
