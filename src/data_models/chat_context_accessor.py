@@ -195,19 +195,13 @@ class ChatContextAccessor:
                 "name": getattr(msg, 'name', None)
             })
 
-        # Build patient contexts
-        patient_contexts = {}
-        for pid, pctx in chat_ctx.patient_contexts.items():
-            patient_contexts[pid] = {
-                "patient_id": pctx.patient_id,
-                "facts": pctx.facts,
-            }
+        # REMOVED: patient_contexts serialization - use registry instead!
 
         data = {
             "schema_version": CURRENT_SCHEMA_VERSION,
             "conversation_id": chat_ctx.conversation_id,
             "patient_id": chat_ctx.patient_id,
-            "patient_contexts": patient_contexts,
+            # REMOVED: "patient_contexts": patient_contexts,
             "workflow_summary": getattr(chat_ctx, 'workflow_summary', None),
             "chat_history": chat_messages,
             "patient_data": chat_ctx.patient_data,
@@ -223,43 +217,37 @@ class ChatContextAccessor:
     def deserialize(data_str: str) -> ChatContext:
         """Deserialize chat context from JSON with migration support."""
         data = json.loads(data_str)
-        schema_version = data.get("schema_version", 1)  # Default to v1 for legacy files
+        schema_version = data.get("schema_version", 1)
 
         context = ChatContext(data["conversation_id"])
         context.patient_id = data.get("patient_id")
 
-        # Restore patient contexts
-        for pid, pc_data in data.get("patient_contexts", {}).items():
-            context.patient_contexts[pid] = PatientContext(
-                patient_id=pc_data["patient_id"],
-                facts=pc_data.get("facts", {}),
-            )
+        # REMOVED: patient_contexts restoration - load from registry instead!
+        # Legacy support for old files that still have patient_contexts
+        if "patient_contexts" in data:
+            logger.info("Found legacy patient_contexts in context file - consider migrating to registry-only")
 
         context.workflow_summary = data.get("workflow_summary")
 
-        # Process chat history with migration support
+        # Process chat history (unchanged)
         for msg_data in data.get("chat_history", []):
-            # Skip messages with insufficient data
             if "role" not in msg_data:
-                logger.warning(f"Skipping message with no role: {msg_data.keys()}")
+                logger.warning("Skipping message with no role: %s", msg_data.keys())
                 continue
 
             role = AuthorRole(msg_data["role"])
             name = msg_data.get("name")
 
-            # Handle both legacy (v1) and new (v2) formats
             if "content" in msg_data:
                 content_str = msg_data["content"]
             elif "items" in msg_data and msg_data["items"]:
-                # Legacy v1 format with items array
                 content_str = msg_data["items"][0].get("text", "")
             else:
-                logger.warning(f"Skipping message with no content: {msg_data}")
+                logger.warning("Skipping message with no content: %s", msg_data)
                 continue
 
-            # Skip tool messages with empty content (can't reconstruct)
             if role == AuthorRole.TOOL and not content_str:
-                logger.warning(f"Skipping empty tool message")
+                logger.warning("Skipping empty tool message")
                 continue
 
             msg = ChatMessageContent(
@@ -270,7 +258,7 @@ class ChatContextAccessor:
                 msg.name = name
             context.chat_history.messages.append(msg)
 
-        # Restore other fields
+        # Restore other fields (unchanged)
         context.patient_data = data.get("patient_data", [])
         context.display_blob_urls = data.get("display_blob_urls", [])
         context.display_image_urls = data.get("display_image_urls", [])
@@ -278,8 +266,7 @@ class ChatContextAccessor:
         context.output_data = data.get("output_data", [])
         context.healthcare_agents = data.get("healthcare_agents", {})
 
-        # Log migration info
         if schema_version < CURRENT_SCHEMA_VERSION:
-            logger.info(f"Migrated context from schema v{schema_version} to v{CURRENT_SCHEMA_VERSION}")
+            logger.info("Migrated context from schema v%s to v%s", schema_version, CURRENT_SCHEMA_VERSION)
 
         return context
