@@ -84,8 +84,10 @@ class LLMUser:
 
         if app_ctx and hasattr(app_ctx, "cognitive_services_token_provider"):
             kwargs["ad_token_provider"] = app_ctx.cognitive_services_token_provider
-        else:
+        elif "AZURE_OPENAI_API_KEY" in os.environ:
             kwargs["api_key"] = os.environ.get("AZURE_OPENAI_API_KEY")
+        else:
+            raise ValueError("Either AZURE_OPENAI_API_KEY or cognitive_services_token_provider must be provided.")
 
         self.chat_completion_service = AzureChatCompletion(**kwargs)
 
