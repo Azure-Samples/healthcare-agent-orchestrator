@@ -3,7 +3,7 @@
 
 import os
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 from semantic_kernel.contents.chat_history import ChatHistory
 
@@ -25,9 +25,8 @@ class ChatContext:
         # Patient context fields
         self.patient_id = None
         self.patient_contexts: Dict[str, PatientContext] = {}
-        self.workflow_summary: Optional[str] = None
 
-        # Legacy fields (preserved for compatibility)
+        # Legacy / display fields (still in use by various UI & agents)
         self.patient_data = []
         self.display_blob_urls = []
         self.display_image_urls = []

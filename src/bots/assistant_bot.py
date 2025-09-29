@@ -1,10 +1,10 @@
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License.
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 
 import asyncio
-import json
 import logging
 import os
+import json
 from datetime import datetime, timezone
 
 from botbuilder.core import MessageFactory, TurnContext
@@ -12,18 +12,14 @@ from botbuilder.core.teams import TeamsActivityHandler
 from botbuilder.integration.aiohttp import CloudAdapter
 from botbuilder.schema import Activity, ActivityTypes
 from semantic_kernel.agents import AgentGroupChat
-
-from semantic_kernel.contents import AuthorRole, ChatMessageContent, TextContent
-from services.patient_context_service import PATIENT_CONTEXT_PREFIX
+from semantic_kernel.contents import ChatMessageContent, TextContent, AuthorRole
 
 from data_models.app_context import AppContext
 from data_models.chat_context import ChatContext
 
-from errors import NotAuthorizedError
 from group_chat import create_group_chat
-from services.patient_context_service import PatientContextService
+from services.patient_context_service import PatientContextService, PATIENT_CONTEXT_PREFIX
 from services.patient_context_analyzer import PatientContextAnalyzer
-
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +41,6 @@ class AssistantBot(TeamsActivityHandler):
         self.data_access = app_context.data_access
         self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-        # Add patient context service
         analyzer = PatientContextAnalyzer(token_provider=app_context.cognitive_services_token_provider)
         self.patient_context_service = PatientContextService(
             analyzer=analyzer,
@@ -53,39 +48,21 @@ class AssistantBot(TeamsActivityHandler):
             context_accessor=app_context.data_access.chat_context_accessor
         )
 
-    async def get_bot_context(
-        self, conversation_id: str, bot_name: str, turn_context: TurnContext
-    ):
+    async def get_bot_context(self, conversation_id: str, bot_name: str, turn_context: TurnContext):
         if conversation_id not in self.turn_contexts:
             self.turn_contexts[conversation_id] = {}
-
         if bot_name not in self.turn_contexts[conversation_id]:
             context = await self.create_turn_context(bot_name, turn_context)
             self.turn_contexts[conversation_id][bot_name] = context
-
         return self.turn_contexts[conversation_id][bot_name]
 
     async def create_turn_context(self, bot_name, turn_context):
-        app_id = next(
-            agent["bot_id"] for agent in self.all_agents if agent["name"] == bot_name
-        )
-
-        # Lookup adapter for bot_name. bot_name maybe different from self.name.
+        app_id = next(agent["bot_id"] for agent in self.all_agents if agent["name"] == bot_name)
         adapter = self.adapters[bot_name]
         claims_identity = adapter.create_claims_identity(app_id)
-        connector_factory = (
-            adapter.bot_framework_authentication.create_connector_factory(
-                claims_identity
-            )
-        )
-        connector_client = await connector_factory.create(
-            turn_context.activity.service_url, "https://api.botframework.com"
-        )
-        user_token_client = (
-            await adapter.bot_framework_authentication.create_user_token_client(
-                claims_identity
-            )
-        )
+        connector_factory = adapter.bot_framework_authentication.create_connector_factory(claims_identity)
+        connector_client = await connector_factory.create(turn_context.activity.service_url, "https://api.botframework.com")
+        user_token_client = await adapter.bot_framework_authentication.create_user_token_client(claims_identity)
 
         async def logic(context: TurnContext):
             pass
@@ -97,265 +74,185 @@ class AssistantBot(TeamsActivityHandler):
         context.turn_state[CloudAdapter.CONNECTOR_FACTORY_KEY] = connector_factory
         context.turn_state[CloudAdapter.BOT_OAUTH_SCOPE_KEY] = "https://api.botframework.com/.default"
         context.turn_state[CloudAdapter.BOT_CALLBACK_HANDLER_KEY] = logic
-
         return context
 
     async def _handle_clear_command(self, content: str, chat_ctx: ChatContext, conversation_id: str) -> bool:
-        """Handle patient context clear commands - aligned with web interface."""
         content_lower = content.lower().strip()
         if content_lower in ["clear", "clear patient", "clear context", "clear patient context"]:
             logger.info(f"Processing clear command for conversation: {conversation_id}")
-
-            # Archive everything before clearing (same as web interface)
             timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%S-%f")
             archive_folder = f"archive/{timestamp}"
-
             try:
-                logger.info(f"Starting archive to folder: {archive_folder}")
-
-                # Archive session context (this creates the archive folder structure)
                 await self.data_access.chat_context_accessor.archive_to_folder(conversation_id, None, archive_folder)
-                logger.info(f"Archived session context to {archive_folder}")
-
-                # Archive ALL patient contexts (not just from chat_ctx.patient_contexts)
-                # We need to get the list from the registry like the web interface does
                 try:
                     patient_registry, _ = await self.patient_context_service.registry_accessor.read_registry(conversation_id)
                     if patient_registry:
-                        for patient_id in patient_registry.keys():
-                            await self.data_access.chat_context_accessor.archive_to_folder(conversation_id, patient_id, archive_folder)
-                            logger.info(f"Archived patient context for {patient_id} to {archive_folder}")
-                except Exception as registry_error:
-                    logger.warning(f"Could not read registry for archiving patient contexts: {registry_error}")
-                    # Fallback: use patient_contexts from chat_ctx if available
-                    if hasattr(chat_ctx, 'patient_contexts') and chat_ctx.patient_contexts:
-                        for patient_id in chat_ctx.patient_contexts.keys():
-                            await self.data_access.chat_context_accessor.archive_to_folder(conversation_id, patient_id, archive_folder)
-                            logger.info(f"Archived patient context for {patient_id} to {archive_folder} (fallback)")
-
-                # Archive patient registry (this renames it, doesn't create folder structure)
+                        for pid in patient_registry.keys():
+                            await self.data_access.chat_context_accessor.archive_to_folder(conversation_id, pid, archive_folder)
+                except Exception:
+                    if getattr(chat_ctx, "patient_contexts", None):
+                        for pid in chat_ctx.patient_contexts.keys():
+                            await self.data_access.chat_context_accessor.archive_to_folder(conversation_id, pid, archive_folder)
                 await self.patient_context_service.registry_accessor.archive_registry(conversation_id)
-                logger.info(f"Archived patient registry for {conversation_id}")
-
-                # Clear chat context (same as web interface)
-                chat_ctx.patient_context = None
-                if hasattr(chat_ctx, 'patient_contexts'):
-                    chat_ctx.patient_contexts.clear()
-                chat_ctx.chat_history.clear()
-                chat_ctx.patient_id = None
-
-                # Save the cleared context
-                await self.data_access.chat_context_accessor.write(chat_ctx)
-                logger.info(f"Saved cleared context for {conversation_id}")
-
-                logger.info(f"Successfully archived and cleared all contexts to {archive_folder}")
-                return True
-
             except Exception as e:
-                logger.error(f"Failed to archive contexts during clear: {e}")
-                # Still clear the context even if archiving fails
+                logger.warning(f"Clear archival issues: {e}")
+            finally:
                 chat_ctx.patient_context = None
-                if hasattr(chat_ctx, 'patient_contexts'):
+                if hasattr(chat_ctx, "patient_contexts"):
                     chat_ctx.patient_contexts.clear()
                 chat_ctx.chat_history.clear()
                 chat_ctx.patient_id = None
-
-                # Save the cleared context
-                try:
-                    await self.data_access.chat_context_accessor.write(chat_ctx)
-                    logger.info(f"Saved cleared context after archive failure")
-                except Exception as save_error:
-                    logger.error(f"Failed to save cleared context: {save_error}")
-
-                return True
-
+                await self.data_access.chat_context_accessor.write(chat_ctx)
+            return True
         return False
 
     async def on_message_activity(self, turn_context: TurnContext) -> None:
         conversation_id = turn_context.activity.conversation.id
         chat_context_accessor = self.data_access.chat_context_accessor
-        chat_artifact_accessor = self.data_access.chat_artifact_accessor  # Main branch addition
+        chat_artifact_accessor = self.data_access.chat_artifact_accessor
 
-        # Extract raw user text (without bot mention) once
         raw_user_text = turn_context.remove_recipient_mention(turn_context.activity).strip()
 
-        # STEP 1: Load session context first
         try:
             chat_ctx = await chat_context_accessor.read(conversation_id, None)
-            if not chat_ctx:
-                chat_ctx = ChatContext(conversation_id)
-                logger.info(f"Created new session context for: {conversation_id}")
-            else:
-                logger.info(f"Loaded existing session context for: {conversation_id}")
-        except Exception as e:
-            logger.error(f"Failed to load session context: {e}")
+        except Exception:
             chat_ctx = ChatContext(conversation_id)
 
-        # STEP 1.5: Handle clear commands (main branch logic enhanced with patient context)
         if await self._handle_clear_command(raw_user_text, chat_ctx, conversation_id):
-            # Also archive chat artifacts (main branch functionality)
             await chat_artifact_accessor.archive(conversation_id)
             await turn_context.send_activity("Conversation cleared!")
             return
 
-        # STEP 2: Patient context decision and application
         decision, timing = await self.patient_context_service.decide_and_apply(raw_user_text, chat_ctx)
-
-        logger.info(f"Patient context decision: {decision} | Patient: {chat_ctx.patient_id} | Timing: {timing}")
-
-        # STEP 3: Handle special decision outcomes
-        if decision == "CLEAR":
-            # This should now be handled by _handle_clear_command above, but keep as fallback
-            await chat_artifact_accessor.archive(conversation_id)
-            await turn_context.send_activity("All contexts have been archived and cleared. How can I assist you today?")
-            return
-        elif decision == "NEEDS_PATIENT_ID":
+        if decision == "NEEDS_PATIENT_ID":
             await turn_context.send_activity(
-                "I need a patient ID to proceed. Please provide the patient ID in the format 'patient_X' "
-                "(e.g., '@Orchestrator start tumor board review for patient_4')."
+                "I need a patient ID like 'patient_4' (e.g., '@Orchestrator start tumor board review for patient_4')."
             )
             return
-        elif decision == "RESTORED_FROM_STORAGE":
-            logger.info(f"Restored patient context from storage: {chat_ctx.patient_id}")
 
-        # NEW: If active patient exists, load ONLY that patient's isolated context file
         if chat_ctx.patient_id:
             try:
-                # Load the patient-specific file (isolated history)
-                isolated_ctx = await chat_context_accessor.read(conversation_id, chat_ctx.patient_id)
-                if isolated_ctx and isolated_ctx.chat_history.messages:
-                    # Replace with isolated chat history
-                    chat_ctx.chat_history = isolated_ctx.chat_history
-                    logger.info(
-                        f"Loaded isolated history for {chat_ctx.patient_id} ({len(isolated_ctx.chat_history.messages)} messages)")
-                else:
-                    logger.info(f"No existing history for {chat_ctx.patient_id}, starting fresh")
-            except Exception as e:
-                logger.debug(f"Could not load isolated context for {chat_ctx.patient_id}: {e}")
+                isolated = await chat_context_accessor.read(conversation_id, chat_ctx.patient_id)
+                if isolated and isolated.chat_history.messages:
+                    chat_ctx.chat_history = isolated.chat_history
+            except Exception:
+                pass
 
-        # STEP 4: Continue with normal group chat processing
+        # Inject fresh ephemeral PATIENT_CONTEXT_JSON snapshot
+        filtered = []
+        for m in chat_ctx.chat_history.messages:
+            if not (m.role == AuthorRole.SYSTEM and hasattr(m, "items") and m.items
+                    and getattr(m.items[0], "text", "").startswith(PATIENT_CONTEXT_PREFIX)):
+                filtered.append(m)
+        chat_ctx.chat_history.messages = filtered
+        snapshot = {
+            "conversation_id": chat_ctx.conversation_id,
+            "patient_id": chat_ctx.patient_id,
+            "all_patient_ids": sorted(getattr(chat_ctx, "patient_contexts", {}).keys()),
+            "generated_at": datetime.utcnow().isoformat() + "Z"
+        }
+        line = f"{PATIENT_CONTEXT_PREFIX}: {json.dumps(snapshot, separators=(',', ':'))}"
+        sys_msg = ChatMessageContent(role=AuthorRole.SYSTEM, items=[TextContent(text=line)])
+        chat_ctx.chat_history.messages.insert(0, sys_msg)
+
         agents = self.all_agents
-        if len(chat_ctx.chat_history.messages) == 0:
-            # new conversation. Let's see which agents are available.
-            async def is_part_of_conversation(agent):
-                context = await self.get_bot_context(turn_context.activity.conversation.id, agent["name"], turn_context)
-                typing_activity = Activity(
-                    type=ActivityTypes.typing,
-                    relates_to=turn_context.activity.relates_to,
-                )
-                typing_activity.apply_conversation_reference(
-                    turn_context.activity.get_conversation_reference()
-                )
-                context.activity = typing_activity
+        if len(chat_ctx.chat_history.messages) == 1:  # only the snapshot present
+            async def is_part(agent):
+                context = await self.get_bot_context(conversation_id, agent["name"], turn_context)
+                typing = Activity(type=ActivityTypes.typing, relates_to=turn_context.activity.relates_to)
+                typing.apply_conversation_reference(turn_context.activity.get_conversation_reference())
+                context.activity = typing
                 try:
-                    await context.send_activity(typing_activity)
+                    await context.send_activity(typing)
                     return True
-                except Exception as e:
-                    logger.info(f"Failed to send typing activity to {agent['name']}: {e}")
-                    # This happens if the agent is not part of the group chat.
-                    # Remove the agent from the list of available agents
+                except Exception:
                     return False
 
-            part_of_conversation = await asyncio.gather(*(is_part_of_conversation(agent) for agent in self.all_agents))
-            agents = [agent for agent, should_include in zip(self.all_agents, part_of_conversation) if should_include]
+            flags = await asyncio.gather(*(is_part(a) for a in self.all_agents))
+            agents = [a for a, ok in zip(self.all_agents, flags) if ok]
 
         (chat, chat_ctx) = create_group_chat(self.app_context, chat_ctx, participants=agents)
 
-        # Add user message with patient context
-        user_message_with_context = self._append_pc_ctx(f"{self.name}: {raw_user_text}", chat_ctx)
-        chat_ctx.chat_history.add_user_message(user_message_with_context)
+        # Add raw user message
+        chat_ctx.chat_history.add_user_message(raw_user_text)
 
         chat.is_complete = False
         await self.process_chat(chat, chat_ctx, turn_context)
 
-        # Save chat context
         try:
             await chat_context_accessor.write(chat_ctx)
-            logger.info(f"Saved context for conversation: {conversation_id} | Patient: {chat_ctx.patient_id}")
-        except Exception as e:
+        except Exception:
             logger.exception("Failed to save chat context.")
 
     async def on_error(self, context: TurnContext, error: Exception):
-        # This error is raised as Exception, so we can only use the message to handle the error.
+        from errors import NotAuthorizedError
         if str(error) == "Unable to proceed while another agent is active.":
             await context.send_activity("Please wait for the current agent to finish.")
         elif isinstance(error, NotAuthorizedError):
-            logger.warning(error)
             await context.send_activity("You are not authorized to access this agent.")
         else:
-            # default exception handling
-            logger.exception(f"Agent {self.name} encountered an error")
-            await context.send_activity(f"Orchestrator is working on solving your problems, please retype your request")
+            await context.send_activity("Orchestrator encountered an error. Please retry your request.")
 
-    async def process_chat(
-        self, chat: AgentGroupChat, chat_ctx: ChatContext, turn_context: TurnContext
-    ):
-        # If the mentioned agent is a facilitator, proceed with group chat.
-        # Otherwise, proceed with standalone chat using the mentioned agent.
-        agent_config = next(agent_config for agent_config in self.all_agents if agent_config["name"] == self.name)
-        mentioned_agent = None if agent_config.get("facilitator", False) \
-            else next(agent for agent in chat.agents if agent.name == self.name)
+    async def process_chat(self, chat: AgentGroupChat, chat_ctx: ChatContext, turn_context: TurnContext):
+        agent_cfg = next(cfg for cfg in self.all_agents if cfg["name"] == self.name)
+        mentioned_agent = None if agent_cfg.get("facilitator", False) else next(
+            a for a in chat.agents if a.name == self.name)
 
         async for response in chat.invoke(agent=mentioned_agent):
-            context = await self.get_bot_context(
-                turn_context.activity.conversation.id, response.name, turn_context
-            )
-            if response.content.strip() == "":
+            if not response.content.strip():
                 continue
 
-            # Add patient context to response
-            response_with_context = self._append_pc_ctx(response.content, chat_ctx)
+            active_pid = chat_ctx.patient_id
+            all_pids = sorted(getattr(chat_ctx, "patient_contexts", {}).keys())
+            final_content = response.content
 
-            # Update response properly with ChatMessageContent v2 format
-            if hasattr(response, 'items') and response.items:
-                response.items[0].text = response_with_context
+            # Option 3 guard + added Session ID line
+            if all_pids and "PT_CTX:" not in response.content:
+                roster = ", ".join(f"`{p}`{' (active)' if p == active_pid else ''}" for p in all_pids)
+                pt_ctx_block = "\n\n---\n*PT_CTX:*\n"
+                pt_ctx_block += f"- **Session ID:** `{chat_ctx.conversation_id}`\n"
+                pt_ctx_block += f"- **Patient ID:** `{active_pid}`\n" if active_pid else "- *No active patient.*\n"
+                pt_ctx_block += f"- **Session Patients:** {roster}"
+                final_content = f"{response.content}{pt_ctx_block}"
+
+            if hasattr(response, "items") and response.items:
+                response.items[0].text = final_content
             else:
-                # If no items structure, recreate with proper format
                 response = ChatMessageContent(
                     role=response.role,
-                    items=[TextContent(text=response_with_context)],
-                    name=getattr(response, 'name', None)
+                    items=[TextContent(text=final_content)],
+                    name=getattr(response, "name", None)
                 )
 
             msgText = self._append_links_to_msg(response.content, chat_ctx)
             msgText = await self.generate_sas_for_blob_urls(msgText, chat_ctx)
 
+            context = await self.get_bot_context(turn_context.activity.conversation.id, response.name, turn_context)
             activity = MessageFactory.text(msgText)
-            activity.apply_conversation_reference(
-                turn_context.activity.get_conversation_reference()
-            )
+            activity.apply_conversation_reference(turn_context.activity.get_conversation_reference())
             context.activity = activity
-
             await context.send_activity(activity)
 
             if chat.is_complete:
                 break
 
     def _append_links_to_msg(self, msgText: str, chat_ctx: ChatContext) -> str:
-        # Add patient data links to response
         try:
-            # Handle both main branch format (direct access) and patient context format (getattr)
-            image_urls = getattr(chat_ctx, 'display_image_urls', [])
-            clinical_trial_urls = chat_ctx.display_clinical_trials
-
-            # Display loaded images
-            if image_urls:
+            imgs = getattr(chat_ctx, "display_image_urls", [])
+            trials = chat_ctx.display_clinical_trials
+            if imgs:
                 msgText += "<h2>Patient Images</h2>"
-                for url in image_urls:
-                    filename = url.split("/")[-1]
-                    msgText += f"<img src='{url}' alt='{filename}' height='300px'/>"
-
-            # Display clinical trials
-            if clinical_trial_urls:
+                for url in imgs:
+                    fname = url.split("/")[-1]
+                    msgText += f"<img src='{url}' alt='{fname}' height='300px'/>"
+            if trials:
                 msgText += "<h2>Clinical trials</h2>"
-                for url in clinical_trial_urls:
+                for url in trials:
                     trial = url.split("/")[-1]
                     msgText += f"<li><a href='{url}'>{trial}</a></li>"
-
             return msgText
         finally:
-            # Handle both formats for cleanup
-            if hasattr(chat_ctx, 'display_image_urls'):
+            if hasattr(chat_ctx, "display_image_urls"):
                 chat_ctx.display_image_urls = []
             chat_ctx.display_clinical_trials = []
 
@@ -364,80 +261,6 @@ class AssistantBot(TeamsActivityHandler):
             for blob_url in chat_ctx.display_blob_urls:
                 blob_sas_url = await self.data_access.blob_sas_delegate.get_blob_sas_url(blob_url)
                 msgText = msgText.replace(blob_url, blob_sas_url)
-
             return msgText
         finally:
             chat_ctx.display_blob_urls = []
-
-    def _get_system_patient_context_json(self, chat_ctx: ChatContext) -> str | None:
-        """Extract the JSON payload from the current PATIENT_CONTEXT_JSON system message."""
-        for msg in chat_ctx.chat_history.messages:
-            if msg.role == AuthorRole.SYSTEM:
-                # Handle both string content and itemized content
-                content = msg.content
-                if isinstance(content, str):
-                    text = content
-                else:
-                    # Try to extract from items if content is structured
-                    items = getattr(msg, "items", None) or getattr(content, "items", None)
-                    if items:
-                        parts = []
-                        for item in items:
-                            item_text = getattr(item, "text", None) or getattr(item, "content", None)
-                            if item_text:
-                                parts.append(str(item_text))
-                        text = "".join(parts) if parts else str(content) if content else ""
-                    else:
-                        text = str(content) if content else ""
-
-                if text and text.startswith(PATIENT_CONTEXT_PREFIX):
-                    # Extract JSON after "PATIENT_CONTEXT_JSON:"
-                    json_part = text[len(PATIENT_CONTEXT_PREFIX):].strip()
-                    if json_part.startswith(":"):
-                        json_part = json_part[1:].strip()
-                    return json_part if json_part else None
-        return None
-
-    def _append_pc_ctx(self, base: str, chat_ctx: ChatContext) -> str:
-        """Append patient context information to the message for display."""
-
-        # Avoid double-tagging
-        if "\nPC_CTX" in base or "\n*PT_CTX:*" in base:
-            return base
-
-        # Get the actual injected system patient context JSON
-        json_payload = self._get_system_patient_context_json(chat_ctx)
-
-        if not json_payload:
-            return base
-
-        # Format the JSON payload into a simple, readable Markdown string
-        try:
-            obj = json.loads(json_payload)
-
-            lines = ["\n\n---", "\n*PT_CTX:*"]
-            if obj.get("patient_id"):
-                lines.append(f"- **Patient ID:** `{obj['patient_id']}`")
-            if obj.get("conversation_id"):
-                lines.append(f"- **Conversation ID:** `{obj['conversation_id']}`")
-
-            if obj.get("all_patient_ids"):
-                active_id = obj.get("patient_id")
-                ids_str = ", ".join(f"`{p}`{' (active)' if p == active_id else ''}" for p in obj["all_patient_ids"])
-                lines.append(f"- **Session Patients:** {ids_str}")
-
-            if not obj.get("patient_id"):
-                lines.append("- *No active patient.*")
-
-            # Only add the block if there's something to show besides the header
-            if len(lines) > 2:
-                formatted_text = "\n".join(lines)
-                logger.debug(f"Appended patient context to message | Patient: {obj.get('patient_id')}")
-                return f"{base}{formatted_text}"
-            else:
-                return base
-
-        except json.JSONDecodeError as e:
-            logger.warning(f"Failed to parse patient context JSON: {e}")
-            # Fallback to raw if JSON is malformed, but keep it simple
-            return f"{base}\n\n---\n*PT_CTX (raw):* `{json_payload}`"
