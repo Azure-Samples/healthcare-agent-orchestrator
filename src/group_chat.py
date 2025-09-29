@@ -306,7 +306,6 @@ def create_group_chat(
             result_parser=evaluate_selection,
             agent_variable_name="agents",
             history_variable_name="history",
-            arguments=KernelArguments(),
         ),
         termination_strategy=KernelFunctionTerminationStrategy(
             agents=[
@@ -322,7 +321,6 @@ def create_group_chat(
             history_reducer=ChatHistoryTruncationReducer(
                 target_count=1, auto_reduce=True
             ),
-            arguments=KernelArguments(),
         ),
     )
 
