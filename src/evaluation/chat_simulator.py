@@ -65,31 +65,17 @@ class ProceedUser:
 
 
 class LLMUser:
-    def __init__(self, app_ctx=None):
+    def __init__(self, app_ctx):
         self.chat_complete_message = "CONVERSATION COMPLETE"
         self.simulation_prompt = None
         self.is_complete = False
         self.chat_history = ChatHistory()
-
-        # Initialize AzureChatCompletion with either token provider or API key
-        deployment_name = os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"]
-        api_version = "2025-04-01-preview"
-        endpoint = os.environ["AZURE_OPENAI_ENDPOINT"]
-
-        kwargs = {
-            "deployment_name": deployment_name,
-            "api_version": api_version,
-            "endpoint": endpoint,
-        }
-
-        if app_ctx and hasattr(app_ctx, "cognitive_services_token_provider"):
-            kwargs["ad_token_provider"] = app_ctx.cognitive_services_token_provider
-        elif "AZURE_OPENAI_API_KEY" in os.environ:
-            kwargs["api_key"] = os.environ.get("AZURE_OPENAI_API_KEY")
-        else:
-            raise ValueError("Either AZURE_OPENAI_API_KEY or cognitive_services_token_provider must be provided.")
-
-        self.chat_completion_service = AzureChatCompletion(**kwargs)
+        self.chat_completion_service = AzureChatCompletion(
+            deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
+            api_version="2025-04-01-preview",
+            endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
+            ad_token_provider=app_ctx.cognitive_services_token_provider if not hasattr(os.environ,"AZURE_OPENAI_API_KEY") else None,
+        )
 
     def setup(self, patient_id: str, initial_query: str, followup_questions: list[str] = None):
         """Prepare the user to start the conversation."""
