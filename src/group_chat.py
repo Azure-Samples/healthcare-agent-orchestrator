@@ -10,30 +10,20 @@ from pydantic import BaseModel
 from semantic_kernel import Kernel
 from semantic_kernel.agents import AgentGroupChat, ChatCompletionAgent
 from semantic_kernel.agents.channels.chat_history_channel import ChatHistoryChannel
-from semantic_kernel.agents.strategies.selection.kernel_function_selection_strategy import (
-    KernelFunctionSelectionStrategy,
-)
-from semantic_kernel.agents.strategies.termination.kernel_function_termination_strategy import (
-    KernelFunctionTerminationStrategy,
-)
+from semantic_kernel.agents.strategies.selection.kernel_function_selection_strategy import \
+    KernelFunctionSelectionStrategy
+from semantic_kernel.agents.strategies.termination.kernel_function_termination_strategy import \
+    KernelFunctionTerminationStrategy
 from semantic_kernel.connectors.ai.function_choice_behavior import FunctionChoiceBehavior
-from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import (
-    AzureChatPromptExecutionSettings,
-)
-from semantic_kernel.connectors.ai.open_ai.services.azure_chat_completion import (
-    AzureChatCompletion,
-)
+from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import \
+    AzureChatPromptExecutionSettings
+from semantic_kernel.connectors.ai.open_ai.services.azure_chat_completion import AzureChatCompletion
 from semantic_kernel.connectors.openapi_plugin import OpenAPIFunctionExecutionParameters
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.contents.chat_message_content import ChatMessageContent
-from semantic_kernel.contents.history_reducer.chat_history_truncation_reducer import (
-    ChatHistoryTruncationReducer,
-)
-from semantic_kernel.functions.kernel_function_from_prompt import (
-    KernelFunctionFromPrompt,
-)
+from semantic_kernel.contents.history_reducer.chat_history_truncation_reducer import ChatHistoryTruncationReducer
+from semantic_kernel.functions.kernel_function_from_prompt import KernelFunctionFromPrompt
 from semantic_kernel.kernel import Kernel, KernelArguments
-from semantic_kernel.contents import ChatMessageContent
 
 from data_models.app_context import AppContext
 from data_models.chat_context import ChatContext
@@ -48,15 +38,60 @@ DEFAULT_TOOL_TYPE = "function"
 logger = logging.getLogger(__name__)
 
 
+class ChatRule(BaseModel):
+    verdict: str
+    reasoning: str
+
+
+def create_auth_callback(chat_ctx: ChatContext) -> Callable[..., Awaitable[Any]]:
+    """
+    Creates an authentication callback for the plugin configuration.
+
+    :param chat_ctx: The chat context to be used in the authentication.
+    :return: A callable that returns an authentication token.
+    """
+    # TODO - get key or secret from Azure Key Vault for OpenAPI services.
+    # Send the conversation ID as a header to the OpenAPI service.
+    async def auth_callback():
+        return {'conversation-id': chat_ctx.conversation_id}
+    return auth_callback
+
+# Need to introduce a CustomChatCompletionAgent and a CustomHistoryChannel because of issue https://github.com/microsoft/semantic-kernel/issues/12095
+
+
 class CustomHistoryChannel(ChatHistoryChannel):
     @override
-    async def receive(
-        self,
-        history: list[ChatMessageContent],
-    ) -> None:
+    async def receive(self, history: list[ChatMessageContent],) -> None:
         await super().receive(history)
+
         for message in history[:-1]:
             await self.thread.on_new_message(message)
+
+
+async def create_channel(
+    self, chat_history: ChatHistory | None = None, thread_id: str | None = None
+) -> CustomHistoryChannel:
+    """Create a ChatHistoryChannel.
+
+    Args:
+        chat_history: The chat history for the channel. If None, a new ChatHistory instance will be created.
+        thread_id: The ID of the thread. If None, a new thread will be created.
+
+    Returns:
+        An instance of AgentChannel.
+    """
+    from semantic_kernel.agents.chat_completion.chat_completion_agent import ChatHistoryAgentThread
+
+    CustomHistoryChannel.model_rebuild()
+
+    thread = ChatHistoryAgentThread(chat_history=chat_history, thread_id=thread_id)
+
+    if thread.id is None:
+        await thread.create()
+
+    messages = [message async for message in thread.get_messages()]
+
+    return CustomHistoryChannel(messages=messages, thread=thread)
 
 
 class CustomChatCompletionAgent(ChatCompletionAgent):
@@ -66,73 +101,34 @@ class CustomChatCompletionAgent(ChatCompletionAgent):
     async def create_channel(
         self, chat_history: ChatHistory | None = None, thread_id: str | None = None
     ) -> CustomHistoryChannel:
-        from semantic_kernel.agents.chat_completion.chat_completion_agent import (
-            ChatHistoryAgentThread,
-        )
-
-        CustomHistoryChannel.model_rebuild()
-        thread = ChatHistoryAgentThread(chat_history=chat_history, thread_id=thread_id)
-
-        if thread.id is None:
-            await thread.create()
-
-        messages = [message async for message in thread.get_messages()]
-        return CustomHistoryChannel(messages=messages, thread=thread)
-
-
-class ChatRule(BaseModel):
-    """Structured output model for group chat selection and termination decisions."""
-    verdict: str
-    reasoning: str
-
-
-def create_auth_callback(chat_ctx: ChatContext) -> Callable[..., Awaitable[Any]]:
-    """Creates an authentication callback for OpenAPI tool execution."""
-    async def auth_callback():
-        return {"conversation-id": chat_ctx.conversation_id}
-    return auth_callback
+        return await create_channel(self, chat_history, thread_id)
 
 
 def create_group_chat(
-    app_ctx: AppContext,
-    chat_ctx: ChatContext,
-    participants: list[dict] = None,
+    app_ctx: AppContext, chat_ctx: ChatContext, participants: list[dict] = None
 ) -> Tuple[AgentGroupChat, ChatContext]:
-    """
-    Create a multi-agent group chat.
-
-    Args:
-        app_ctx: Application context containing shared resources
-        chat_ctx: Chat context for conversation state
-        participants: Optional list of participant configurations
-
-    Returns:
-        Tuple of AgentGroupChat instance and updated ChatContext
-    """
     participant_configs = participants or app_ctx.all_agent_configs
     participant_names = [cfg.get("name") for cfg in participant_configs]
-    logger.info("Creating group chat with participants: %s", participant_names)
+    logger.info(f"Creating group chat with participants: {participant_names}")
 
-    # Remove magentic agent from the list of agents
+    # Remove magentic agent from the list of agents. In the future, we could add agent type to deal with agents that should not be included in the Semantic Kernel group chat.
     all_agents_config = [
         agent for agent in participant_configs if agent.get("name") != "magentic"
     ]
 
     def _create_kernel_with_chat_completion() -> Kernel:
-        """Create a kernel instance with Azure OpenAI chat completion service."""
         kernel = Kernel()
         kernel.add_service(
             AzureChatCompletion(
                 service_id="default",
                 deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
                 api_version="2025-04-01-preview",
-                ad_token_provider=app_ctx.cognitive_services_token_provider,
+                ad_token_provider=app_ctx.cognitive_services_token_provider
             )
         )
         return kernel
 
     def _create_agent(agent_config: dict):
-        """Create an agent instance based on configuration."""
         agent_kernel = _create_kernel_with_chat_completion()
         plugin_config = PluginConfiguration(
             kernel=agent_kernel,
@@ -141,23 +137,20 @@ def create_group_chat(
             chat_ctx=chat_ctx,
             azureml_token_provider=app_ctx.azureml_token_provider,
         )
-        is_healthcare_agent = (
-            healthcare_agent_config.yaml_key in agent_config
-            and bool(agent_config[healthcare_agent_config.yaml_key])
-        )
+        is_healthcare_agent = healthcare_agent_config.yaml_key in agent_config and bool(
+            agent_config[healthcare_agent_config.yaml_key])
 
         for tool in agent_config.get("tools", []):
             tool_name = tool.get("name")
             tool_type = tool.get("type", DEFAULT_TOOL_TYPE)
 
+            # Add function tools
             if tool_type == "function":
                 scenario = os.environ.get("SCENARIO")
-                tool_module = importlib.import_module(
-                    f"scenarios.{scenario}.tools.{tool_name}"
-                )
-                agent_kernel.add_plugin(
-                    tool_module.create_plugin(plugin_config), plugin_name=tool_name
-                )
+                tool_module = importlib.import_module(f"scenarios.{scenario}.tools.{tool_name}")
+                agent_kernel.add_plugin(tool_module.create_plugin(plugin_config), plugin_name=tool_name)
+            # Add OpenAPI tools
+            # See https://github.com/Azure-Samples/healthcare-agent-orchestrator/blob/main/docs/agent_development.md#agent-with-a-openapi-plugin-example
             elif tool_type == "openapi":
                 openapi_document_path = tool.get("openapi_document_path")
                 server_url_override = tool.get("server_url_override")
@@ -168,205 +161,172 @@ def create_group_chat(
                         auth_callback=create_auth_callback(chat_ctx),
                         server_url_override=server_url_override,
                         enable_payload_namespacing=True,
-                        timeout=None,
-                    ),
+                        timeout=None
+                    )
                 )
             else:
                 raise ValueError(f"Unknown tool type: {tool_type}")
 
         if model_supports_temperature():
             temperature = agent_config.get("temperature", DEFAULT_MODEL_TEMP)
-            logger.info(
-                "Setting model temperature for agent %s to %s",
-                agent_config["name"],
-                temperature,
-            )
+            logger.info(f"Setting model temperature for agent {agent_config['name']} to {temperature}")
         else:
             temperature = None
             logger.info(
-                "Model does not support temperature. Setting temperature to None for agent %s",
-                agent_config["name"],
-            )
-
-        from semantic_kernel.connectors.ai.function_choice_behavior import (
-            FunctionChoiceBehavior,
-        )
-
+                f"Model does not support temperature. Setting temperature to None for agent {agent_config['name']}")
         settings = AzureChatPromptExecutionSettings(
-            function_choice_behavior=FunctionChoiceBehavior.Auto(),
-            seed=42,
-            temperature=temperature,
-        )
+            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, temperature=temperature)
         arguments = KernelArguments(settings=settings)
         instructions = agent_config.get("instructions")
         if agent_config.get("facilitator") and instructions:
             instructions = instructions.replace(
-                "{{aiAgents}}",
-                "\n\t\t".join(
-                    [
-                        f"- {agent['name']}: {agent['description']}"
-                        for agent in all_agents_config
-                    ]
-                ),
-            )
+                # >>> (unchanged logic, escaped quotes)
+                "{{aiAgents}}", "\n\t\t".join([f"- {agent['name']}: {agent['description']}" for agent in all_agents_config]))
 
-        return (
-            CustomChatCompletionAgent(
-                kernel=agent_kernel,
-                name=agent_config["name"],
-                instructions=instructions,
-                description=agent_config.get("description", ""),
-                arguments=arguments,
-            )
-            if not is_healthcare_agent
-            else HealthcareAgent(
-                name=agent_config["name"], chat_ctx=chat_ctx, app_ctx=app_ctx
-            )
-        )
+        return (CustomChatCompletionAgent(kernel=agent_kernel,
+                                          name=agent_config["name"],
+                                          instructions=instructions,
+                                          description=agent_config["description"],
+                                          arguments=arguments) if not is_healthcare_agent else
+                HealthcareAgent(name=agent_config["name"],
+                                chat_ctx=chat_ctx,
+                                app_ctx=app_ctx))
 
-    # Kernel for orchestrator (selection + termination structured decisions)
-    orchestrator_kernel = _create_kernel_with_chat_completion()
+    if model_supports_temperature():
+        settings = AzureChatPromptExecutionSettings(
+            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, temperature=0, response_format=ChatRule)
+    else:
+        settings = AzureChatPromptExecutionSettings(
+            function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, response_format=ChatRule)
+    arguments = KernelArguments(settings=settings)
 
-    # Facilitator (Orchestrator) discovery
-    facilitator_agent = next(
-        (agent for agent in all_agents_config if agent.get("facilitator")),
-        all_agents_config[0],
-    )
+    facilitator_agent = next((agent for agent in all_agents_config if agent.get("facilitator")), all_agents_config[0])
     facilitator = facilitator_agent["name"]
-
-    # Structured output model config for selection
-    selection_settings = AzureChatPromptExecutionSettings(
-        function_choice_behavior=FunctionChoiceBehavior.Auto(),
-        temperature=DEFAULT_MODEL_TEMP,
-        seed=42,
-        response_format=ChatRule,
-    )
-    selection_args = KernelArguments(settings=selection_settings)
-
     selection_function = KernelFunctionFromPrompt(
         function_name="selection",
         prompt=f"""
         You are overseeing a group chat between several AI agents and a human user.
-        Determine which participant takes the next turn based on the most recent participant. Guidelines:
+        Determine which participant takes the next turn in a conversation based on the most recent participant. Follow these guidelines:
 
-        1. Participants (choose exactly one):
+        1. **Participants**: Choose only from these participants:
             {"\n".join([("\t- " + agent["name"]) for agent in all_agents_config])}
 
-        2. Rules:
-            - {facilitator} always starts if only the user has spoken.
-            - Avoid repetition: if an agent already completed its task, don't reselect unless explicitly requested.
-            - Agents may request info from each other: if an agent is directly asked by name, that agent goes next.
-            - "back to you *AgentName*": that named agent goes next.
-            - Each participant speaks at most once per turn.
-            - Default to {facilitator} if uncertain or no explicit candidate.
-            - Use best judgment for natural conversation flow.
-            - CONFIRMATION GATE (PLAN ONLY): If (a) the MOST RECENT message is from {facilitator} AND (b) it contains a multi-step plan (look for "Plan", "plan:", numbered steps like "1.", "2.", or multiple leading "-" bullet lines) AND (c) no user message has appeared AFTER that plan yet, then do NOT advance to another agent. Wait for a user reply. Output {facilitator} ONLY if absolutely necessary to politely prompt the user for confirmation (do not restate the entire plan). As soon as ANY user reply appears (question, modification, or confirmation), this gate is lifted. If the user used a confirmation token (confirm, yes, proceed, continue, ok, okay, sure, sounds good, go ahead), you may advance to the next required non-facilitator agent; otherwise select the participant that best addresses the user’s reply.
+        2. **General Rules**:
+            - **{facilitator} Always Starts**: {facilitator} always goes first to formulate a plan. If the only message is from the user, {facilitator} goes next.
+            - **Interactions between agents**: Agents may talk among themselves. If an agent requires information from another agent, that agent should go next.
+                EXAMPLE:
+                    "*agent_name*, please provide ..." then agent_name goes next.
+            - **"back to you *agent_name*": If an agent says "back to you", that agent goes next.
+                EXAMPLE:
+                    "back to you *agent_name*" then output agent_name goes next.
+            - **Once per turn**: Each participant can only speak once per turn.
+            - **Default to {facilitator}**: Always default to {facilitator}. If no other participant is specified, {facilitator} goes next.
+            - **Use best judgment**: If the rules are unclear, use your best judgment to determine who should go next, for the natural flow of the conversation.
+            - **CONFIRMATION GATE (PLAN ONLY)**: If (a) the MOST RECENT message is from {facilitator} AND (b) it contains a multi-step plan (look for "Plan", "plan:", numbered steps like "1.", "2.", or multiple leading "-" bullet lines) AND (c) no user message has appeared AFTER that plan yet, then do NOT advance to another agent. Wait for a user reply. Output {facilitator} ONLY if absolutely necessary to politely prompt the user for confirmation (do not restate the entire plan). As soon as ANY user reply appears (question, modification, or confirmation), this gate is lifted. If the user used a confirmation token (confirm, yes, proceed, continue, ok, okay, sure, sounds good, go ahead), you may advance to the next required non-facilitator agent; otherwise select the participant that best addresses the user’s reply.  # >>> added confirmation gate
 
-        Provide reasoning then the verdict. Verdict must be exactly one of: {", ".join([agent["name"] for agent in all_agents_config])}
+        **Output**: Give the full reasoning for your choice and the verdict. The reasoning should include careful evaluation of each rule with an explanation. The verdict should be the name of the participant who should go next.
 
         History:
         {{{{$history}}}}
         """,
-        prompt_execution_settings=selection_settings,
+        prompt_execution_settings=settings
     )
-
-    termination_settings = AzureChatPromptExecutionSettings(
-        function_choice_behavior=FunctionChoiceBehavior.Auto(),
-        temperature=DEFAULT_MODEL_TEMP,
-        seed=42,
-        response_format=ChatRule,
-    )
-    termination_args = KernelArguments(settings=termination_settings)
 
     termination_function = KernelFunctionFromPrompt(
         function_name="termination",
         prompt=f"""
-        Determine if the conversation should end based on the most recent message only.
-        IMPORTANT: In the History, any leading "*AgentName*:" indicates the SPEAKER of the message, not the addressee.
+        Determine if the conversation should end based on the most recent message.
+        You only have access to the last message in the conversation.
 
-        You are part of a group chat with several AI agents and a user.
-        The agent names are:
+        Reply by giving your full reasoning, and the verdict. The verdict should be either "yes" or "no".
+
+        You are part of a group chat with several AI agents and a user. 
+        The agents are names are: 
             {",".join([f"{agent['name']}" for agent in all_agents_config])}
 
-        Return "yes" when the last message:
-        - asks the user a question (ends with "?" or uses "you"/"User"), OR
-        - invites the user to respond (phrases like: "let us know", "feel free to ask", "what would you like", "should we", "can we", "would you like me to"), OR
-        - addresses "we/us" as a decision/query to the user.
+        If the most recent message is a question addressed to the user, return "yes".
+        If the question is addressed to "we" or "us", return "yes". For example, if the question is "Should we proceed?", return "yes".
+        If the question is addressed to another agent, return "no".
+        If it is a statement addressed to another agent, return "no".
+        Commands addressed to a specific agent should result in 'no' if there is clear identification of the agent.
+        Commands addressed to "you" or "User" should result in 'yes'.
+        If you are not certain, return "yes".
+        Ignore any system metadata or patient context snapshots such as lines starting with "PATIENT_CONTEXT_JSON".  # >>> added ignore rule
+        Treat internal handoff phrases like "back to you <AgentName>" as NOT terminating (answer is still being routed).  # >>> added handoff rule
 
-        Return "no" when the last message:
-        - is a command or question to a specific agent by name, OR
-        - is a statement clearly addressed to another agent.
-
-        Commands addressed to "you" or "User" => "yes".
-        If uncertain, return "yes".
-        Ignore any debug/metadata like "PC_CTX" or JSON blobs.
-
-        Provide reasoning then the verdict ("yes" or "no").
-
+        EXAMPLES:
+            - "User, can you confirm the correct patient ID?" => "yes"
+            - "*ReportCreation*: Please compile the patient timeline. Let's proceed with *ReportCreation*." => "no" (ReportCreation is an agent)
+            - "*ReportCreation*, please proceed ..." => "no" (ReportCreation is an agent)
+            - "If you have any further questions or need assistance, feel free to ask." => "yes"
+            - "Let's proceed with Radiology." => "no" (Radiology is an agent)
+            - "*PatientStatus*, please use ..." => "no" (PatientStatus is an agent)
         History:
         {{{{$history}}}}
         """,
-        prompt_execution_settings=termination_settings,
+        prompt_execution_settings=settings
     )
-
     agents = [_create_agent(agent) for agent in all_agents_config]
 
     def evaluate_termination(result):
-        """Evaluate termination decision from structured output."""
+        logger.info(f"Termination function result: {result}")
+        # >>> added deterministic pre-checks to avoid premature termination on patient context or handoff
         try:
-            rule = ChatRule.model_validate_json(str(result.value[0]))
-            should_terminate = rule.verdict == "yes"
-            logger.debug(
-                "Termination decision: %s | Reasoning: %s",
-                should_terminate,
-                rule.reasoning,
-            )
-            return should_terminate
-        except Exception as e:
-            logger.error("Termination function error: %s", e)
-            return False
+            if chat_ctx.chat_history.messages:
+                last = chat_ctx.chat_history.messages[-1]
+                # Robust flatten
+                if hasattr(last, "content"):
+                    c = last.content
+                    if isinstance(c, list):
+                        last_text = " ".join(getattr(p, "text", str(p)) for p in c)
+                    else:
+                        last_text = str(c)
+                else:
+                    last_text = str(last)
+                lt = last_text.lower()
+                if lt.startswith("patient_context_json"):
+                    logger.debug("Termination override: patient context system message -> continue")
+                    return False
+                if "back to you" in lt:
+                    logger.debug("Termination override: internal handoff phrase -> continue")
+                    return False
+        except Exception:
+            pass
+        rule = ChatRule.model_validate_json(str(result.value[0]))
+        return rule.verdict == "yes"
 
     def evaluate_selection(result):
-        """Evaluate agent selection from structured output."""
-        try:
-            rule = ChatRule.model_validate_json(str(result.value[0]))
-            selected_agent = (
-                rule.verdict
-                if rule.verdict
-                in [agent["name"] for agent in all_agents_config]
-                else facilitator
-            )
-            logger.debug(
-                "Selected agent: %s | Reasoning: %s", selected_agent, rule.reasoning
-            )
-            return selected_agent
-        except Exception as e:
-            logger.error("Selection function error: %s", e)
-            return facilitator
+        logger.info(f"Selection function result: {result}")
+        rule = ChatRule.model_validate_json(str(result.value[0]))
+        return rule.verdict if rule.verdict in [agent["name"] for agent in all_agents_config] else facilitator
 
     chat = AgentGroupChat(
         agents=agents,
         chat_history=chat_ctx.chat_history,
         selection_strategy=KernelFunctionSelectionStrategy(
             function=selection_function,
-            kernel=orchestrator_kernel,
+            kernel=_create_kernel_with_chat_completion(),
             result_parser=evaluate_selection,
             agent_variable_name="agents",
             history_variable_name="history",
-            arguments=selection_args,
+            arguments=arguments,
         ),
         termination_strategy=KernelFunctionTerminationStrategy(
-            agents=[agent for agent in agents if agent.name == facilitator],
+            agents=[
+                agent for agent in agents if agent.name == facilitator
+            ],  # Only facilitator decides if the conversation ends
             function=termination_function,
-            kernel=orchestrator_kernel,
+            kernel=_create_kernel_with_chat_completion(),
             result_parser=evaluate_termination,
             agent_variable_name="agents",
             history_variable_name="history",
             maximum_iterations=30,
-            history_reducer=ChatHistoryTruncationReducer(target_count=1, auto_reduce=True),
-            arguments=termination_args,
+            # Termination only looks at the last message
+            history_reducer=ChatHistoryTruncationReducer(
+                target_count=1, auto_reduce=True
+            ),
+            arguments=arguments,
         ),
     )
 
-    logger.info("Group chat created successfully with %d agents", len(agents))
     return (chat, chat_ctx)

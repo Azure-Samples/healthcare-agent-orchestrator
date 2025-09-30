@@ -176,11 +176,23 @@ def chats_routes(app_context: AppContext):
 
     @router.get("/api/agents", response_model=AgentsResponse)
     async def get_available_agents():
+        """
+        Returns a list of all available agents that can be mentioned in messages.
+        """
         try:
-            return AgentsResponse(agents=[a["name"] for a in agent_config])
+            # Extract agent names from the agent_config
+            agent_names = [agent["name"] for agent in agent_config if "name" in agent]
+
+            # Return the list of agent names
+            return JSONResponse(
+                content={"agents": agent_names, "error": None}
+            )
         except Exception as e:
-            logger.error("Error getting agents: %s", e)
-            return AgentsResponse(agents=[], error=str(e))
+            logger.exception(f"Error getting available agents: {e}")
+            return JSONResponse(
+                content={"agents": [], "error": str(e)},
+                status_code=500
+            )
 
     @router.websocket("/api/ws/chats/{chat_id}/messages")
     async def websocket_chat_endpoint(websocket: WebSocket, chat_id: str):
