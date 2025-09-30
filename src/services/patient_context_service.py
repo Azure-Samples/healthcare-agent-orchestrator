@@ -6,6 +6,7 @@ import re
 import time
 from datetime import datetime, timezone
 from typing import Literal
+import os
 
 from data_models.chat_context import ChatContext, PatientContext
 from data_models.patient_context_models import TimingInfo
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 # Exported constants / types
 PATIENT_CONTEXT_PREFIX = "PATIENT_CONTEXT_JSON"
-PATIENT_ID_PATTERN = re.compile(r"^patient_[0-9]+$")
+PATIENT_ID_PATTERN = re.compile(os.getenv("PATIENT_ID_PATTERN", r"^patient_[0-9]+$"))
 Decision = Literal[
     "NONE",
     "UNCHANGED",

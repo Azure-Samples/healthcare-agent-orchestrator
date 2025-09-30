@@ -18,19 +18,29 @@ logger = logging.getLogger(__name__)
 
 class ChatContextAccessor:
     """
-    Hybrid accessor supporting session + per-patient isolation.
-    Ephemeral PATIENT_CONTEXT_JSON system messages are stripped (never persisted).
+    Accessor for reading and writing chat context to Azure Blob Storage.
+
+    ChatContext lifecycle:
+
+    1. User sends a message to Agent.
+    2. Agent load ChatContext from blob storage using conversation_id.
+        - If found, it reads the existing ChatContext from blob storage.
+        - Otherwise, it creates a new ChatContext with the given conversation_id.
+    2. Agent sends responses to User.
+    3. Save ChatContext to blob storage as `chat_context.json`.
+    4. Repeat steps 1-3 for the entire conversation.
+    5. User sends a "clear" message.
+    6. Archive ChatHistory to the blob storage.
+        - Append the "clear" message to chat history.
+        - Save ChatContext to `{datetime}_chat_context.json`.
+        - Delete `chat_context.json`
+    7. Hybrid accessor supporting session + per-patient isolation.
+    8. Ephemeral PATIENT_CONTEXT_JSON system messages are stripped (never persisted).
     """
 
-    def __init__(
-        self,
-        blob_service_client: BlobServiceClient,
-        container_name: str = "chat-sessions",
-        cognitive_services_token_provider=None,
-    ):
+    def __init__(self, blob_service_client: BlobServiceClient, container_name: str = "chat-sessions",):
         self.blob_service_client = blob_service_client
         self.container_client = blob_service_client.get_container_client(container_name)
-        self.cognitive_services_token_provider = cognitive_services_token_provider
 
     def get_blob_path(self, conversation_id: str, patient_id: str = None) -> str:
         if patient_id:

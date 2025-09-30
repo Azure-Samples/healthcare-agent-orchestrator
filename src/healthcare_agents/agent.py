@@ -26,12 +26,12 @@ class HealthcareAgentChannel(AgentChannel):
     def __init__(self):
         super().__init__()
         self.history: list[ChatMessageContent] = []
-        logger.debug("HealthcareAgentChannel initialized")
+        logger.debug("HealthcareAgentChannel initialized.")
 
     @override
     async def receive(self, history: list[ChatMessageContent]) -> None:
         for message in history:
-            logger.debug("Received message: %s", message.content)
+            logger.debug("[history] Received message: %s", message.content)
             if message.content.strip() != "":
                 self.history.append(message)
 
@@ -60,17 +60,17 @@ class HealthcareAgentChannel(AgentChannel):
 
     @override
     async def invoke_stream(self, agent: "HealthcareAgent", history: "list[ChatMessageContent]"):
-        raise NotImplementedError("invoke_stream is not implemented yet")
+        raise NotImplementedError("invoke_stream is not implemented yet.")
 
     @override
     async def get_history(self) -> AsyncIterable[ChatMessageContent]:
-        logger.debug("Getting history from HealthcareAgentChannel")
+        logger.debug("Getting history from HealthcareAgentChannel.")
         for message in reversed(self.history):
             yield message
 
     @override
     async def reset(self) -> None:
-        logger.debug("Resetting HealthcareAgentChannel")
+        logger.debug("Resetting HealthcareAgentChannel.")
         self.history.clear()
 
 
@@ -91,14 +91,14 @@ class HealthcareAgent(Agent):
         self._client: HealthcareAgentServiceClient = None
 
         if not name:
-            raise ValueError("Agent name is required")
+            raise ValueError("Agent name is required.")
         if not chat_ctx:
-            raise ValueError("Chat context is required")
+            raise ValueError("Chat context is required.")
         if not app_ctx:
-            raise ValueError("Application context is required")
+            raise ValueError("Application context is required.")
 
         # Initialize the HealthcareAgentServiceClient
-        logger.debug("Initializing HealthcareAgentServiceClient")
+        logger.debug("Initializing HealthcareAgentServiceClient.")
         self._client: HealthcareAgentServiceClient = HealthcareAgentServiceClient(
             agent_name=name,
             chat_ctx=chat_ctx,
@@ -117,14 +117,14 @@ class HealthcareAgent(Agent):
         if name in self._chat_ctx.healthcare_agents:
             self._client.set_conversation_id(
                 self._chat_ctx.healthcare_agents[name].get("conversation_id", None))
-        logger.debug("HealthcareAgent initialized: %s", name)
+        logger.debug(f"HealthcareAgent initialized: {name}")
 
     @property
     def client(self):
         return self._client
 
     async def create_channel(self) -> AgentChannel:
-        logger.debug("Creating HealthcareAgentChannel")
+        logger.debug("Creating HealthcareAgentChannel.")
         return HealthcareAgentChannel()
 
     @override
@@ -144,14 +144,14 @@ class HealthcareAgent(Agent):
         message = kwargs.get("message")
         logger.debug("Invoking HealthcareAgent with message: %s", message)
         if not message:
-            raise AgentInvokeException("Message is required to invoke the agent")
+            raise AgentInvokeException("Message is required to invoke the agent.")
         response = await self.get_response(message)
         yield response
 
     @override
     async def invoke_stream(self, *args, **kwargs) -> AsyncIterable[ChatMessageContent]:
         """Invoke the agent as a stream."""
-        raise NotImplementedError("invoke_stream is not implemented")
+        raise NotImplementedError("invoke_stream is not implemented.")
 
     async def get_attachments(self) -> list[dict]:
         """Get the attachments from the conversation history."""
