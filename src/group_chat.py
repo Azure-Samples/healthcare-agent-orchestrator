@@ -138,7 +138,7 @@ def create_group_chat(
             data_access=app_ctx.data_access,
             chat_ctx=chat_ctx,
             azureml_token_provider=app_ctx.azureml_token_provider,
-            cognitive_services_token_provider=app_ctx.cognitive_services_token_provider,
+            app_ctx=app_ctx,
         )
         is_healthcare_agent = healthcare_agent_config.yaml_key in agent_config and bool(
             agent_config[healthcare_agent_config.yaml_key])
@@ -233,7 +233,6 @@ def create_group_chat(
         History:
         {{{{$history}}}}
         """,
-        execution_settings=settings,
         input_variables=[
             InputVariable(name="history", allow_dangerously_set_content=True)
         ]
@@ -241,7 +240,8 @@ def create_group_chat(
 
     selection_function = KernelFunctionFromPrompt(
         function_name="selection",
-        prompt_template_config=selection_prompt_config
+        prompt_template_config=selection_prompt_config,
+        prompt_execution_settings=settings
     )
 
     termination_prompt_config = PromptTemplateConfig(
@@ -275,7 +275,6 @@ def create_group_chat(
         History:
         {{{{$history}}}}
         """,
-        execution_settings=settings,
         input_variables=[
             InputVariable(name="history", allow_dangerously_set_content=True)
         ]
@@ -283,7 +282,8 @@ def create_group_chat(
 
     termination_function = KernelFunctionFromPrompt(
         function_name="termination",
-        prompt_template_config=termination_prompt_config
+        prompt_template_config=termination_prompt_config,
+        prompt_execution_settings=settings
     )
     agents = [_create_agent(agent) for agent in all_agents_config]
 
