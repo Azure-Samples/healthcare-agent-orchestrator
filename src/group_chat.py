@@ -59,6 +59,8 @@ def create_auth_callback(chat_ctx: ChatContext) -> Callable[..., Awaitable[Any]]
     return auth_callback
 
 # Need to introduce a CustomChatCompletionAgent and a CustomHistoryChannel because of issue https://github.com/microsoft/semantic-kernel/issues/12095
+
+
 class CustomHistoryChannel(ChatHistoryChannel):
     @override
     async def receive(self, history: list[ChatMessageContent],) -> None:
@@ -181,7 +183,7 @@ def create_group_chat(
         instructions = agent_config.get("instructions")
         if agent_config.get("facilitator") and instructions:
             instructions = instructions.replace(
-                "{{aiAgents}}", "\n\t\t".join([f"- {agent['name']}: {agent["description"]}" for agent in all_agents_config]))
+                "{{aiAgents}}", "\n\t\t".join([f"- {agent['name']}: {agent['description']}" for agent in all_agents_config]))
 
         return (CustomChatCompletionAgent(kernel=agent_kernel,
                                           name=agent_config["name"],
@@ -224,7 +226,8 @@ def create_group_chat(
             - **Once per turn**: Each participant can only speak once per turn.
             - **Default to {facilitator}**: Always default to {facilitator}. If no other participant is specified, {facilitator} goes next.
             - **Use best judgment**: If the rules are unclear, use your best judgment to determine who should go next, for the natural flow of the conversation.
-            
+            - **CONFIRMATION GATE (PLAN ONLY)**: If (a) the MOST RECENT message is from {facilitator} AND (b) it contains a multi-step plan (look for "Plan", "plan:", numbered steps like "1.", "2.", or multiple leading "-" bullet lines) AND (c) no user message has appeared AFTER that plan yet, then do NOT advance to another agent. Wait for a user reply. Output {facilitator} ONLY if absolutely necessary to politely prompt the user for confirmation (do not restate the entire plan). As soon as ANY user reply appears (question, modification, or confirmation), this gate is lifted. If the user used a confirmation token (confirm, yes, proceed, continue, ok, okay, sure, sounds good, go ahead), you may advance to the next required non-facilitator agent; otherwise select the participant that best addresses the user’s reply.  
+
         **Output**: Give the full reasoning for your choice and the verdict. The reasoning should include careful evaluation of each rule with an explanation. The verdict should be the name of the participant who should go next.
 
         History:
@@ -261,6 +264,8 @@ def create_group_chat(
         Commands addressed to a specific agent should result in 'no' if there is clear identification of the agent.
         Commands addressed to "you" or "User" should result in 'yes'.
         If you are not certain, return "yes".
+        Ignore any system metadata or patient context snapshots such as lines starting with "PATIENT_CONTEXT_JSON".  
+        Treat internal handoff phrases like "back to you <AgentName>" as NOT terminating (answer is still being routed).  
 
         EXAMPLES:
             - "User, can you confirm the correct patient ID?" => "yes"
@@ -286,6 +291,27 @@ def create_group_chat(
 
     def evaluate_termination(result):
         logger.info(f"Termination function result: {result}")
+        try:
+            if chat_ctx.chat_history.messages:
+                last = chat_ctx.chat_history.messages[-1]
+                # Robust flatten
+                if hasattr(last, "content"):
+                    c = last.content
+                    if isinstance(c, list):
+                        last_text = " ".join(getattr(p, "text", str(p)) for p in c)
+                    else:
+                        last_text = str(c)
+                else:
+                    last_text = str(last)
+                lt = last_text.lower()
+                if lt.startswith("patient_context_json"):
+                    logger.debug("Termination override: patient context system message -> continue")
+                    return False
+                if "back to you" in lt:
+                    logger.debug("Termination override: internal handoff phrase -> continue")
+                    return False
+        except Exception:
+            pass
         rule = ChatRule.model_validate_json(str(result.value[0]))
         return rule.verdict == "yes"
 

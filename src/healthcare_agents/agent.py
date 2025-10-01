@@ -9,7 +9,7 @@ from typing import ClassVar, override
 from azure.keyvault.secrets.aio import SecretClient
 from semantic_kernel.agents.agent import Agent
 from semantic_kernel.agents.channels.agent_channel import AgentChannel
-from semantic_kernel.contents import AuthorRole, ChatMessageContent
+from semantic_kernel.contents import AuthorRole, ChatMessageContent, TextContent
 from semantic_kernel.exceptions import AgentInvokeException
 
 from data_models.app_context import AppContext
@@ -39,8 +39,10 @@ class HealthcareAgentChannel(AgentChannel):
     async def invoke(self, agent: "HealthcareAgent") -> AsyncIterable[tuple[bool, ChatMessageContent]]:
         logger.debug("Invoking agent: %s, with user input: %s", agent.name, self.history[-1].content)
         user_input = self.history[-1].content
-        user_message = ChatMessageContent(role=AuthorRole.USER,
-                                          content=user_input)
+        user_message = ChatMessageContent(
+            role=AuthorRole.USER,
+            items=[TextContent(text=str(user_input))]
+        )
         self.history.append(user_message)
 
         if agent.client:
@@ -49,7 +51,8 @@ class HealthcareAgentChannel(AgentChannel):
             response_message = ChatMessageContent(
                 role=AuthorRole.ASSISTANT,
                 name=agent.name,
-                content=response_dict.get("text", ""))
+                items=[TextContent(text=response_dict.get("text", ""))]
+            )
             self.history.append(response_message)
             yield True, response_message
         else:
@@ -109,6 +112,7 @@ class HealthcareAgent(Agent):
             retry_delay=config.retry_delay,
             timeout=config.timeout
         )
+
         # Restore conversation ID if it exists
         if name in self._chat_ctx.healthcare_agents:
             self._client.set_conversation_id(
@@ -131,7 +135,7 @@ class HealthcareAgent(Agent):
         return ChatMessageContent(
             role=AuthorRole.ASSISTANT,
             name=self.name,
-            content=response_dict.get("text", "")
+            items=[TextContent(text=response_dict.get("text", ""))]
         )
 
     @override
