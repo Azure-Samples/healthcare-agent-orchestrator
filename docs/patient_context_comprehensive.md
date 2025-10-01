@@ -1,142 +1,139 @@
-# Patient Context Management - Comprehensive Guide
+# Patient Context Management - Technical Guide
 
-This document provides a complete analysis of the **Patient Context Management System** migration from a single-conversation model to a multi-patient, registry-backed architecture with ephemeral snapshot grounding.
-
-> [!IMPORTANT]
-> This is a technical deep-dive document. For quick reference, see [`patient_context.md`](patient_context.md).
+This document explains how the Healthcare Agent Orchestrator now handles **multiple patients in a single conversation** using a registry-backed architecture with ephemeral snapshots.
 
 ---
 
 ## Table of Contents
 
-- [Executive Summary](#executive-summary)
-- [Architecture Overview](#architecture-overview)
+- [What Changed and Why](#what-changed-and-why)
+- [How It Works Now](#how-it-works-now)
 - [New Components](#new-components)
 - [Modified Components](#modified-components)
-- [Complete Turn Flow](#complete-turn-flow)
-- [Migration Benefits](#migration-benefits)
+- [Step-by-Step Turn Flow](#step-by-step-turn-flow)
+- [Configuration](#configuration)
 
 ---
 
-## Executive Summary
+## What Changed and Why
 
-The Healthcare Agent Orchestrator has been enhanced with a **registry-backed, ephemeral snapshot architecture** to enable multi-patient conversational state management within a single conversation.
+### The Problem
 
-### Key Achievements
+**Before**, the system could only handle **one context per conversation**:
 
-| Capability | Before | After |
-|------------|--------|-------|
-| **Patient Isolation** | Single conversation = single context | Multiple patients with isolated histories |
-| **Patient Switching** | Not supported | Seamless switching with kernel reset |
-| **Storage Model** | Single `chat_context.json` | Per-patient files + session + registry |
-| **Agent Grounding** | No patient awareness | Ephemeral snapshot each turn |
-| **Clear Operation** | Simple archive | Bulk archive (session + all patients + registry) |
-| **Patient Detection** | Manual/hardcoded | Automatic LLM-based classifier |
-| **Orchestration** | Facilitator loops, false terminations | Confirmation gate + termination overrides |
+```
+❌ All messages in one file (chat_context.json)
+❌ No way to switch between patients
+❌ Agents had no idea which patient they were discussing
+❌ "Clear" just archived one file
+```
+
+**Example of the problem:**
+```
+User: "Review patient_4's labs"
+[Agent responds about patient_4]
+User: "Now check patient_15's imaging"
+[Agent gets confused - both patients' messages mixed together]
+```
+
+### The Solution
+
+**Now**, the system supports **multiple patients with isolated histories**:
+
+```
+✅ Each patient gets their own history file
+✅ Registry tracks which patient is currently active
+✅ Agents see a "snapshot" showing current patient context
+✅ Switch between patients seamlessly
+✅ Clear archives everything properly
+```
+
+**How it works now:**
+```
+User: "Review patient_4's labs"
+[System activates patient_4, creates patient_4_context.json]
+[Agent sees snapshot: "You're working on patient_4"]
+
+User: "Now check patient_15's imaging"
+[System switches to patient_15, creates patient_15_context.json]
+[Agent sees new snapshot: "You're now working on patient_15"]
+[patient_4's history is safely stored and separate]
+```
+
+### Quick Comparison
+
+| Feature | Before | After |
+|---------|--------|-------|
+| **Storage** | 1 file for everything | Separate file per patient + registry |
+| **Patient Switching** | Not supported | Automatic detection and switching |
+| **Agent Awareness** | No idea about patient context | Fresh snapshot each turn |
+| **Clear Command** | Archives 1 file | Archives all patient files + registry |
+| **Patient Detection** | Manual/hardcoded | LLM automatically detects intent |
 
 ---
 
-## Architecture Overview
+## How It Works Now
 
-### Old Architecture (Single Context Model)
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    User Interface                        │
-│              (Teams Bot / WebSocket API)                 │
-└──────────────────────┬──────────────────────────────────┘
-                       │
-                       ↓
-           ┌───────────────────────┐
-           │   ChatContext         │
-           │  - conversation_id    │
-           │  - chat_history       │ ← Single history
-           │  - patient_id (unused)│
-           └───────────┬───────────┘
-                       │
-                       ↓
-           ┌───────────────────────┐
-           │  Storage (Blob)       │
-           │  {conv_id}/           │
-           │    chat_context.json  │ ← One file
-           └───────────────────────┘
-```
-
-**Problems:**
-- ❌ No patient isolation (all messages in one history)
-- ❌ No patient switching capability
-- ❌ No patient awareness in agents
-- ❌ Facilitator loops (no confirmation gate)
-- ❌ False terminations (snapshot messages confused LLM)
-
-### New Architecture (Registry-Backed Ephemeral Model)
+### Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         User Interface                               │
-│                   (Teams Bot / WebSocket API)                        │
-└───────────────────────────┬─────────────────────────────────────────┘
-                            │
-                            ↓
-        ┌───────────────────────────────────────────┐
-        │   PatientContextService                   │
-        │   - decide_and_apply()                    │
-        │   - Registry hydration                    │
-        │   - Silent restore                        │
-        │   - Validation                            │
-        └──────────┬────────────────────────────────┘
-                   │
-      ┌────────────┴─────────────┐
-      │                          │
-      ↓                          ↓
-┌─────────────────┐    ┌──────────────────────┐
-│ PatientContext  │    │ Registry Accessor    │
-│ Analyzer        │    │ (Source of Truth)    │
-│ - LLM Classifier│    │                      │
-│ - Structured    │    │ registry.json:       │
-│   Output        │    │ - active_patient_id  │
-│ - Intent        │    │ - patient_registry   │
-│   Detection     │    │   map                │
-└─────────────────┘    └──────────┬───────────┘
-                                  │
-                    ┌─────────────┴──────────────────────┐
-                    │                                     │
-                    ↓                                     ↓
-          ┌──────────────────┐              ┌───────────────────────┐
-          │  ChatContext     │              │  Storage (Blob)       │
-          │  - conversation_id│             │  {conv_id}/           │
-          │  - patient_id    │              │   session_context.json│
-          │  - patient_contexts│            │   patient_4_context   │
-          │  - chat_history  │◄────────────┤   patient_15_context  │
-          └────────┬─────────┘              │   registry.json       │
-                   │                        └───────────────────────┘
-                   │
-                   ↓
-    ┌──────────────────────────────────┐
-    │  Ephemeral Snapshot Injection    │
-    │  [0] SYSTEM: PATIENT_CONTEXT_JSON│ ← Generated each turn
-    │  [1] USER: message               │
-    │  [2] ASSISTANT: response         │
-    └──────────┬───────────────────────┘
-               │
-               ↓
-    ┌──────────────────────────┐
-    │  Group Chat              │
-    │  - Selection (w/ gate)   │
-    │  - Termination (w/       │
-    │    overrides)            │
-    │  - Agents (see snapshot) │
-    └──────────────────────────┘
+User Message
+    ↓
+┌───────────────────────────────────────┐
+│  1. Load Registry                     │ ← "Which patient is active?"
+│     (patient_context_registry.json)   │
+└─────────────┬─────────────────────────┘
+              ↓
+┌───────────────────────────────────────┐
+│  2. Analyze User Intent               │ ← LLM determines what user wants
+│     (PatientContextAnalyzer)          │    "Review patient_4" = NEW
+│                                       │    "Switch to patient_15" = SWITCH
+│                                       │    "What's the diagnosis?" = UNCHANGED
+└─────────────┬─────────────────────────┘
+              ↓
+┌───────────────────────────────────────┐
+│  3. Apply Decision                    │ ← Update registry, load history
+│     (PatientContextService)           │
+└─────────────┬─────────────────────────┘
+              ↓
+┌───────────────────────────────────────┐
+│  4. Load Patient-Specific History     │ ← Get isolated history
+│     (patient_4_context.json)          │
+└─────────────┬─────────────────────────┘
+              ↓
+┌───────────────────────────────────────┐
+│  5. Inject Fresh Snapshot             │ ← Add system message
+│     "PATIENT_CONTEXT_JSON: {...}"     │    (agents see this)
+│     (EPHEMERAL - never saved)         │
+└─────────────┬─────────────────────────┘
+              ↓
+┌───────────────────────────────────────┐
+│  6. Group Chat Orchestration          │ ← Agents process with context
+│     (Agents see snapshot + history)   │
+└─────────────┬─────────────────────────┘
+              ↓
+┌───────────────────────────────────────┐
+│  7. Save History                      │ ← Snapshot is filtered out
+│     (only real messages saved)        │
+└───────────────────────────────────────┘
 ```
 
-**Benefits:**
-- ✅ **Per-patient isolation** - Separate history files
-- ✅ **Multi-patient roster** - Registry tracks all patients in session
-- ✅ **Ephemeral grounding** - Fresh snapshot each turn (never persisted)
-- ✅ **Automatic detection** - LLM analyzer classifies intent
-- ✅ **Safe switching** - Kernel reset on patient change
-- ✅ **Robust clear** - Bulk archive with timestamp folders
-- ✅ **Stable orchestration** - Confirmation gate + deterministic overrides
+### Storage Structure
+
+```
+conversation_abc123/
+├── session_context.json              ← Messages before any patient mentioned
+├── patient_patient_4_context.json    ← patient_4's isolated history
+├── patient_patient_15_context.json   ← patient_15's isolated history
+└── patient_context_registry.json     ← SOURCE OF TRUTH
+    {
+      "active_patient_id": "patient_4",
+      "patient_registry": {
+        "patient_4": { "created_at": "...", "updated_at": "..." },
+        "patient_15": { "created_at": "...", "updated_at": "..." }
+      }
+    }
+```
 
 ---
 
@@ -146,50 +143,44 @@ The Healthcare Agent Orchestrator has been enhanced with a **registry-backed, ep
 
 **File:** `src/services/patient_context_analyzer.py`
 
-**Purpose:** LLM-based structured output classifier that determines patient context intent from user messages.
+**What it does:** Uses an LLM to automatically detect what the user wants to do with patient context.
 
-**Key Features:**
-
+**Before:**
 ```python
-class PatientContextAnalyzer:
-    """
-    Analyzes user messages to determine patient context actions.
-    Uses Azure OpenAI with structured output for reliable classification.
-    """
-    
-    async def analyze_patient_context(
-        self,
-        user_text: str,
-        prior_patient_id: str | None,
-        known_patient_ids: list[str]
-    ) -> PatientContextDecision:
-        """
-        Returns structured decision:
-        - action: NONE | ACTIVATE_NEW | SWITCH_EXISTING | UNCHANGED | CLEAR
-        - patient_id: Extracted ID (for ACTIVATE_NEW/SWITCH_EXISTING only)
-        - reasoning: Brief explanation
-        """
+# No automatic detection - had to manually parse or hardcode
+if "patient" in message:
+    # Do something... but what?
 ```
 
-**Decision Examples:**
+**After:**
+```python
+# LLM analyzes the message and returns structured decision
+decision = await analyzer.analyze_patient_context(
+    user_text="review patient_4",
+    prior_patient_id=None,
+    known_patient_ids=[]
+)
+# Returns: PatientContextDecision(
+#   action="ACTIVATE_NEW",
+#   patient_id="patient_4",
+#   reasoning="User explicitly requests patient_4"
+# )
+```
 
-| User Input | Context | Action | patient_id | Reasoning |
-|------------|---------|--------|------------|-----------|
-| `"review patient_4"` | No active | `ACTIVATE_NEW` | `"patient_4"` | User explicitly requests patient_4 |
-| `"switch to patient_15"` | patient_4 active | `SWITCH_EXISTING` | `"patient_15"` | Explicit switch requested |
-| `"what's the diagnosis?"` | patient_4 active | `UNCHANGED` | `null` | Follow-up question for active patient |
-| `"clear patient"` | patient_4 active | `CLEAR` | `null` | User requests context reset |
+**Examples:**
 
-**Heuristic Skip:**
-- Messages ≤ 15 characters without keywords (`patient`, `clear`, `switch`) bypass the analyzer for efficiency
-- Returns `UNCHANGED` if patient active, `NONE` otherwise
+| User Input | Current Patient | Decision | Explanation |
+|------------|----------------|----------|-------------|
+| `"review patient_4"` | None | `ACTIVATE_NEW` | Start working on patient_4 |
+| `"switch to patient_15"` | patient_4 | `SWITCH_EXISTING` | Change to patient_15 |
+| `"what's the diagnosis?"` | patient_4 | `UNCHANGED` | Continue with patient_4 |
+| `"clear patient"` | patient_4 | `CLEAR` | Reset everything |
 
-**Why This Component:**
-- **Automatic** - No manual parsing/regex
-- **Contextual** - Considers prior state and known patients
-- **Reliable** - Structured output ensures consistent format
-- **Explainable** - Reasoning field aids debugging
-- **Efficient** - Heuristic skip for short messages
+**Key Features:**
+- ✅ Automatic detection (no manual parsing)
+- ✅ Considers current state
+- ✅ Structured output (reliable format)
+- ✅ Efficiency: skips LLM for short messages like "ok" or "yes"
 
 ---
 
@@ -197,79 +188,57 @@ class PatientContextAnalyzer:
 
 **File:** `src/services/patient_context_service.py`
 
-**Purpose:** Orchestrates the complete patient context lifecycle - hydration, analysis, validation, and application.
+**What it does:** Orchestrates the entire patient context lifecycle - deciding what to do and making it happen.
 
-**Key Methods:**
-
+**Before:**
 ```python
-class PatientContextService:
-    """
-    Manages patient context lifecycle:
-    - Registry hydration
-    - Silent restoration
-    - Analyzer invocation
-    - Decision validation & application
-    - Side effects (kernel reset, archival)
-    """
-    
-    async def decide_and_apply(
-        self,
-        user_text: str,
-        chat_ctx: ChatContext
-    ) -> tuple[Decision, TimingInfo]:
-        """
-        Main orchestration method. Returns:
-        - Decision: Final service decision
-        - TimingInfo: Performance metrics
-        """
+# Logic was scattered across multiple files
+# No central place handling patient context
 ```
 
-**Decision Pipeline:**
+**After:**
+```python
+# One method handles everything
+decision, timing = await service.decide_and_apply(
+    user_text="switch to patient_15",
+    chat_ctx=chat_context
+)
+# Service handles:
+# - Loading registry
+# - Calling analyzer
+# - Validating decision
+# - Updating registry
+# - Resetting kernel (if switching)
+```
+
+**Decision Flow:**
 
 ```
-User Text
-  ↓
-1. Hydrate Registry → chat_ctx.patient_contexts
-  ↓
-2. Silent Restore Attempt (if no active patient)
-  ↓
-3. Heuristic Check (skip analyzer if short message)
-  ↓
-4. Analyzer Invocation (if not skipped)
-  ↓
-5. Validation & Transformation:
-   - ACTIVATE_NEW + new ID → NEW_BLANK
-   - ACTIVATE_NEW + exists → SWITCH_EXISTING
-   - ACTIVATE_NEW + invalid → NEEDS_PATIENT_ID
-   - SWITCH_EXISTING + invalid → NEEDS_PATIENT_ID
-   - CLEAR → archive + reset
-  ↓
-6. Apply Side Effects:
-   - Kernel reset (if patient change)
-   - Registry update
-   - Archive (if clear)
-  ↓
-7. Return (Decision, TimingInfo)
+User says: "switch to patient_15"
+    ↓
+1. Load registry → "patient_4 is active"
+    ↓
+2. Ask analyzer → "SWITCH_EXISTING to patient_15"
+    ↓
+3. Validate → "patient_15 matches pattern, exists in registry"
+    ↓
+4. Apply:
+   - Update registry: active = patient_15
+   - Reset kernel (prevents cross-contamination)
+   - Return decision: "SWITCH_EXISTING"
 ```
 
 **Service Decisions:**
 
-```
-"NONE"                    - No patient context change
-"UNCHANGED"               - Keep current patient
-"NEW_BLANK"               - Activate new patient (reinterpreted ACTIVATE_NEW)
-"SWITCH_EXISTING"         - Switch to known patient
-"CLEAR"                   - Archive all and reset
-"RESTORED_FROM_STORAGE"   - Silent reactivation from registry
-"NEEDS_PATIENT_ID"        - User intent unclear, need valid ID
-```
-
-**Why This Component:**
-- **Centralized orchestration** - Single responsibility for patient lifecycle
-- **Consistent validation** - Regex pattern enforced (`PATIENT_ID_PATTERN`)
-- **Registry authority** - Always syncs with source of truth
-- **Performance tracking** - TimingInfo for monitoring
-- **Separation of concerns** - Service doesn't inject snapshots (caller responsibility)
+| Decision | Meaning |
+|----------|---------|
+| `NONE` | No patient context needed |
+| `UNCHANGED` | Keep current patient active |
+| `NEW_BLANK` | Activate a new patient (first time) |
+| `SWITCH_EXISTING` | Switch to a known patient |
+| `CLEAR` | Archive everything and reset |
+| `RESTORED_FROM_STORAGE` | Silently reactivated from registry |
+| `NEEDS_PATIENT_ID` | User intent unclear, need valid ID |
 
 ---
 
@@ -277,9 +246,9 @@ User Text
 
 **File:** `src/data_models/patient_context_registry_accessor.py`
 
-**Purpose:** Manages persistence of the patient context registry (source of truth).
+**What it does:** Manages the **source of truth** file that tracks which patient is active and which patients exist.
 
-**Registry Structure:**
+**Registry File Structure:**
 
 ```json
 {
@@ -288,14 +257,12 @@ User Text
     "patient_4": {
       "patient_id": "patient_4",
       "facts": {},
-      "conversation_id": "19:abc-123-def@thread.tacv2",
       "created_at": "2025-09-30T16:30:00.000Z",
       "updated_at": "2025-09-30T16:45:00.000Z"
     },
     "patient_15": {
       "patient_id": "patient_15",
       "facts": {},
-      "conversation_id": "19:abc-123-def@thread.tacv2",
       "created_at": "2025-09-30T16:32:00.000Z",
       "updated_at": "2025-09-30T16:40:00.000Z"
     }
@@ -303,136 +270,83 @@ User Text
 }
 ```
 
-**Key Methods:**
-
-```python
-class PatientContextRegistryAccessor:
-    async def read_registry(
-        self,
-        conversation_id: str
-    ) -> tuple[dict, str | None]:
-        """Returns (patient_registry, active_patient_id)"""
-    
-    async def write_registry(
-        self,
-        conversation_id: str,
-        patient_registry: dict,
-        active_patient_id: str | None
-    ) -> None:
-        """Persists registry to patient_context_registry.json"""
-    
-    async def archive_registry(
-        self,
-        conversation_id: str
-    ) -> None:
-        """Archives registry during clear operation"""
-```
-
-**Why This Component:**
-- **Source of truth** - Registry is authoritative for active patient
-- **Roster management** - Tracks all patients in session
-- **Extensible facts** - Can store patient-specific metadata
-- **Audit trail** - Timestamps for compliance
-- **Archival support** - Clean clear operations
+**Why this exists:**
+- ✅ Single source of truth for "which patient is active"
+- ✅ Tracks all patients in the session (roster)
+- ✅ Supports future features (facts, metadata)
+- ✅ Clean archival during clear operations
 
 ---
 
-### 4. PatientContext Data Models
+### 4. Data Models
 
 **File:** `src/data_models/patient_context_models.py`
 
-**Purpose:** Type-safe models for patient context operations.
+**What it does:** Type-safe models for all patient context operations.
 
 **Key Models:**
 
 ```python
+# Represents a patient's context
 class PatientContext:
-    """Represents a patient's context within a conversation."""
     patient_id: str
-    facts: dict = field(default_factory=dict)
-    conversation_id: Optional[str] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    facts: dict = {}
+    created_at: datetime
+    updated_at: datetime
 
-
+# LLM's structured decision
 class PatientContextDecision:
-    """Structured output from PatientContextAnalyzer."""
-    action: Literal["NONE", "ACTIVATE_NEW", "SWITCH_EXISTING", "UNCHANGED", "CLEAR"]
-    patient_id: Optional[str] = None
+    action: str  # "NONE" | "ACTIVATE_NEW" | "SWITCH_EXISTING" | ...
+    patient_id: Optional[str]
     reasoning: str
 
-
+# Performance tracking
 class TimingInfo:
-    """Performance metrics for patient context operations."""
-    analyzer_ms: Optional[float] = None
-    storage_fallback_ms: Optional[float] = None
-    service_total_ms: Optional[float] = None
+    analyzer_ms: float
+    service_total_ms: float
 ```
-
-**Why These Models:**
-- **Type safety** - Catches errors at development time
-- **Documentation** - Clear contracts for each component
-- **Extensibility** - Easy to add new fields (e.g., `facts`)
-- **Structured output** - Enforces LLM output format
-- **Observability** - Timing metrics for monitoring
 
 ---
 
 ## Modified Components
 
-### 1. ChatContext Data Model
+### 1. ChatContext (Data Model)
 
 **File:** `src/data_models/chat_context.py`
 
-#### Before:
+**What changed:** Added fields to track active patient and multi-patient roster.
 
+**Before:**
 ```python
 class ChatContext:
-    def __init__(self, conversation_id: str):
-        self.conversation_id = conversation_id
-        self.chat_history = ChatHistory()
-        self.patient_id = None  # ← Unused field
-        # ... other fields
+    conversation_id: str
+    chat_history: ChatHistory
+    patient_id: str = None  # ❌ Existed but never used
 ```
 
-#### After:
-
+**After:**
 ```python
 class ChatContext:
-    def __init__(self, conversation_id: str):
-        self.conversation_id = conversation_id
-        self.chat_history = ChatHistory()
-        self.patient_id = None  # ← NOW USED: Active patient pointer
-        self.patient_contexts: Dict[str, PatientContext] = {}  # ✅ NEW: Multi-patient roster
-        # ... other fields
+    conversation_id: str
+    chat_history: ChatHistory
+    patient_id: str = None  # ✅ NOW USED: Points to active patient
+    patient_contexts: Dict[str, PatientContext] = {}  # ✅ NEW: Roster of all patients
 ```
 
-**Key Changes:**
-
-| Field | Before | After |
-|-------|--------|-------|
-| `patient_id` | Unused | **Active patient pointer** (set by service) |
-| `patient_contexts` | ❌ N/A | ✅ **Dict[str, PatientContext]** - roster of all patients |
-| `chat_history` | Single history | **Swapped per-patient** (loaded from isolated files) |
-
-**Lifecycle Example:**
+**Example:**
 
 ```python
-# Turn 1: User mentions patient_4
-chat_ctx.patient_id = None
-chat_ctx.patient_contexts = {}
-  ↓ decide_and_apply()
+# Turn 1: Mention patient_4
 chat_ctx.patient_id = "patient_4"
 chat_ctx.patient_contexts = {
-    "patient_4": PatientContext(patient_id="patient_4", ...)
+    "patient_4": PatientContext(...)
 }
 
-# Turn 2: User switches to patient_15
-  ↓ decide_and_apply()
+# Turn 5: Switch to patient_15
 chat_ctx.patient_id = "patient_15"
 chat_ctx.patient_contexts = {
-    "patient_4": ...,
-    "patient_15": PatientContext(patient_id="patient_15", ...)
+    "patient_4": PatientContext(...),
+    "patient_15": PatientContext(...)
 }
 ```
 
@@ -442,95 +356,92 @@ chat_ctx.patient_contexts = {
 
 **File:** `src/data_models/chat_context_accessor.py`
 
-This is one of the **most critical** changes - the accessor now handles per-patient file routing and ephemeral snapshot filtering.
+**What changed:** 
+1. Routes to different files based on patient
+2. Filters out ephemeral snapshots when saving
 
-#### A. `get_blob_path()` - File Routing
+#### Change 1: File Routing
 
-##### Before:
+**Before:**
 ```python
 def get_blob_path(self, conversation_id: str) -> str:
-    return f"{conversation_id}/chat_context.json"  # Single file
+    # ❌ Always the same file
+    return f"{conversation_id}/chat_context.json"
 ```
 
-##### After:
+**After:**
 ```python
 def get_blob_path(self, conversation_id: str, patient_id: str = None) -> str:
+    # ✅ Different file per patient
     if patient_id:
         return f"{conversation_id}/patient_{patient_id}_context.json"
     return f"{conversation_id}/session_context.json"
 ```
 
-**Storage Structure:**
+**Result:**
 
 ```
 BEFORE:
 conversation_123/
-  └── chat_context.json  ← All messages
+  └── chat_context.json  ← Everything mixed together
 
 AFTER:
 conversation_123/
-  ├── session_context.json            ← Session-level (no patient)
-  ├── patient_patient_4_context.json  ← patient_4's history
-  ├── patient_patient_15_context.json ← patient_15's history
-  └── patient_context_registry.json   ← Source of truth
+  ├── session_context.json           ← Pre-patient messages
+  ├── patient_patient_4_context.json ← Isolated history
+  └── patient_patient_15_context.json← Isolated history
 ```
 
-#### B. `serialize()` - Ephemeral Snapshot Filtering
+#### Change 2: Snapshot Filtering (CRITICAL)
 
-This is **CRITICAL** - ensures snapshots never get persisted.
-
-##### Before:
+**Before:**
 ```python
-@staticmethod
 def serialize(chat_ctx: ChatContext) -> str:
+    # ❌ Saves everything including snapshots
     return json.dumps({
-        "chat_history": chat_ctx.chat_history.serialize(),  # Direct
+        "chat_history": chat_ctx.chat_history.serialize()
     })
 ```
 
-##### After:
+**After:**
 ```python
-@staticmethod
 def serialize(chat_ctx: ChatContext) -> str:
     chat_messages = []
-    skipped_pc = 0
     
     for msg in chat_ctx.chat_history.messages:
-        # Extract content
         content = extract_content(msg)
         
-        # ✅ FILTER: Skip ephemeral patient context snapshot
-        if msg.role == AuthorRole.SYSTEM and content.startswith(PATIENT_CONTEXT_PREFIX):
-            skipped_pc += 1
-            continue  # ← CRITICAL: Don't persist snapshot
+        # ✅ CRITICAL: Filter out ephemeral snapshots
+        if msg.role == AuthorRole.SYSTEM and content.startswith("PATIENT_CONTEXT_JSON"):
+            continue  # Don't save this - it's ephemeral
         
         chat_messages.append({...})
     
-    return json.dumps({"chat_history": chat_messages, ...})
+    return json.dumps({"chat_history": chat_messages})
 ```
 
-**Filtering in Action:**
+**Why this is critical:**
 
 ```python
-# In-memory (what agents see):
+# What agents see in memory:
 [
-    [0] SYSTEM: "PATIENT_CONTEXT_JSON: {...}",  ← Ephemeral
-    [1] USER: "review patient_4",
-    [2] ASSISTANT: "Plan: ..."
+    SYSTEM: "PATIENT_CONTEXT_JSON: {...}",  ← Ephemeral snapshot
+    USER: "review patient_4",
+    ASSISTANT: "Here's the plan..."
 ]
 
-# Persisted (what gets saved):
+# What gets saved to disk:
 [
-    [0] USER: "review patient_4",  ← Snapshot filtered out
-    [1] ASSISTANT: "Plan: ..."
+    USER: "review patient_4",              ← Snapshot filtered out!
+    ASSISTANT: "Here's the plan..."
 ]
 ```
 
-**Why This Is Critical:**
-- **Ephemeral only** - Snapshot never pollutes storage
-- **Registry as truth** - Active patient always from registry, not stale snapshot
-- **Fresh every turn** - Rebuilt from registry each time
-- **No staleness** - Can't have outdated patient context
+**Benefits:**
+- ✅ Snapshot is **never** persisted
+- ✅ Registry is always the source of truth
+- ✅ Fresh snapshot generated every turn
+- ✅ No stale data
 
 ---
 
@@ -538,30 +449,29 @@ def serialize(chat_ctx: ChatContext) -> str:
 
 **File:** `src/healthcare_agents/agent.py`
 
-#### Message Structure Change
+**What changed:** Message structure to enable consistent filtering.
 
-##### Before:
+**Before:**
 ```python
+# ❌ Content was just a string
 response_message = ChatMessageContent(
     role=AuthorRole.ASSISTANT,
     name=agent.name,
-    content=response_dict.get("text", "")  # ❌ Direct content
+    content=response_text
 )
 ```
 
-##### After:
+**After:**
 ```python
+# ✅ Content is structured with items
 response_message = ChatMessageContent(
     role=AuthorRole.ASSISTANT,
     name=agent.name,
-    items=[TextContent(text=response_dict.get("text", ""))]  # ✅ Structured
+    items=[TextContent(text=response_text)]
 )
 ```
 
-**Why This Change:**
-- **Consistent structure** - Aligns with Semantic Kernel message format
-- **Enables filtering** - Accessor can reliably detect snapshot messages
-- **Required for serialization** - Accessor expects `items` structure
+**Why:** Accessor needs consistent structure to reliably filter snapshots.
 
 ---
 
@@ -569,370 +479,493 @@ response_message = ChatMessageContent(
 
 **File:** `src/group_chat.py`
 
-#### A. CONFIRMATION GATE (Selection Prompt)
+**What changed:** Added confirmation gate and termination overrides for stability.
 
-Added to selection function prompt:
+#### Change 1: Confirmation Gate
 
+**The Problem:**
+```
+User: "review patient_4"
+Orchestrator: "Plan: 1. PatientHistory, 2. Radiology..."
+PatientHistory: [immediately starts executing] ❌ No user confirmation!
+```
+
+**The Solution:**
 ```python
+# Added to selection prompt:
 """
-- **CONFIRMATION GATE (PLAN ONLY)**: 
-  If (a) the MOST RECENT message is from {facilitator} AND 
-     (b) it contains a multi-step plan (look for "Plan", "plan:", 
-         numbered steps like "1.", "2.", or bullet lines) AND 
-     (c) no user message has appeared AFTER that plan yet, 
-  then do NOT advance to another agent. Wait for a user reply.
+CONFIRMATION GATE: If the most recent message is from Orchestrator
+and contains a multi-step plan, WAIT for user confirmation.
+Do not proceed to other agents yet.
 """
 ```
 
-**Before:**
+**Now it works:**
 ```
 User: "review patient_4"
-Orchestrator: "Plan: 1. PatientHistory, 2. Radiology..."
-PatientHistory: [starts immediately] ❌
+Orchestrator: "Plan: 1. PatientHistory, 2. Radiology... Good?"
+[🛑 GATE: Wait for user]
+User: "yes"
+PatientHistory: [now executes] ✅
 ```
 
-**After:**
+#### Change 2: Termination Overrides
+
+**The Problem:**
 ```
-User: "review patient_4"
-Orchestrator: "Plan: 1. PatientHistory, 2. Radiology..."
-Selection: 🛑 GATE TRIGGERED - wait for user
-Orchestrator: "Does this plan work for you?"
-User: "yes proceed"
-Selection: Gate lifted → PatientHistory ✅
+Orchestrator: "PATIENT_CONTEXT_JSON: {...}"
+LLM: "This looks like a conclusion" ❌ False termination!
 ```
 
-#### B. Termination Overrides (Deterministic)
-
-Added to `evaluate_termination()`:
-
+**The Solution:**
 ```python
 def evaluate_termination(result):
-    # NEW: Pre-check before LLM evaluation
-    try:
-        last_text = extract_last_message_text(chat_ctx)
-        
-        # Override 1: Ignore patient context snapshots
-        if last_text.lower().startswith("patient_context_json"):
-            return False  # Continue
-        
-        # Override 2: Ignore internal handoffs
-        if "back to you" in last_text.lower():
-            return False  # Continue
-    except Exception:
-        pass
+    last_text = extract_last_message_text(chat_ctx)
     
-    # Fall back to LLM verdict
-    rule = ChatRule.model_validate_json(str(result.value[0]))
-    return rule.verdict == "yes"
+    # ✅ Override 1: Ignore snapshots
+    if last_text.lower().startswith("patient_context_json"):
+        return False  # Don't terminate
+    
+    # ✅ Override 2: Ignore handoffs
+    if "back to you" in last_text.lower():
+        return False  # Don't terminate
+    
+    # Fall back to LLM evaluation
+    return llm_verdict()
 ```
 
-**Why These Changes:**
-- **Prevents facilitator loops** - Waits for user confirmation before executing plan
-- **Prevents false termination** - System messages don't end conversation
-- **Allows agent handoffs** - "back to you X" continues orchestration
-- **Deterministic** - Python logic for unambiguous cases (faster, more reliable)
+**Benefits:**
+- ✅ System messages don't end conversation
+- ✅ Agent handoffs continue smoothly
+- ✅ More reliable orchestration
 
 ---
 
-### 5. Entry Points (Assistant Bot & API Routes)
+### 5. Entry Points (Bot & API)
 
 **Files:** `src/bots/assistant_bot.py`, `src/routes/api/chats.py`
 
-Both entry points follow the **identical pattern**:
+**What changed:** Both entry points now follow the same pattern for patient context.
 
-#### Complete Turn Flow
-
+**Before:**
 ```python
-async def on_message_activity(self, turn_context: TurnContext):
-    conversation_id = turn_context.activity.conversation.id
-    raw_user_text = extract_user_text(turn_context)
-    
+async def on_message_activity(turn_context):
+    # ❌ Simple, no patient awareness
+    chat_ctx = await accessor.read(conversation_id)
+    chat_ctx.chat_history.add_user_message(user_text)
+    await process_chat(chat, chat_ctx)
+    await accessor.write(chat_ctx)
+```
+
+**After:**
+```python
+async def on_message_activity(turn_context):
     # STEP 1: Load session context
-    chat_ctx = await chat_context_accessor.read(conversation_id, None)
+    chat_ctx = await accessor.read(conversation_id, None)
     
-    # STEP 2: Check clear command
-    if await self._handle_clear_command(raw_user_text, chat_ctx, conversation_id):
-        await send_cleared_message()
-        return
+    # STEP 2: Check for clear command
+    if await handle_clear_command(user_text, chat_ctx):
+        return  # Archives everything
     
-    # STEP 3: Patient context decision
-    decision, timing = await self.patient_context_service.decide_and_apply(
-        raw_user_text, chat_ctx
+    # STEP 3: ✅ NEW: Patient context decision
+    decision, timing = await patient_service.decide_and_apply(
+        user_text, chat_ctx
     )
     
-    # STEP 4: Handle NEEDS_PATIENT_ID
+    # STEP 4: ✅ NEW: Handle error cases
     if decision == "NEEDS_PATIENT_ID":
-        await send_error_message("I need a patient ID like 'patient_4'")
+        await send_error("I need a valid patient ID")
         return
     
-    # STEP 5: Load isolated patient history
+    # STEP 5: ✅ NEW: Load patient-specific history
     if chat_ctx.patient_id:
-        isolated = await chat_context_accessor.read(conversation_id, chat_ctx.patient_id)
-        if isolated and isolated.chat_history.messages:
+        isolated = await accessor.read(conversation_id, chat_ctx.patient_id)
+        if isolated:
             chat_ctx.chat_history = isolated.chat_history
     
-    # STEP 5.5: Inject fresh ephemeral snapshot
-    chat_ctx.chat_history.messages = strip_old_snapshots(chat_ctx.chat_history.messages)
+    # STEP 6: ✅ NEW: Inject fresh ephemeral snapshot
+    snapshot = create_snapshot(chat_ctx)
+    chat_ctx.chat_history.messages.insert(0, snapshot)
     
-    snapshot = {
-        "conversation_id": chat_ctx.conversation_id,
-        "patient_id": chat_ctx.patient_id,
-        "all_patient_ids": sorted(chat_ctx.patient_contexts.keys()),
-        "generated_at": datetime.utcnow().isoformat() + "Z"
-    }
-    snapshot_msg = create_system_message(snapshot)
-    chat_ctx.chat_history.messages.insert(0, snapshot_msg)
+    # STEP 7: Add user message and process
+    chat_ctx.chat_history.add_user_message(user_text)
+    await process_chat(chat, chat_ctx)
     
-    # STEP 6: Group chat
-    (chat, chat_ctx) = create_group_chat(app_context, chat_ctx)
-    chat_ctx.chat_history.add_user_message(raw_user_text)
-    
-    # STEP 7: Process chat
-    await self.process_chat(chat, chat_ctx, turn_context)
-    
-    # STEP 8: Save (snapshot auto-filtered)
-    await chat_context_accessor.write(chat_ctx)
+    # STEP 8: Save (snapshot auto-filtered by accessor)
+    await accessor.write(chat_ctx)
 ```
 
 **Key Additions:**
-1. **Patient context service** - Initialized in `__init__()`
-2. **Enhanced clear** - `_handle_clear_command()` bulk archives
-3. **Patient decision** - `decide_and_apply()` orchestration
-4. **Isolated load** - Swaps in patient-specific history
-5. **Ephemeral snapshot** - Fresh injection every turn
-6. **PT_CTX footer** - Appended to agent responses (UI only)
+1. ✅ Patient context service integration
+2. ✅ Enhanced clear command (bulk archive)
+3. ✅ Isolated history loading
+4. ✅ Ephemeral snapshot injection
+5. ✅ Error handling for invalid IDs
 
 ---
 
-## Complete Turn Flow
+## Step-by-Step Turn Flow
 
-### Example: Multi-Patient Session
+### Scenario: User Discusses Two Patients
+
+This example shows a complete conversation where the user works with two different patients.
+
+---
+
+#### **Turn 1: First time mentioning patient_4**
+
+**User types:** `"review patient_4 labs"`
+
+**What happens:**
 
 ```
-═══════════════════════════════════════════════════════════════
-TURN 1: User mentions patient_4
-═══════════════════════════════════════════════════════════════
+1. Load session file
+   Result: Empty (brand new conversation)
 
-User (Teams): "@Orchestrator start tumor board for patient_4"
+2. Check if user said "clear"
+   Result: No
 
-[Entry Point: assistant_bot.on_message_activity]
-  ↓
-STEP 1: Load session_context.json
-  Result: Empty ChatContext(conversation_id="abc123")
-  ↓
-STEP 2: Check clear → NOT a clear command
-  ↓
-STEP 3: Patient context decision
-  ├─ Hydrate registry: {} (no registry yet)
-  ├─ Analyzer input: "start tumor board for patient_4"
-  ├─ Analyzer output: ACTIVATE_NEW (patient_id="patient_4")
-  ├─ Validation: ✅ Valid pattern, not in registry
-  ├─ Decision: NEW_BLANK
-  ├─ Action: Create PatientContext, update registry
-  └─ Result: patient_id="patient_4", registry written
-  ↓
-STEP 5: Load patient_patient_4_context.json
-  → File doesn't exist (first time) → Empty history
-  ↓
-STEP 5.5: Inject ephemeral snapshot
-  [0] SYSTEM: PATIENT_CONTEXT_JSON: {
-        "patient_id": "patient_4",
-        "all_patient_ids": ["patient_4"],
-        ...
-      }
-  ↓
-STEP 6: Add user message
-  [1] USER: "start tumor board for patient_4"
-  ↓
-STEP 7: Orchestrator responds
-  "Plan:
-   1. *PatientHistory*: Load clinical timeline
-   2. *Radiology*: Review imaging
-   3. I'll compile recommendations
-   
-   Does this plan look good?"
-  ↓
-STEP 8: Save to patient_patient_4_context.json
-  (Snapshot filtered out)
+3. Patient context decision
+   • Load registry → No registry file exists yet
+   • Ask analyzer: What does user want?
+     Analyzer says: "ACTIVATE_NEW patient_4"
+   • Validate: "patient_4" matches our pattern ✅
+   • Decision: NEW_BLANK (create new patient)
+   • Action: 
+     - Create a PatientContext for patient_4
+     - Write registry file with patient_4 as active
 
-[Storage After Turn 1]
+4. Load patient_4's history file
+   Result: Doesn't exist yet (first time) → Use empty history
+
+5. Create and inject snapshot
+   Add to position [0]: SYSTEM: "PATIENT_CONTEXT_JSON: {patient_id: 'patient_4'}"
+   This tells agents: "You're working on patient_4"
+
+6. Add user's message
+   [1] USER: "review patient_4 labs"
+
+7. Agents respond
+   [2] ASSISTANT: "Plan: 1. PatientHistory will load labs..."
+
+8. Save everything
+   • Snapshot is automatically filtered out
+   • Only save: [USER message, ASSISTANT message]
+   • File: patient_patient_4_context.json
+```
+
+**Storage after Turn 1:**
+```
 conversation_abc123/
-├── patient_patient_4_context.json     ← Created
-└── patient_context_registry.json      ← Created
+├── patient_patient_4_context.json ← Created with 2 messages
+└── patient_context_registry.json  ← Created
     {
       "active_patient_id": "patient_4",
       "patient_registry": {
         "patient_4": {...}
       }
     }
+```
 
-═══════════════════════════════════════════════════════════════
-TURN 2: User confirms plan
-═══════════════════════════════════════════════════════════════
+---
 
-User: "yes proceed"
+#### **Turn 2: Continuing with patient_4**
 
-STEP 3: Patient context decision
-  ├─ Hydrate registry: {"patient_4": ...}
-  ├─ Analyzer: Short message heuristic → UNCHANGED
-  └─ Result: Keep patient_4 active
-  ↓
-STEP 5: Load patient_patient_4_context.json
-  Contains: Previous plan message
-  ↓
-STEP 5.5: Inject fresh snapshot
-  [0] SYSTEM: PATIENT_CONTEXT_JSON: {...}  ← Fresh
-  [1] USER: "start tumor board..."
-  [2] ASSISTANT: "Plan: ..."
-  [3] USER: "yes proceed"  ← New
-  ↓
-STEP 7: Orchestration
-  ├─ Selection: User confirmed → PatientHistory
-  ├─ PatientHistory: "Timeline for patient_4: ..."
-  │   "Back to you Orchestrator."
-  ├─ Termination: "back to you" detected → CONTINUE ✅
-  ├─ Selection: Orchestrator
-  └─ Orchestrator: "Moving to step 2. *Radiology*..."
+**User types:** `"yes proceed"`
 
-═══════════════════════════════════════════════════════════════
-TURN 3: User switches to different patient
-═══════════════════════════════════════════════════════════════
+**What happens:**
 
-User: "switch to patient_15"
+```
+1. Load session file
+   Result: Empty (still no session-level messages)
 
-STEP 3: Patient context decision
-  ├─ Analyzer: ACTIVATE_NEW (patient_id="patient_15")
-  ├─ Validation: Not in registry → NEW_BLANK
-  ├─ Action: Create patient_15, kernel reset
-  └─ Result: patient_id="patient_15"
-  ↓
-STEP 5: Load patient_patient_15_context.json
-  → File doesn't exist → Empty history
-  ↓
-STEP 5.5: Inject snapshot
-  [0] SYSTEM: PATIENT_CONTEXT_JSON: {
-        "patient_id": "patient_15",  ← NEW ACTIVE
-        "all_patient_ids": ["patient_4", "patient_15"],
-        ...
-      }
-  ↓
-STEP 7: Orchestrator
-  "Switched to patient_15. What would you like to review?"
+2. Check if user said "clear"
+   Result: No
 
-[Storage After Turn 3]
+3. Patient context decision
+   • Load registry → patient_4 is currently active
+   • Ask analyzer: What does user want?
+     Message is short ("yes proceed")
+     Heuristic: Skip analyzer, assume UNCHANGED
+   • Decision: UNCHANGED (keep patient_4)
+
+4. Load patient_4's history file
+   Result: Contains 2 messages from Turn 1:
+   [0] USER: "review patient_4 labs"
+   [1] ASSISTANT: "Plan: ..."
+
+5. Create and inject fresh snapshot
+   Add to position [0]: SYSTEM: "PATIENT_CONTEXT_JSON: {patient_id: 'patient_4'}"
+   Now history looks like:
+   [0] SYSTEM: snapshot
+   [1] USER: "review patient_4 labs"
+   [2] ASSISTANT: "Plan: ..."
+
+6. Add user's new message
+   [3] USER: "yes proceed"
+
+7. Agents respond
+   PatientHistory: "Here are patient_4's labs... Back to you Orchestrator."
+   [Termination check: Sees "back to you" → Continue, don't stop]
+   Orchestrator: "Labs received. Moving to next step..."
+
+8. Save everything
+   • Snapshot is automatically filtered out
+   • Save: [4 messages total now]
+```
+
+---
+
+#### **Turn 3: Switching to a different patient**
+
+**User types:** `"switch to patient_15"`
+
+**What happens:**
+
+```
+1. Load session file
+   Result: Empty
+
+2. Check if user said "clear"
+   Result: No
+
+3. Patient context decision
+   • Load registry → patient_4 is currently active
+   • Ask analyzer: What does user want?
+     Analyzer says: "ACTIVATE_NEW patient_15"
+   • Validate: "patient_15" matches pattern, NOT in registry yet
+   • Decision: NEW_BLANK (create new patient)
+   • Action:
+     - Create PatientContext for patient_15
+     - Update registry: active = patient_15
+     - ⚠️ RESET KERNEL (clear analyzer's memory to prevent patient_4 data leaking)
+     - Write updated registry
+
+4. Load patient_15's history file
+   Result: Doesn't exist → Use empty history
+   (patient_4's history remains untouched in its own file)
+
+5. Create and inject fresh snapshot
+   Add to position [0]: SYSTEM: "PATIENT_CONTEXT_JSON: {
+     patient_id: 'patient_15',
+     all_patient_ids: ['patient_4', 'patient_15']
+   }"
+   Shows agents: "Now working on patient_15, patient_4 still exists"
+
+6. Add user's message
+   [1] USER: "switch to patient_15"
+
+7. Agents respond
+   [2] ASSISTANT: "Switched to patient_15. What would you like to review?"
+
+8. Save everything
+   • Snapshot filtered out
+   • Save to: patient_patient_15_context.json (NEW FILE)
+```
+
+**Storage after Turn 3:**
+```
 conversation_abc123/
-├── patient_patient_4_context.json     ← Unchanged (isolated)
-├── patient_patient_15_context.json    ← Created
-└── patient_context_registry.json      ← Updated
+├── patient_patient_4_context.json  ← Still has patient_4's history (4 messages)
+├── patient_patient_15_context.json ← NEW: patient_15's history (2 messages)
+└── patient_context_registry.json   ← Updated
     {
-      "active_patient_id": "patient_15",  ← Changed
+      "active_patient_id": "patient_15",  ← Changed from patient_4
       "patient_registry": {
         "patient_4": {...},
         "patient_15": {...}  ← Added
       }
     }
+```
 
-═══════════════════════════════════════════════════════════════
-TURN 4: Clear all patient contexts
-═══════════════════════════════════════════════════════════════
+**Key Point:** patient_4's history is completely isolated and unchanged!
 
-User: "clear patient context"
+---
 
-STEP 2: Clear command detected ✅
-  ↓
-_handle_clear_command():
-  ├─ Archive session_context.json
-  ├─ Archive patient_patient_4_context.json
-  ├─ Archive patient_patient_15_context.json
-  ├─ Archive patient_context_registry.json
-  ├─ All archived to: archive/20250930T164500/
-  ├─ Delete all original files
-  ├─ Reset in-memory state
-  └─ Write empty session_context.json
+#### **Turn 4: Clearing everything**
 
-[Storage After Clear]
+**User types:** `"clear patient context"`
+
+**What happens:**
+
+```
+1. Load session file
+   Result: Empty
+
+2. Check if user said "clear"
+   Result: YES ✅
+
+3. Clear command handler runs
+   • Find all files:
+     - patient_patient_4_context.json
+     - patient_patient_15_context.json
+     - patient_context_registry.json
+   
+   • Create archive folder: archive/20250930T164500/
+   
+   • Copy each file to archive with timestamp:
+     archive/20250930T164500/conversation_abc123/
+       ├── 20250930T164500_patient_patient_4_archived.json
+       ├── 20250930T164500_patient_patient_15_archived.json
+       └── 20250930T164500_patient_context_registry_archived.json
+   
+   • Delete original files
+   
+   • Reset in-memory state:
+     - chat_ctx.patient_id = None
+     - chat_ctx.patient_contexts = {}
+   
+   • Send message: "Patient context cleared"
+
+4-8. Skipped (already returned after clear)
+```
+
+**Storage after Turn 4:**
+```
 conversation_abc123/
 └── archive/
     └── 20250930T164500/
         └── conversation_abc123/
-            ├── 20250930T164500_session_archived.json
             ├── 20250930T164500_patient_patient_4_archived.json
             ├── 20250930T164500_patient_patient_15_archived.json
             └── 20250930T164500_patient_context_registry_archived.json
 ```
 
+**Result:** Clean slate! Ready for new patients.
+
 ---
 
-## Migration Benefits
+### Visual Summary
 
-### Safety Improvements
+```
+Turn 1: "review patient_4"
+  → Create patient_4 ✅
+  → patient_4_context.json created
+  → Registry: active = patient_4
 
-| Before | After | Benefit |
-|--------|-------|---------|
-| ❌ All patients in same history | ✅ Separate files per patient | **No cross-contamination** |
-| ❌ Agent sees all patient data | ✅ Agent sees only active patient | **Data isolation** |
-| ❌ Switching loses context | ✅ Switching preserves history | **Context continuity** |
-| ❌ No audit trail | ✅ Registry + archives | **Compliance & debugging** |
+Turn 2: "yes proceed"
+  → Continue with patient_4 ✅
+  → patient_4_context.json updated (more messages)
+  → Registry: active = patient_4 (unchanged)
 
-### User Experience Improvements
+Turn 3: "switch to patient_15"
+  → Create patient_15 ✅
+  → patient_15_context.json created
+  → patient_4_context.json untouched
+  → Registry: active = patient_15
 
-| Before | After | Benefit |
-|--------|-------|---------|
-| ❌ Manual patient tracking | ✅ Automatic detection | **Reduced friction** |
-| ❌ No active patient visibility | ✅ PT_CTX footer every response | **Transparency** |
-| ❌ Can't work on multiple patients | ✅ Multi-patient sessions | **Workflow flexibility** |
-| ❌ Facilitator loops endlessly | ✅ Confirmation gate | **Plan validation** |
-
-### Technical Improvements
-
-| Before | After | Benefit |
-|--------|-------|---------|
-| ❌ Single storage file | ✅ Per-patient + session + registry | **Scalability** |
-| ❌ No patient awareness | ✅ Ephemeral snapshots | **Agent grounding** |
-| ❌ Simple clear | ✅ Bulk archive with timestamps | **Organized history** |
-| ❌ False terminations | ✅ Deterministic overrides | **Stable orchestration** |
-| ❌ Hardcoded patterns | ✅ Configurable via env var | **Flexibility** |
+Turn 4: "clear patient context"
+  → Archive all files ✅
+  → Delete originals
+  → Ready for fresh start
+```
 
 ---
 
 ## Configuration
 
-### Customizing Patient ID Format
+### Customizing Patient ID Pattern
 
-Set the `PATIENT_ID_PATTERN` environment variable:
+By default, the system accepts IDs like `patient_4`, `patient_15`, etc.
+
+You can customize this via environment variable:
 
 ```bash
-# Default: patient_<digits>
+# Default pattern
 export PATIENT_ID_PATTERN="^patient_[0-9]+$"
 
-# MRN format
-export PATIENT_ID_PATTERN="^mrn-[A-Z0-9]{6}$"
+# Medical Record Number format
+export PATIENT_ID_PATTERN="^MRN[0-9]{7}$"
+# Accepts: MRN1234567
 
 # Multiple formats
-export PATIENT_ID_PATTERN="^(patient_[0-9]+|mrn-[A-Z0-9]{6})$"
+export PATIENT_ID_PATTERN="^(patient_[0-9]+|MRN[0-9]{7})$"
+# Accepts: patient_4 OR MRN1234567
 ```
 
 > [!IMPORTANT]
-> When changing the pattern, update the analyzer prompt in `patient_context_analyzer.py` to match.
+> If you change the pattern, update the analyzer prompt in `patient_context_analyzer.py` to match.
+
+---
+
+## Key Concepts Explained
+
+### What is "Ephemeral Snapshot"?
+
+**Simple explanation:** A temporary system message that tells agents about the current patient. It's generated fresh every turn and **never saved**.
+
+```python
+# Generated every turn:
+snapshot = {
+    "patient_id": "patient_4",
+    "all_patient_ids": ["patient_4", "patient_15"],
+    "generated_at": "2025-09-30T16:45:00Z"
+}
+
+# Injected as message:
+SYSTEM: "PATIENT_CONTEXT_JSON: {snapshot}"
+
+# Agents see this and know: "I'm working on patient_4"
+
+# When saving: This message is filtered out (never persisted)
+```
+
+### What is "Kernel Reset"?
+
+**Simple explanation:** When switching patients, the analyzer's AI is reset to prevent mixing patient data.
+
+```python
+# Without reset:
+User: "review patient_4"
+Analyzer: [builds understanding of patient_4]
+User: "switch to patient_15"
+Analyzer: [still has patient_4 context in memory] ❌
+
+# With reset:
+User: "review patient_4"
+Analyzer: [builds understanding of patient_4]
+User: "switch to patient_15"
+Service: kernel.reset()  # Clears analyzer memory
+Analyzer: [fresh start for patient_15] ✅
+```
+
+### What is "Registry as Source of Truth"?
+
+**Simple explanation:** The registry file always has the correct answer for "which patient is active".
+
+```python
+# Registry file:
+{ "active_patient_id": "patient_4" }
+
+# When loading:
+1. Read registry → "patient_4 is active"
+2. Load patient_4_context.json
+3. Generate fresh snapshot from registry
+4. Inject snapshot
+
+# Benefits:
+- No stale snapshots
+- Always accurate
+- Single source of truth
+```
 
 ---
 
 ## Summary
 
-The patient context system enables:
+**What you need to remember:**
 
-1. **Multi-patient conversations** - Work on multiple patients in one session
-2. **Complete isolation** - Each patient's history stored separately
-3. **Automatic detection** - LLM-based intent classification
-4. **Safe switching** - Kernel reset prevents cross-contamination
-5. **Ephemeral grounding** - Fresh snapshots never persisted
-6. **Registry-backed** - Single source of truth for active patient
-7. **Stable orchestration** - Confirmation gates + termination overrides
-8. **Organized archival** - Timestamped bulk archives for compliance
+1. **Each patient gets their own history file** - Complete isolation
+2. **Registry tracks which patient is active** - Single source of truth
+3. **LLM automatically detects patient intent** - No manual parsing
+4. **Fresh snapshot injected every turn** - Never persisted
+5. **Agents see current patient context** - Grounded responses
+6. **Safe switching with kernel reset** - No cross-contamination
+7. **Bulk archival on clear** - Organized and complete
 
-For quick reference, see [`patient_context.md`](patient_context.md).
+**The result:** You can work on multiple patients in one conversation, switch between them seamlessly, and the system keeps everything organized and isolated.
 
 ---
 
-**Last Updated:** September 30, 2025  
-**Status:** Stable in production (`sekar/pc_poc` branch)
+**Last Updated:** October 1, 2025  
+**Status:** Production-ready (`sekar/pc_poc` branch)
