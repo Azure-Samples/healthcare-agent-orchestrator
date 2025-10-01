@@ -59,8 +59,6 @@ def create_auth_callback(chat_ctx: ChatContext) -> Callable[..., Awaitable[Any]]
     return auth_callback
 
 # Need to introduce a CustomChatCompletionAgent and a CustomHistoryChannel because of issue https://github.com/microsoft/semantic-kernel/issues/12095
-
-
 class CustomHistoryChannel(ChatHistoryChannel):
     @override
     async def receive(self, history: list[ChatMessageContent],) -> None:
@@ -200,7 +198,6 @@ def create_group_chat(
     else:
         settings = AzureChatPromptExecutionSettings(
             function_choice_behavior=FunctionChoiceBehavior.Auto(), seed=42, response_format=ChatRule)
-    arguments = KernelArguments(settings=settings)
 
     facilitator_agent = next((agent for agent in all_agents_config if agent.get("facilitator")), all_agents_config[0])
     facilitator = facilitator_agent["name"]
