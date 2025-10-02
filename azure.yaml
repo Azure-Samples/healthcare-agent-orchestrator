@@ -29,7 +29,7 @@ hooks:
         }
         if (-not ($(azd env get-values EXCLUDED_AGENTS) -match "EXCLUDED_AGENTS")) {
           Write-Host "Excluding Radiology Agent"
-          azd env set EXCLUDED_AGENTS '["Radiology"]'
+          azd env set EXCLUDED_AGENTS "Radiology"
         }
     posix:
       shell: sh
@@ -47,7 +47,7 @@ hooks:
         fi
         if [ -z "$EXCLUDED_AGENTS" ]; then
           echo "Excluding Radiology Agent"
-          azd env set EXCLUDED_AGENTS '["Radiology"]'
+          azd env set EXCLUDED_AGENTS "Radiology"
         fi
   postprovision:
     windows:

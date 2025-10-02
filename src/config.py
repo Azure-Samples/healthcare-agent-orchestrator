@@ -4,14 +4,15 @@
 import json
 import logging
 import os
+
+import yaml
 from azure.monitor.opentelemetry import configure_azure_monitor
-from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from azure.monitor.opentelemetry.exporter import AzureMonitorTraceExporter
+from opentelemetry import trace
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
-import yaml
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter(
@@ -76,9 +77,15 @@ def load_agent_config(scenario: str) -> dict:
     scenario_directory = os.path.join(src_dir, f"scenarios/{scenario}/config")
 
     agent_config_path = os.path.join(scenario_directory, "agents.yaml")
+    excluded_agents = os.getenv("EXCLUDED_AGENTS", "").split(",")
+    logger.info(f"Excluding agents: {excluded_agents}")
 
     with open(agent_config_path, "r", encoding="utf-8") as f:
         agent_config = yaml.safe_load(f)
+        agent_config = [agent for agent in agent_config if agent["name"] not in excluded_agents]
+        logger.info(
+            f"Loaded agent configuration for scenario '{scenario}': {[agent['name'] for agent in agent_config]}")
+
     bot_ids = json.loads(os.getenv("BOT_IDS"))
     hls_model_endpoints = json.loads(os.getenv("HLS_MODEL_ENDPOINTS"))
     for agent in agent_config:
