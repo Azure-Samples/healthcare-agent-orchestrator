@@ -27,6 +27,10 @@ hooks:
           Write-Host "Setting default as default SCENARIO"
           azd env set SCENARIO default
         }
+        if (-not ($(azd env get-values EXCLUDED_AGENTS) -match "EXCLUDED_AGENTS")) {
+          Write-Host "Excluding Radiology Agent"
+          azd env set EXCLUDED_AGENTS '["Radiology"]'
+        }
     posix:
       shell: sh
       run: |
@@ -40,7 +44,11 @@ hooks:
         if [ -z "$SCENARIO" ]; then
           echo "Setting default as default SCENARIO"
           azd env set SCENARIO default
-        fi     
+        fi
+        if [ -z "$EXCLUDED_AGENTS" ]; then
+          echo "Excluding Radiology Agent"
+          azd env set EXCLUDED_AGENTS '["Radiology"]'
+        fi
   postprovision:
     windows:
       shell: pwsh
