@@ -42,7 +42,6 @@ def setup_app_insights_logging(credential, log_level=logging.DEBUG) -> None:
 
     # Configure Azure Monitor if connection string is set
     if os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING"):
-        credential = credential
         configure_azure_monitor(
             credential=credential,
             logger=logging.getLogger(__name__),

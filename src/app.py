@@ -35,6 +35,8 @@ load_dotenv(".env")
 log_level = logging.INFO
 setup_logging(log_level=log_level)
 
+logger = logging.getLogger(__name__)
+
 
 def create_app_context():
     '''Create the application context for commonly used object used in application.'''
@@ -110,6 +112,7 @@ app_context = create_app_context()
 # Setup Application Insights logging
 setup_app_insights_logging(credential=app_context.credential,
                            log_level=log_level)
+logger.info(f"Loaded agents: {[agent['name'] for agent in app_context.all_agent_configs]}")
 
 # Create Teams specific objects
 adapters = {
