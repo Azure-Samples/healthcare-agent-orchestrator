@@ -41,13 +41,10 @@ credential = ManagedIdentityCredential(client_id=os.getenv("AZURE_CLIENT_ID")) \
     else AzureCliCredential()   # used for local development
 
 # Setup Application Insights logging
-setup_app_insights_logging(credential=credential,
-                           log_level=log_level)
-
-logger = logging.getLogger(__name__)
+setup_app_insights_logging(credential=credential, log_level=log_level)
 
 
-def create_app_context(credential: AzureCliCredential | ManagedIdentityCredential) -> AppContext:
+def create_app_context() -> AppContext:
     '''Create the application context for commonly used object used in application.'''
 
     # Load agent configuration
@@ -111,7 +108,7 @@ def create_app(
     return app
 
 
-app_context = create_app_context(credential)
+app_context = create_app_context()
 
 # Create Teams specific objects
 adapters = {
