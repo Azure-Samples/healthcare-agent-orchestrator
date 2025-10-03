@@ -55,7 +55,7 @@ try {
 Set-Location $democlientDir
 
 Write-Host "Installing frontend dependencies..."
-npm install
+npm install --silent
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error: npm install failed with exit code $LASTEXITCODE"
     exit 1
