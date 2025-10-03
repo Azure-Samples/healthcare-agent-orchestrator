@@ -100,7 +100,7 @@
     "scenario": {
       "value": "${SCENARIO}"
     },
-    "excluded_agents": {
+    "excludedAgents": {
       "value": "${EXCLUDED_AGENTS}"
     },
     "clinicalNotesSource": {

@@ -98,7 +98,7 @@ param fabricUserDataFunctionEndpoint string = ''
 param appInsightsName string = ''
 
 @description('Array of agent names to exclude from deployment. Agent names can be found in the agents.yaml file in the config folder of each scenario.')
-param excluded_agents string = ''
+param excludedAgents string = ''
 
 var modelName = split(model, ';')[0]
 var modelVersion = split(model, ';')[1]
@@ -215,7 +215,7 @@ var agentConfigs = {
 
 // Determine which agents to deploy based on scenario and excluded agents
 var allAgents = agentConfigs[scenario]
-var agents = filter(allAgents, agent => !contains(map(split(excluded_agents, ','), name => toLower(name)), toLower(agent.name)))
+var agents = filter(allAgents, agent => !contains(map(split(excludedAgents, ','), name => toLower(name)), toLower(agent.name)))
 
 // Healthcare Agent Service agents
 var healthcareAgents = filter(agents, agent => contains(agent, 'healthcare_agent'))
@@ -422,6 +422,7 @@ module m_app 'modules/appservice.bicep' = {
     additionalAllowedIps: additionalAllowedIps
     additionalAllowedTenantIds: additionalAllowedTenantIds
     additionalAllowedUserIds: additionalAllowedUserIds
+    excludedAgents: excludedAgents
   }
 }
 
