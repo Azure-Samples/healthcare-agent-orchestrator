@@ -27,6 +27,7 @@ param appServiceSubnetId string
 param additionalAllowedIps string = ''
 param additionalAllowedTenantIds string
 param additionalAllowedUserIds string
+param excludedAgents string = ''
 
 var botIdsArray = [
   for (msi, index) in msis: {
@@ -198,6 +199,7 @@ resource backEndNameSiteConfig 'Microsoft.Web/sites/config@2024-04-01' = {
     APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsightsConnectionString
     FHIR_SERVICE_ENDPOINT: fhirServiceEndpoint
     FABRIC_USER_DATA_FUNCTION_ENDPOINT: fabricUserDataFunctionEndpoint
+    EXCLUDED_AGENTS: excludedAgents
   }
 }
 

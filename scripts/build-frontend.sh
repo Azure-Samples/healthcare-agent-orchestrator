@@ -36,7 +36,7 @@ fi
 cd "$DEMOCLIENT_DIR"
 
 echo "Installing frontend dependencies..."
-npm install
+npm install --silent
 
 # Create .env.production file with Vite environment variables
 echo "Creating .env.production with environment variables..."

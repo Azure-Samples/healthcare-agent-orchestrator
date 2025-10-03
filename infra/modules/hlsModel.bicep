@@ -4,17 +4,16 @@
 param workspaceName string
 param location string
 param instanceType string
-param includeRadiologyModels bool = true
 
 var actualInstanceType = instanceType == '' ? 'Standard_NC24ads_A100_v4' : instanceType
 
-var models = includeRadiologyModels ? [
+var models = [
   {
     name: 'cxr_report_gen'
     modelId: 'azureml://registries/azureml/models/CxrReportGen/versions/6'
     instanceType: actualInstanceType
   }
-] : []
+]
 
 var postfix = substring(uniqueString(resourceGroup().id), 1, 6)
 

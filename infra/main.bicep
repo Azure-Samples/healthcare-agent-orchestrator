@@ -97,6 +97,9 @@ param fabricUserDataFunctionEndpoint string = ''
 @description('Name of the Application Insights instance. Automatically generated if left blank')
 param appInsightsName string = ''
 
+@description('A comma-separated list of agent names to exclude from deployment. Agent names are case-insensitive.')
+param excludedAgents string = ''
+
 var modelName = split(model, ';')[0]
 var modelVersion = split(model, ';')[1]
 
@@ -210,13 +213,17 @@ var agentConfigs = {
   // Add other scenarios here as needed
 }
 
+// Determine which agents to deploy based on scenario and excluded agents
 var allAgents = agentConfigs[scenario]
+var agents = filter(allAgents, agent => !contains(map(split(excludedAgents, ','), name => toLower(name)), toLower(agent.name)))
 
-var agents = allAgents
+// Healthcare Agent Service agents
+var healthcareAgents = filter(agents, agent => contains(agent, 'healthcare_agent'))
 
-var healthcareAgents = filter(allAgents, agent => contains(agent, 'healthcare_agent'))
-var hasHealthcareAgentNeedingRadiologyModels = contains(map(healthcareAgents, agent => toLower(agent.name)), 'radiology')
+// Check if HLS model deployment is needed
 var hasHlsModelEndpoints = !empty(hlsModelEndpoints.cxr_report_gen)
+var hasRadiologyAgent = contains(map(agents, agent => toLower(agent.name)), 'radiology')
+var isHlsModelsNeeded = !hasHlsModelEndpoints && hasRadiologyAgent
 
 module m_appServicePlan 'modules/appserviceplan.bicep' = {
   name: 'deploy_app_service_plan'
@@ -313,13 +320,12 @@ module m_aihub 'modules/aistudio/aihub.bicep' = {
   }
 }
 
-module hlsModels 'modules/hlsModel.bicep' = if (!hasHlsModelEndpoints) {
+module hlsModels 'modules/hlsModel.bicep' = if (isHlsModelsNeeded) {
   name: 'deploy_hls_models'
   params: {
     location: empty(hlsDeploymentLocation) ? location : hlsDeploymentLocation
     workspaceName: 'cog-ai-prj-${environmentName}-${uniqueSuffix}'
     instanceType: instanceType
-    includeRadiologyModels: empty(healthcareAgents) ? true : !hasHealthcareAgentNeedingRadiologyModels
   }
   dependsOn: [
     m_aihub
@@ -378,7 +384,7 @@ module m_fhirService 'modules/fhirService.bicep' = if (shouldDeployFhirService) 
   }
 }
 
-var outHlsModelEndpoints = hasHlsModelEndpoints ? hlsModelEndpoints : toObject(hlsModels!.outputs.modelEndpoints, model => model.name, model => model.endpoint)
+var outHlsModelEndpoints = hasHlsModelEndpoints ? hlsModelEndpoints : (isHlsModelsNeeded ? toObject(hlsModels!.outputs.modelEndpoints, model => model.name, model => model.endpoint) : {})
 var outFhirServiceEndpoint = shouldDeployFhirService ? m_fhirService!.outputs.endpoint : fhirServiceEndpoint
 
 module m_app 'modules/appservice.bicep' = {
@@ -416,6 +422,7 @@ module m_app 'modules/appservice.bicep' = {
     additionalAllowedIps: additionalAllowedIps
     additionalAllowedTenantIds: additionalAllowedTenantIds
     additionalAllowedUserIds: additionalAllowedUserIds
+    excludedAgents: excludedAgents
   }
 }
 
