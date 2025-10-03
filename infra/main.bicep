@@ -97,7 +97,7 @@ param fabricUserDataFunctionEndpoint string = ''
 @description('Name of the Application Insights instance. Automatically generated if left blank')
 param appInsightsName string = ''
 
-@description('Array of agent names to exclude from deployment. Agent names can be found in the agents.yaml file in the config folder of each scenario.')
+@description('A comma-separated list of agent names to exclude from deployment. Agent names are case-insensitive.')
 param excludedAgents string = ''
 
 var modelName = split(model, ';')[0]
@@ -220,7 +220,7 @@ var agents = filter(allAgents, agent => !contains(map(split(excludedAgents, ',')
 // Healthcare Agent Service agents
 var healthcareAgents = filter(agents, agent => contains(agent, 'healthcare_agent'))
 
-// Check if radiology model deployment is needed
+// Check if HLS model deployment is needed
 var hasHlsModelEndpoints = !empty(hlsModelEndpoints.cxr_report_gen)
 var hasRadiologyAgent = contains(map(agents, agent => toLower(agent.name)), 'radiology')
 var isHlsModelsNeeded = !hasHlsModelEndpoints && hasRadiologyAgent
