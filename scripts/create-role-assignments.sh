@@ -7,6 +7,13 @@
 
 set -e
 
+# At top of script (after set -e)
+# Prevent Git Bash (MSYS) from rewriting /subscriptions/... into a Windows path
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" || "$OSTYPE" == "cygwin" ]]; then
+  export MSYS_NO_PATHCONV=1
+  export MSYS2_ARG_CONV_EXCL="/subscriptions/*"
+fi
+
 # Track skipped principals for summary
 SKIPPED_PRINCIPALS=()
 
@@ -185,10 +192,9 @@ assign_roles_to_principals() {
         existing=$(az role assignment list \
             --assignee "$principal_id" \
             --role "$role_id" \
-            --scope "$scope" \
-            --query "[].id" -o tsv 2>/dev/null || echo "")
+            --query "[?scope=='$scope'].id | length(@)" -o tsv)
         
-        if [ -n "$existing" ]; then
+        if [[ "$existing" -gt 0 ]]; then
             echo "    ✓ Role already assigned to $principal_id"
         else
             # Remove leading slash from scope if present
