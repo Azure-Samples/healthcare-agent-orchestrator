@@ -14,6 +14,7 @@ from semantic_kernel.connectors.ai.open_ai.services.azure_chat_completion import
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.functions import kernel_function
 
+from data_models.app_context import AppContext
 from data_models.chat_context import ChatContext
 from data_models.plugin_configuration import PluginConfiguration
 
@@ -60,24 +61,27 @@ Given the patient's attributes, generate a search query following the example ab
 def create_plugin(plugin_config: PluginConfiguration) -> Kernel:
     return ClinicalTrialsPlugin(
         plugin_config.kernel,
-        chat_ctx=plugin_config.chat_ctx
+        chat_ctx=plugin_config.chat_ctx,
+        app_ctx=plugin_config.app_ctx
     )
 
 
 class ClinicalTrialsPlugin:
-    def __init__(self, kernel: Kernel, chat_ctx: ChatContext):
+    def __init__(self, kernel: Kernel, chat_ctx: ChatContext, app_ctx: AppContext):
         self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.kernel = kernel
         self.clinical_trial_url = "https://clinicaltrials.gov/api/v2/studies/"
         self.clinical_trial_display = "https://clinicaltrials.gov/study/"
         self.chat_ctx = chat_ctx
+        self.app_ctx = app_ctx
 
         # Clinical trial matching works better with a reasoning model
         self.chat_completion_service = AzureChatCompletion(
             service_id="reasoning-model",
             deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME_REASONING_MODEL"],
-            api_version="2024-12-01-preview",
+            api_version="2025-04-01-preview",
             endpoint=os.environ["AZURE_OPENAI_REASONING_MODEL_ENDPOINT"],
+            ad_token_provider=self.app_ctx.cognitive_services_token_provider if not hasattr(os.environ,"AZURE_OPENAI_API_KEY") else None,
         )
 
     @kernel_function()

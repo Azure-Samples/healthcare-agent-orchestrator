@@ -8,6 +8,7 @@ from semantic_kernel import Kernel
 
 from data_models.chat_context import ChatContext
 from data_models.data_access import DataAccess
+from data_models.app_context import AppContext
 
 
 @dataclass(frozen=True)
@@ -27,6 +28,7 @@ class PluginConfiguration:
         A composite object that contains data access objects for read/write data to storage.
     """
     kernel: Kernel
+    app_ctx: AppContext
     chat_ctx: ChatContext
     agent_config: dict
     data_access: DataAccess

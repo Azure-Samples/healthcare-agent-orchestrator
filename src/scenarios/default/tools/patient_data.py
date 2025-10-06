@@ -214,6 +214,5 @@ class PatientDataPlugin:
     def _get_chat_prompt_exec_settings(response_format) -> AzureChatPromptExecutionSettings:
         return AzureChatPromptExecutionSettings(
             response_format=response_format,
-            temperature=0.0,
             seed=42
         )

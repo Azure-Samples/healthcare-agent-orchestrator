@@ -65,15 +65,16 @@ class ProceedUser:
 
 
 class LLMUser:
-    def __init__(self):
+    def __init__(self, app_ctx):
         self.chat_complete_message = "CONVERSATION COMPLETE"
         self.simulation_prompt = None
         self.is_complete = False
         self.chat_history = ChatHistory()
         self.chat_completion_service = AzureChatCompletion(
             deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
-            api_version="2024-12-01-preview",
+            api_version="2025-04-01-preview",
             endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
+            ad_token_provider=app_ctx.cognitive_services_token_provider if not hasattr(os.environ,"AZURE_OPENAI_API_KEY") else None,
         )
 
     def setup(self, patient_id: str, initial_query: str, followup_questions: list[str] = None):
@@ -414,14 +415,14 @@ class ChatSimulator:
             output_filename
         )
 
-        with open(output_file_path, 'w') as f:
+        with open(output_file_path, 'w', encoding="utf-8") as f:
             # Save the chat history to a file
             f.write(group_chat_context)
 
         if save_readable_history:
             messages = chat_history_to_readable_text(self.group_chat.history)
             readable_filename = output_file_path.replace(".json", "_readable.txt")
-            with open(readable_filename, 'w') as f:
+            with open(readable_filename, 'w', encoding="utf-8") as f:
                 f.write(messages)
 
         return self
