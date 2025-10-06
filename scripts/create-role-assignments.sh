@@ -7,6 +7,9 @@
 
 set -e
 
+# Track skipped principals for summary
+SKIPPED_PRINCIPALS=()
+
 echo "=== Healthcare Agent Orchestrator - Role Assignment Script ==="
 echo ""
 
@@ -163,8 +166,8 @@ assign_roles_to_principals() {
         
         if [ -z "$sp_exists" ]; then
             echo "    ⚠ Service principal not found in Azure AD, waiting for propagation..."
-            # Wait up to 60 seconds for the service principal to appear
-            for i in {1..10}; do
+            # Wait up to 120 seconds for the service principal to appear
+            for i in {1..12}; do
                 sleep 10
                 sp_exists=$(az ad sp show --id "$principal_id" --query id -o tsv 2>/dev/null || echo "")
                 if [ -n "$sp_exists" ]; then
@@ -175,7 +178,9 @@ assign_roles_to_principals() {
             
             if [ -z "$sp_exists" ]; then
                 echo "    ✗ ERROR: Service principal still not found after waiting. Skipping $principal_id"
+                SKIPPED_PRINCIPALS+=("$principal_id")
                 continue
+
             fi
         fi
         
@@ -322,3 +327,14 @@ echo "  1. Verify role assignments in Azure Portal"
 echo "  2. Dev team can now run: azd hooks run postprovision"
 echo "  3. Test application functionality"
 echo ""
+
+
+if [ ${#SKIPPED_PRINCIPALS[@]} -gt 0 ]; then
+    echo ""
+    echo "⚠ Skipped principals (service principal not found):"
+    for id in "${SKIPPED_PRINCIPALS[@]}"; do
+        echo "  - $id"
+    done
+    echo "You can rerun the script later for these."
+fi
+echo "========================================"
