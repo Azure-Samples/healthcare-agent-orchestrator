@@ -150,9 +150,6 @@ assign_roles_to_principals() {
     local scope=$3
     local description=$4
     
-    # Remove leading slash from scope if present
-    scope="${scope#/}"
-    
     if [ ${#principals[@]} -eq 0 ]; then
         echo "  Skipping $description: No principals provided"
         return
@@ -213,12 +210,15 @@ echo "   Resource: $AI_SERVICES_RESOURCE_ID"
 
 # Cognitive Services OpenAI Contributor - AI Project (CRITICAL for OpenAI calls)
 AI_PROJECT_ARRAY=("$AI_PROJECT_PRINCIPAL_ID")
+echo "   Assigning Cognitive Services OpenAI Contributor role to AI Project..."
 assign_roles_to_principals AI_PROJECT_ARRAY "$COG_SERVICES_OPENAI_CONTRIBUTOR_ROLE_ID" "$AI_SERVICES_RESOURCE_ID" "AI Project"
 
 # Cognitive Services OpenAI Contributor - All Agents
+echo "   Assigning Cognitive Services OpenAI Contributor role to All Agents..."
 assign_roles_to_principals AGENTS_PRINCIPAL_IDS "$COG_SERVICES_OPENAI_CONTRIBUTOR_ROLE_ID" "$AI_SERVICES_RESOURCE_ID" "All Agents"
 
 # Cognitive Services User - Dev Team
+echo "   Assigning Cognitive Services User role to Dev Team..."
 assign_roles_to_principals DEV_TEAM_PRINCIPAL_IDS "$COG_SERVICES_USER_ROLE_ID" "$AI_SERVICES_RESOURCE_ID" "Dev Team"
 
 echo ""
@@ -231,9 +231,11 @@ echo "2. AI Hub Role Assignments"
 echo "   Resource: $AI_HUB_RESOURCE_ID"
 
 # Azure AI Developer - Dev Team
+echo "   Assigning Azure AI Developer role to Dev Team..."
 assign_roles_to_principals DEV_TEAM_PRINCIPAL_IDS "$AI_DEVELOPER_ROLE_ID" "$AI_HUB_RESOURCE_ID" "Dev Team"
 
 # Azure AI Developer - All Agents
+echo "   Assigning Azure AI Developer role to All Agents..."
 assign_roles_to_principals AGENTS_PRINCIPAL_IDS "$AI_DEVELOPER_ROLE_ID" "$AI_HUB_RESOURCE_ID" "All Agents"
 
 echo ""
@@ -246,9 +248,11 @@ echo "3. AI Project Role Assignments"
 echo "   Resource: $AI_PROJECT_RESOURCE_ID"
 
 # Azure AI Developer - Dev Team
+echo "   Assigning Azure AI Developer role to Dev Team..."
 assign_roles_to_principals DEV_TEAM_PRINCIPAL_IDS "$AI_DEVELOPER_ROLE_ID" "$AI_PROJECT_RESOURCE_ID" "Dev Team"
 
 # Azure AI Developer - All Agents
+echo "   Assigning Azure AI Developer role to All Agents..."
 assign_roles_to_principals AGENTS_PRINCIPAL_IDS "$AI_DEVELOPER_ROLE_ID" "$AI_PROJECT_RESOURCE_ID" "All Agents"
 
 echo ""
@@ -261,9 +265,11 @@ echo "4. Key Vault Role Assignments"
 echo "   Resource: $KEYVAULT_RESOURCE_ID"
 
 # Key Vault Secrets Officer - Dev Team
+echo "   Assigning Key Vault Secrets Officer role to Dev Team..."
 assign_roles_to_principals DEV_TEAM_PRINCIPAL_IDS "$SECRETS_OFFICER_ROLE_ID" "$KEYVAULT_RESOURCE_ID" "Dev Team"
 
 # Key Vault Secrets Officer - All Agents
+echo "   Assigning Key Vault Secrets Officer role to All Agents..."
 assign_roles_to_principals AGENTS_PRINCIPAL_IDS "$SECRETS_OFFICER_ROLE_ID" "$KEYVAULT_RESOURCE_ID" "All Agents"
 
 echo ""
@@ -276,15 +282,18 @@ echo "5. Storage Account Role Assignments"
 echo "   Resource: $STORAGE_ACCOUNT_RESOURCE_ID"
 
 # Storage Blob Data Contributor - Dev Team
+echo "   Assigning Storage Blob Data Contributor role to Dev Team..."
 assign_roles_to_principals DEV_TEAM_PRINCIPAL_IDS "$STORAGE_BLOB_DATA_CONTRIBUTOR_ROLE_ID" "$STORAGE_ACCOUNT_RESOURCE_ID" "Dev Team"
 
 # Storage Blob Data Contributor - Orchestrator (primary requirement from bicep)
 if [ -n "$ORCHESTRATOR_PRINCIPAL_ID" ]; then
     ORCHESTRATOR_ARRAY=("$ORCHESTRATOR_PRINCIPAL_ID")
+    echo "   Assigning Storage Blob Data Contributor role to Orchestrator..."
     assign_roles_to_principals ORCHESTRATOR_ARRAY "$STORAGE_BLOB_DATA_CONTRIBUTOR_ROLE_ID" "$STORAGE_ACCOUNT_RESOURCE_ID" "Orchestrator"
 fi
 
 # Storage Blob Data Contributor - All Agents (extra, for flexibility)
+echo "   Assigning Storage Blob Data Contributor role to All Agents..."
 assign_roles_to_principals AGENTS_PRINCIPAL_IDS "$STORAGE_BLOB_DATA_CONTRIBUTOR_ROLE_ID" "$STORAGE_ACCOUNT_RESOURCE_ID" "All Agents (extra)"
 
 echo ""
@@ -298,6 +307,7 @@ if [ -n "$APPINSIGHTS_RESOURCE_ID" ]; then
     echo "   Resource: $APPINSIGHTS_RESOURCE_ID"
     
     # Monitoring Metrics Publisher - All Agents
+    echo "   Assigning Monitoring Metrics Publisher role to All Agents..."
     assign_roles_to_principals AGENTS_PRINCIPAL_IDS "$MONITORING_METRICS_PUBLISHER_ROLE_ID" "$APPINSIGHTS_RESOURCE_ID" "All Agents"
     
     echo ""
