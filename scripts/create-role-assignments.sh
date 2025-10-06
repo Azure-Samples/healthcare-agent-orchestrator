@@ -191,6 +191,8 @@ assign_roles_to_principals() {
         if [ -n "$existing" ]; then
             echo "    ✓ Role already assigned to $principal_id"
         else
+            # Remove leading slash from scope if present
+            scope="${scope#/}"
             az role assignment create \
                 --role "$role_id" \
                 --assignee "$principal_id" \
