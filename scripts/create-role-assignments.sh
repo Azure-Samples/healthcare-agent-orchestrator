@@ -157,6 +157,28 @@ assign_roles_to_principals() {
     
     echo "  Assigning role to $description (${#principals[@]} principals)..."
     for principal_id in "${principals[@]}"; do
+        # Ensure the service principal exists in Azure AD (handles propagation delay)
+        echo "    Checking service principal for $principal_id..."
+        sp_exists=$(az ad sp show --id "$principal_id" --query id -o tsv 2>/dev/null || echo "")
+        
+        if [ -z "$sp_exists" ]; then
+            echo "    ⚠ Service principal not found in Azure AD, waiting for propagation..."
+            # Wait up to 60 seconds for the service principal to appear
+            for i in {1..10}; do
+                sleep 10
+                sp_exists=$(az ad sp show --id "$principal_id" --query id -o tsv 2>/dev/null || echo "")
+                if [ -n "$sp_exists" ]; then
+                    echo "    ✓ Service principal now available"
+                    break
+                fi
+            done
+            
+            if [ -z "$sp_exists" ]; then
+                echo "    ✗ ERROR: Service principal still not found after waiting. Skipping $principal_id"
+                continue
+            fi
+        fi
+        
         # Check if assignment already exists
         existing=$(az role assignment list \
             --assignee "$principal_id" \
