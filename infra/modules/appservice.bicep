@@ -130,8 +130,10 @@ resource backend 'Microsoft.Web/sites@2023-12-01' = {
       httpLoggingEnabled: true
       logsDirectorySizeLimit: 35
       publicNetworkAccess: 'Enabled'
-      ipSecurityRestrictionsDefaultAction: 'Deny'
-      ipSecurityRestrictions: ipSecurityRestrictions
+      ipSecurityRestrictionsDefaultAction: 'Allow'
+      // Uncomment the following lines to enforce IP restrictions
+      // ipSecurityRestrictionsDefaultAction: 'Deny'
+      // ipSecurityRestrictions: ipSecurityRestrictions
       scmIpSecurityRestrictionsDefaultAction: 'Allow'
       http20Enabled: true
       linuxFxVersion: 'PYTHON|3.12'
