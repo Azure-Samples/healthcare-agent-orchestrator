@@ -65,6 +65,9 @@ $storageAccountName = $env:APP_STORAGE_ACCOUNT_NAME
 $containerName = "patient-data"
 $localFolderPath = "$rootDirectory\infra\patient_data"
 
+# Assign Storage Blob Data Contributor role to the user
+az role assignment create --assignee-object-id $env:AZURE_PRINCIPAL_ID --role "Storage Blob Data Contributor" --scope /subscriptions/$env:AZURE_SUBSCRIPTION_ID/resourceGroups/$env:AZURE_RESOURCE_GROUP/providers/Microsoft.Storage/storageAccounts/$env:APP_STORAGE_ACCOUNT_NAME
+
 # Upload files
 Get-ChildItem -Path $localFolderPath | ForEach-Object {
     $path = $_.FullName
