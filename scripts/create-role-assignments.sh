@@ -192,19 +192,33 @@ assign_roles_to_principals() {
         existing=$(az role assignment list \
             --assignee "$principal_id" \
             --role "$role_id" \
-            --query "[?scope=='$scope'].id | length(@)" -o tsv)
+            --all \
+            --query "[?scope=='$scope'].id | length(@)" -o tsv 2>/dev/null || echo 0)
         
         if [[ "$existing" -gt 0 ]]; then
-            echo "    ✓ Role already assigned to $principal_id"
-        else
-            # Remove leading slash from scope if present
-            scope="${scope#/}"
-            az role assignment create \
-                --role "$role_id" \
-                --assignee "$principal_id" \
-                --scope "$scope" \
-                --output none
+            echo "    ✓ Role $role_id already assigned to $principal_id"
+            continue
+        fi
+
+        # Not found; attempt create (capture output first, then inspect exit code)
+        output=$(az role assignment create \
+            --role "$role_id" \
+            --assignee "$principal_id" \
+            --scope "$scope" 2>&1)
+        create_status=$?
+
+        if [ $create_status -eq 0 ]; then
             echo "    ✓ Assigned role to $principal_id"
+        else
+            # If the error is the common 'already exists' condition, treat as success silently
+            if grep -qi 'RoleAssignmentExists' <<<"$output"; then
+                echo "    ✓ Role already assigned to $principal_id (exists)"
+            else
+                # Extract the most relevant single error line (prefer azure.core.exceptions*)
+                error_line=$(printf '%s\n' "$output" | grep -m1 '^azure\.core\.exceptions' || printf '%s\n' "$output" | grep -m1 '^ERROR:' || printf '%s\n' "$output" | head -1)
+                echo "    ✗ Failed to assign role to $principal_id: $error_line"
+                SKIPPED_PRINCIPALS+=("$principal_id")
+            fi
         fi
     done
 }
