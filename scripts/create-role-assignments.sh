@@ -204,7 +204,19 @@ assign_roles_to_principals() {
             --assignee-object-id "$principal_id" \
             --assignee-principal-type "$principal_type" \
             --scope "$scope" 2>&1)
+        
+        # # Remove carriage returns that might be messing up output
+        # output=$(echo "$output" | tr -d '\r')
+        
         create_status=$?
+
+        # DEBUG: Save raw output to file
+        echo "=== Principal: $principal_id ===" >> ./tmp/role_assignment_debug.log
+        echo "$output" >> ./tmp/role_assignment_debug.log
+        echo "Exit status: $create_status" >> ./tmp/role_assignment_debug.log
+        echo "---" >> ./tmp/role_assignment_debug.log
+
+        echo "        Exit status: $create_status"
 
         if [ $create_status -eq 0 ]; then
             echo "    ✓ Assigned role to $principal_id"
@@ -213,11 +225,11 @@ assign_roles_to_principals() {
             if grep -qi 'RoleAssignmentExists' <<<"$output"; then
                 echo "    ✓ Role already assigned to $principal_id (exists)"
             else
-                # Extract the most relevant single error line (prefer azure.core.exceptions*)
-                error_line=$(printf '%s\n' "$output" | grep -m1 '^azure\.core\.exceptions' || printf '%s\n' "$output" | grep -m1 '^ERROR:' || printf '%s\n' "$output" | head -1)
-                echo "    ✗ Failed to assign role to $principal_id: $error_line"
-                # Store full context for later summary (retain original var name for backwards compatibility)
-                SKIPPED_PRINCIPALS+=("${principal_id}|${role_id}|${scope}|${description}|${error_line}")
+                # Show the ENTIRE error output, not just one line
+                echo "    ✗ Failed to assign role to $principal_id"
+                echo "    Full error output:"
+                echo "$output" | sed 's/^/      /'  # Indent each line
+                SKIPPED_PRINCIPALS+=("${principal_id}|${role_id}|${scope}|${description}|FULL_OUTPUT_IN_DEBUG_LOG")
             fi
         fi
     done
