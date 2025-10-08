@@ -5,16 +5,14 @@
 # Script to create role assignments for Healthcare Agent Orchestrator
 # This script should be run by the Cloud Team (with Owner permissions) after the Dev Team has provisioned resources
 
-set -e
-
-# At top of script (after set -e)
 # Prevent Git Bash (MSYS) from rewriting /subscriptions/... into a Windows path
 if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" || "$OSTYPE" == "cygwin" ]]; then
   export MSYS_NO_PATHCONV=1
   export MSYS2_ARG_CONV_EXCL="/subscriptions/*"
 fi
 
-# Track skipped principals for summary
+# Track skipped role assignments for summary. Each entry formatted as:
+# principalId|roleId|scope|description|reason
 SKIPPED_PRINCIPALS=()
 
 echo "=== Healthcare Agent Orchestrator - Role Assignment Script ==="
@@ -35,7 +33,7 @@ echo "Resource Group: $HAO_RESOURCE_GROUP"
 DEV_TEAM_PRINCIPAL_IDS=()
 
 if [ ${#DEV_TEAM_PRINCIPAL_IDS[@]} -eq 0 ]; then
-    echo "WARNING: No dev team principal IDs provided. Skipping dev team role assignments."
+    echo "⚠ WARNING: No dev team principal IDs provided. Skipping dev team role assignments."
     echo "To add dev team members, get their Object IDs with: az ad user show --id <user@domain.com> --query id -o tsv"
     echo ""
 fi
@@ -48,11 +46,12 @@ IDENTITY_DATA=$(az identity list --resource-group "$HAO_RESOURCE_GROUP" --query 
 ORCHESTRATOR_PRINCIPAL_ID=$(echo "$IDENTITY_DATA" | jq -r '.[] | select(.name == "Orchestrator") | .principalId')
 echo "Orchestrator Principal ID: $ORCHESTRATOR_PRINCIPAL_ID"
 
-# Extract all Agent Principal IDs (including Orchestrator)
+# Extract all Agent names and Principal IDs (including Orchestrator)
 AGENTS_PRINCIPAL_IDS=($(echo "$IDENTITY_DATA" | jq -r '.[].principalId'))
+AGENT_NAMES=($(echo "$IDENTITY_DATA" | jq -r '.[].name'))
 echo "Agent Principal IDs (${#AGENTS_PRINCIPAL_IDS[@]} total):"
-for id in "${AGENTS_PRINCIPAL_IDS[@]}"; do
-    echo "  - $id"
+for i in "${!AGENTS_PRINCIPAL_IDS[@]}"; do
+    echo "  - ${AGENT_NAMES[$i]}: ${AGENTS_PRINCIPAL_IDS[$i]}"
 done
 echo ""
 
@@ -165,40 +164,42 @@ assign_roles_to_principals() {
     echo "  Assigning role to $description (${#principals[@]} principals)..."
     for principal_id in "${principals[@]}"; do
         # Ensure the service principal exists in Azure AD (handles propagation delay)
-        echo "    Checking service principal for $principal_id..."
-        sp_exists=$(az ad sp show --id "$principal_id" --query id -o tsv 2>/dev/null || echo "")
+        # echo "    Checking service principal for $principal_id..."
+        # sp_exists=$(az ad sp show --id "$principal_id" --query id -o tsv 2>/dev/null || echo "")
         
-        if [ -z "$sp_exists" ]; then
-            echo "    ⚠ Service principal not found in Azure AD, waiting for propagation..."
-            # Wait up to 120 seconds for the service principal to appear
-            for i in {1..12}; do
-                sleep 10
-                sp_exists=$(az ad sp show --id "$principal_id" --query id -o tsv 2>/dev/null || echo "")
-                if [ -n "$sp_exists" ]; then
-                    echo "    ✓ Service principal now available"
-                    break
-                fi
-            done
+        # if [ -z "$sp_exists" ]; then
+        #     echo "    ⚠ Service principal not found in Azure AD, waiting for propagation..."
+        #     # Wait up to 60 seconds for the service principal to appear
+        #     for i in {1..6}; do
+        #         sleep 10
+        #         sp_exists=$(az ad sp show --id "$principal_id" --query id -o tsv 2>/dev/null || echo "")
+        #         if [ -n "$sp_exists" ]; then
+        #             echo "    ✓ Service principal now available"
+        #             break
+        #         fi
+        #     done
             
-            if [ -z "$sp_exists" ]; then
-                echo "    ✗ ERROR: Service principal still not found after waiting. Skipping $principal_id"
-                SKIPPED_PRINCIPALS+=("$principal_id")
-                continue
+        #     if [ -z "$sp_exists" ]; then
+        #         echo "    ⚠ Service principal still not found after waiting. Attempting role assignment anyway..."
+        #         echo "    → This may fail, but some managed identities work without explicit service principals"
+        #     fi
+        # fi
+        
 
-            fi
-        fi
-        
+        echo "        Role ID: $role_id"
+        echo "        Principal ID: $principal_id"
+        echo "        Scope: $scope"
         # Check if assignment already exists
-        existing=$(az role assignment list \
-            --assignee "$principal_id" \
-            --role "$role_id" \
-            --all \
-            --query "[?scope=='$scope'].id | length(@)" -o tsv 2>/dev/null || echo 0)
+        # existing=$(az role assignment list \
+        #     --assignee "$principal_id" \
+        #     --role "$role_id" \
+        #     --all \
+        #     --query "[?scope=='$scope'].id | length(@)" -o tsv 2>/dev/null || echo 0)
         
-        if [[ "$existing" -gt 0 ]]; then
-            echo "    ✓ Role $role_id already assigned to $principal_id"
-            continue
-        fi
+        # if [[ "$existing" -gt 0 ]]; then
+        #     echo "    ✓ Role $role_id already assigned to $principal_id"
+        #     continue
+        # fi
 
         # Not found; attempt create (capture output first, then inspect exit code)
         output=$(az role assignment create \
@@ -217,7 +218,8 @@ assign_roles_to_principals() {
                 # Extract the most relevant single error line (prefer azure.core.exceptions*)
                 error_line=$(printf '%s\n' "$output" | grep -m1 '^azure\.core\.exceptions' || printf '%s\n' "$output" | grep -m1 '^ERROR:' || printf '%s\n' "$output" | head -1)
                 echo "    ✗ Failed to assign role to $principal_id: $error_line"
-                SKIPPED_PRINCIPALS+=("$principal_id")
+                # Store full context for later summary (retain original var name for backwards compatibility)
+                SKIPPED_PRINCIPALS+=("${principal_id}|${role_id}|${scope}|${description}|${error_line}")
             fi
         fi
     done
@@ -344,16 +346,6 @@ fi
 
 echo "=== Role Assignment Creation Complete ==="
 echo ""
-echo "Summary:"
-echo "  - AI Services: AI Project + ${#AGENTS_PRINCIPAL_IDS[@]} agents + ${#DEV_TEAM_PRINCIPAL_IDS[@]} dev team members"
-echo "  - AI Hub: ${#AGENTS_PRINCIPAL_IDS[@]} agents + ${#DEV_TEAM_PRINCIPAL_IDS[@]} dev team members"
-echo "  - AI Project: ${#AGENTS_PRINCIPAL_IDS[@]} agents + ${#DEV_TEAM_PRINCIPAL_IDS[@]} dev team members"
-echo "  - Key Vault: ${#AGENTS_PRINCIPAL_IDS[@]} agents + ${#DEV_TEAM_PRINCIPAL_IDS[@]} dev team members"
-echo "  - Storage Account: 1 orchestrator + ${#AGENTS_PRINCIPAL_IDS[@]} agents (extra) + ${#DEV_TEAM_PRINCIPAL_IDS[@]} dev team members"
-if [ -n "$APPINSIGHTS_RESOURCE_ID" ]; then
-    echo "  - Application Insights: ${#AGENTS_PRINCIPAL_IDS[@]} agents"
-fi
-echo ""
 echo "Next Steps:"
 echo "  1. Verify role assignments in Azure Portal"
 echo "  2. Dev team can now run: azd hooks run postprovision"
@@ -363,10 +355,20 @@ echo ""
 
 if [ ${#SKIPPED_PRINCIPALS[@]} -gt 0 ]; then
     echo ""
-    echo "⚠ Skipped principals (service principal not found):"
-    for id in "${SKIPPED_PRINCIPALS[@]}"; do
-        echo "  - $id"
+    echo "⚠ Skipped / Failed Role Assignments (${#SKIPPED_PRINCIPALS[@]})"
+    printf "  %-38s  %-38s  %-8s  %s\n" "Principal ID" "Role ID" "ScopeType" "Reason"
+    printf "  %-38s  %-38s  %-8s  %s\n" "--------------------------------------" "--------------------------------------" "--------" "------"
+    for entry in "${SKIPPED_PRINCIPALS[@]}"; do
+        IFS='|' read -r _principal _role _scope _desc _reason <<<"$entry"
+        # Derive a short scope type (last provider/type segment) for compact table
+        scope_type=$(echo "$_scope" | awk -F'/providers/' '{print $2}' | awk -F'/' '{print $2"/"$3}' 2>/dev/null)
+        [ -z "$scope_type" ] && scope_type="(scope)"
+        short_reason=$(echo "$_reason" | sed 's/\r//g' | cut -c1-80)
+        printf "  %-38s  %-38s  %-8s  %s\n" "$_principal" "$_role" "$scope_type" "$short_reason"
+        echo "      Description: $_desc"
+        echo "      Full Scope : $_scope"
     done
-    echo "You can rerun the script later for these."
+    echo ""
+    echo "You can rerun the script later; failures are often due to propagation (service principal not yet available) or incorrect IDs."
 fi
 echo "========================================"
