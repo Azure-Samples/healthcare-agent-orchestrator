@@ -5,6 +5,21 @@
 # Script to create role assignments for Healthcare Agent Orchestrator
 # This script should be run by the Cloud Team (with Owner permissions) after the Dev Team has provisioned resources
 
+# Error trap function - like Python's exception handling
+error_trap() {
+    local exit_code=$?
+    local line_number=$1
+    echo ""
+    echo "ERROR: Command failed at line $line_number with exit code $exit_code"
+    echo "    ${BASH_COMMAND}"
+    exit $exit_code
+}
+
+# Set up error handling - this will catch any error and show details
+trap 'error_trap $LINENO' ERR
+
+set -eE -o pipefail
+
 # Prevent Git Bash (MSYS) from rewriting /subscriptions/... into a Windows path
 if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" || "$OSTYPE" == "cygwin" ]]; then
   export MSYS_NO_PATHCONV=1
@@ -43,8 +58,8 @@ echo "Retrieving Managed Identity Principal IDs..."
 IDENTITY_DATA=$(az identity list --resource-group "$HAO_RESOURCE_GROUP" --query "[].{name:name, principalId:principalId}" -o json)
 
 # Extract all Agent names and Principal IDs (including Orchestrator)
-AGENTS_PRINCIPAL_IDS=($(echo "$IDENTITY_DATA" | jq -r '.[].principalId'))
-AGENT_NAMES=($(echo "$IDENTITY_DATA" | jq -r '.[].name'))
+mapfile -t AGENTS_PRINCIPAL_IDS < <(echo "$IDENTITY_DATA" | jq -r '.[].principalId')
+mapfile -t AGENT_NAMES < <(echo "$IDENTITY_DATA" | jq -r '.[].name')
 echo "Agent Principal IDs (${#AGENTS_PRINCIPAL_IDS[@]} total):"
 for i in "${!AGENTS_PRINCIPAL_IDS[@]}"; do
     echo "  - ${AGENT_NAMES[$i]}: ${AGENTS_PRINCIPAL_IDS[$i]}"
@@ -90,7 +105,6 @@ MONITORING_METRICS_PUBLISHER_ROLE_ID="3913510d-42f4-4e42-8a64-420c390055eb"
 echo "Retrieving Azure Resource IDs..."
 
 # AI Services
-# AI_SERVICES_NAME=$(azd env get-value AZURE_OPENAI_NAME)
 AI_SERVICES_RESOURCE_ID=$(az resource list \
     --resource-group "$HAO_RESOURCE_GROUP" \
     --resource-type "Microsoft.CognitiveServices/accounts" \
@@ -98,7 +112,6 @@ AI_SERVICES_RESOURCE_ID=$(az resource list \
 echo "AI Services: $AI_SERVICES_RESOURCE_ID"
 
 # AI Hub
-# AI_HUB_NAME=$(azd env get-value AZUREAI_HUB_NAME)
 AI_HUB_RESOURCE_ID=$(az resource list \
     --resource-group "$HAO_RESOURCE_GROUP" \
     --resource-type "Microsoft.MachineLearningServices/workspaces" \
@@ -113,7 +126,6 @@ AI_PROJECT_RESOURCE_ID=$(az ml workspace show \
 echo "AI Project: $AI_PROJECT_RESOURCE_ID"
 
 # Key Vault
-# KEYVAULT_NAME=$(azd env get-value AZURE_KEYVAULT_NAME)
 KEYVAULT_RESOURCE_ID=$(az resource list \
     --resource-group "$HAO_RESOURCE_GROUP" \
     --resource-type "Microsoft.KeyVault/vaults" \
@@ -121,7 +133,6 @@ KEYVAULT_RESOURCE_ID=$(az resource list \
 echo "Key Vault: $KEYVAULT_RESOURCE_ID"
 
 # Storage Account
-# STORAGE_ACCOUNT_NAME=$(azd env get-value APP_STORAGE_ACCOUNT_NAME)
 STORAGE_ACCOUNT_RESOURCE_ID=$(az resource list \
     --resource-group "$HAO_RESOURCE_GROUP" \
     --resource-type "Microsoft.Storage/storageAccounts" \
@@ -137,6 +148,10 @@ APPINSIGHTS_RESOURCE_ID=$(az resource list \
 echo "Application Insights: $APPINSIGHTS_RESOURCE_ID"
 
 echo ""
+
+# We handle errors gracefully in this section
+set +e
+
 echo "=== Starting Role Assignment Creation ==="
 echo ""
 
@@ -160,70 +175,30 @@ assign_roles_to_principals() {
     
     echo "  Assigning role to $description (${#principals[@]} principals)..."
     for principal_id in "${principals[@]}"; do
-        # Ensure the service principal exists in Azure AD (handles propagation delay)
-        # echo "    Checking service principal for $principal_id..."
-        # sp_exists=$(az ad sp show --id "$principal_id" --query id -o tsv 2>/dev/null || echo "")
-        
-        # if [ -z "$sp_exists" ]; then
-        #     echo "    ⚠ Service principal not found in Azure AD, waiting for propagation..."
-        #     # Wait up to 60 seconds for the service principal to appear
-        #     for i in {1..6}; do
-        #         sleep 10
-        #         sp_exists=$(az ad sp show --id "$principal_id" --query id -o tsv 2>/dev/null || echo "")
-        #         if [ -n "$sp_exists" ]; then
-        #             echo "    ✓ Service principal now available"
-        #             break
-        #         fi
-        #     done
-            
-        #     if [ -z "$sp_exists" ]; then
-        #         echo "    ⚠ Service principal still not found after waiting. Attempting role assignment anyway..."
-        #         echo "    → This may fail, but some managed identities work without explicit service principals"
-        #     fi
-        # fi
-        
-
-        echo "        Role ID: $role_id"
-        echo "        Principal ID: $principal_id"
-        echo "        Scope: $scope"
-        # Check if assignment already exists
-        # existing=$(az role assignment list \
-        #     --assignee "$principal_id" \
-        #     --role "$role_id" \
-        #     --all \
-        #     --query "[?scope=='$scope'].id | length(@)" -o tsv 2>/dev/null || echo 0)
-        
-        # if [[ "$existing" -gt 0 ]]; then
-        #     echo "    ✓ Role $role_id already assigned to $principal_id"
-        #     continue
-        # fi
-
-        # Not found; attempt create (capture output first, then inspect exit code)
+        # Attempt to create role assignment
         output=$(az role assignment create \
             --role "$role_id" \
             --assignee-object-id "$principal_id" \
             --assignee-principal-type "$principal_type" \
             --scope "$scope" 2>&1)
-        
-        # # Remove carriage returns that might be messing up output
-        # output=$(echo "$output" | tr -d '\r')
-        
         create_status=$?
-
-        # DEBUG: Save raw output to file
-        echo "=== Principal: $principal_id ===" >> ./tmp/role_assignment_debug.log
-        echo "$output" >> ./tmp/role_assignment_debug.log
-        echo "Exit status: $create_status" >> ./tmp/role_assignment_debug.log
-        echo "---" >> ./tmp/role_assignment_debug.log
 
         echo "        Exit status: $create_status"
 
         if [ $create_status -eq 0 ]; then
             echo "    ✓ Assigned role to $principal_id"
         else
+            mkdir -p ./debug_logs
+            # DEBUG: Save raw output to file
+            echo "=== Principal: $principal_id ===" >> ./debug_logs/role_assignment_debug.log
+            echo "$output" >> ./debug_logs/role_assignment_debug.log
+            echo "Exit status: $create_status" >> ./debug_logs/role_assignment_debug.log
+            echo "---" >> ./debug_logs/role_assignment_debug.log
+            echo "" >> ./debug_logs/role_assignment_debug.log
+
             # If the error is the common 'already exists' condition, treat as success silently
             if grep -qi 'RoleAssignmentExists' <<<"$output"; then
-                echo "    ✓ Role already assigned to $principal_id (exists)"
+                echo "    ✓ Role already exists for $principal_id"
             else
                 # Show the ENTIRE error output, not just one line
                 echo "    ✗ Failed to assign role to $principal_id"
@@ -372,6 +347,6 @@ if [ ${#SKIPPED_PRINCIPALS[@]} -gt 0 ]; then
         echo "      Full Scope : $_scope"
     done
     echo ""
-    echo "You can rerun the script later; failures are often due to propagation (service principal not yet available) or incorrect IDs."
+    echo "You may try to rerun the script later, or manually create role assignments using `az role assignments create`."
 fi
 echo "========================================"

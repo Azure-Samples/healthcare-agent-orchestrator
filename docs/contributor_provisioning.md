@@ -113,9 +113,10 @@
         ```
         </details>
 
-1. Run [scripts/create-role-assignments.sh](../scripts/create-role-assignments.sh)
-    - The script creates the same role assignments as defined in the `bicep` files
+1. Run [scripts/createRoleAssignments.sh](../scripts/createRoleAssignments.sh)
+    - The script creates the same role assignments as defined in the `bicep` files.
     - Someone with proper permissions must fill the `DEV_TEAM_PRINCIPAL_IDS` array with the principal ID of all users that should have access to the system.
+    - In case the team running the script does not have access to the same `azd` environment, change the `HAO_RESOURCE_GROUP` variable accordingly.
     
     > [!IMPORTANT]
     > When Managed Identities are created, Azure triggers the creation of a Service Principal, which may take some time until it is replicated globalyl. Role Assignments are only possible after the Service Principal creation has finished. See also: [Assigning a role to a new principal sometimes fails](https://learn.microsoft.com/en-us/azure/role-based-access-control/troubleshooting?tabs=bicep#symptom---assigning-a-role-to-a-new-principal-sometimes-fails). 
