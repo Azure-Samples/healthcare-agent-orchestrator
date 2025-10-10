@@ -1,28 +1,30 @@
 # Provisioning and deploying HAO with `Contributor` role
 
+For the following guide, one should need only
+
 ## Steps:
 
 1. Search for `roleAssignments` in the `infra` folder, and comment out all entries
 <!-- Check this -->
 1. By default, Bicep linting does not allow unused variables, so we must add the following `bicepconfig.json` to the project root:
     ```json
-{
-    "analyzers": {
-        "core": {
-            "rules": {
-                "no-unused-vars": {
-                "level": "off"
-                },
-                "no-unused-params": {
-                "level": "off"
-                },
-                "no-unused-existing-resources": {
-                "level": "off"
+    {
+        "analyzers": {
+            "core": {
+                "rules": {
+                    "no-unused-vars": {
+                    "level": "off"
+                    },
+                    "no-unused-params": {
+                    "level": "off"
+                    },
+                    "no-unused-existing-resources": {
+                    "level": "off"
+                    }
+                }
                 }
             }
-            }
-        }
-}
+    }
     ```
 1. Follow documentation until you complete `Step 2: Create an `azd` Environment & Set Variables`.
 1. Start the provisioning step by running:
@@ -125,3 +127,9 @@
     ```bash
     azd hooks run postprovision
     ```
+
+    For this command, you will need the `Storage Blob Contributor` role, which was assigned to all users in `DEV_TEAM_PRINCIPAL_IDS` by the previous step.
+
+1. Run `azd deploy` to deploy the application.
+
+1. Follow steps 5 and 6 from the [README.md](./README.md).
