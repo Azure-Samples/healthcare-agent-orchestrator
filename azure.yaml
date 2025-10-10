@@ -46,8 +46,8 @@ hooks:
           azd env set SCENARIO default
         fi
         if [ -z "$EXCLUDED_AGENTS" ]; then
-          echo "Excluding Radiology Agent"
-          azd env set EXCLUDED_AGENTS "Radiology"
+          echo "Excluding MedicalResearch Agent and Radiology Agent"
+          azd env set EXCLUDED_AGENTS "MedicalResearch,Radiology"
         fi
   postprovision:
     windows:
