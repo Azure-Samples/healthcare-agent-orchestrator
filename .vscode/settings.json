@@ -18,5 +18,6 @@
     ],
     "files.exclude": {
         "src/config/*": true
-    }
+    },
+    "files.autoSave": "onFocusChange"
 }
