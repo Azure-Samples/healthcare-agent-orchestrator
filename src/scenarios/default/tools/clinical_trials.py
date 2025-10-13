@@ -81,7 +81,8 @@ class ClinicalTrialsPlugin:
             deployment_name=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME_REASONING_MODEL"],
             api_version="2025-04-01-preview",
             endpoint=os.environ["AZURE_OPENAI_REASONING_MODEL_ENDPOINT"],
-            ad_token_provider=self.app_ctx.cognitive_services_token_provider if not hasattr(os.environ,"AZURE_OPENAI_API_KEY") else None,
+            ad_token_provider=self.app_ctx.cognitive_services_token_provider if not hasattr(
+                os.environ, "AZURE_OPENAI_API_KEY") else None,
         )
 
     @kernel_function()
@@ -109,9 +110,19 @@ class ClinicalTrialsPlugin:
         return str(chat_completion_response)
 
     @kernel_function()
-    async def search_clinical_trials(self, clinical_trials_query: str, age: str, biomarkers: list[str], histology: str, staging: str, ecog_performance_status: str, first_line_treatment: str, second_line_treatment: str) -> str:
+    async def search_clinical_trials(
+        self,
+        clinical_trials_query: str,
+        age: str,
+        biomarkers: list[str],
+        histology: str,
+        staging: str,
+        ecog_performance_status: str,
+        first_line_treatment: str,
+        second_line_treatment: str,
+    ) -> str:
         """
-        Asynchronously searches for clinical trials based on patient data and returns a response for each trial, indicating Yes/No if the patient meets all eligibility criteria. Additionally provides an exaplanation as to why.
+        Asynchronously searches for clinical trials based on patient data and returns a response for each trial, indicating Yes/No if the patient meets all eligibility criteria. Additionally provides an explanation as to why.
 
         Args:
             clinical_trials_query(str): The search query for clinical trials.
