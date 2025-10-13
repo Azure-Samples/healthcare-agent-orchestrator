@@ -198,6 +198,7 @@ During this process:
 
 > [!TIP] 
 > If you encounter errors during agent installation or Teams integration, check the [Troubleshooting guide](./docs/troubleshooting.md#install-the-agents-in-microsoft-teams) for common issues and solutions related to package uploads, permissions, and Teams app installation.
+> And check the [Teams documentation](./docs/teams.md) for instructions for manually uploading agents to teams.
 
 
 ### Step 5: Test the Agents inside Teams
