@@ -8,6 +8,7 @@ botbuilder-dialogs==4.17.0
 botbuilder-integration-aiohttp==4.17.0
 python-dotenv==1.0.1
 semantic-kernel==1.37.0
+numpy==1.26.4
 opencv-python-headless==4.11.0.86
 matplotlib==3.10.1
 scipy==1.15.2
