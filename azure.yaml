@@ -28,8 +28,8 @@ hooks:
           azd env set SCENARIO default
         }
         if (-not ($(azd env get-values EXCLUDED_AGENTS) -match "EXCLUDED_AGENTS")) {
-          Write-Host "Excluding Radiology Agent"
-          azd env set EXCLUDED_AGENTS "Radiology"
+          Write-Host "Excluding MedicalResearch Agent and Radiology Agent"
+          azd env set EXCLUDED_AGENTS "MedicalResearch,Radiology"
         }
     posix:
       shell: sh
