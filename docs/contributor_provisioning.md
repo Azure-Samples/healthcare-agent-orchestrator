@@ -4,10 +4,12 @@ For the following guide, one should need only
 
 This guide assumes the Developer deploying the code has `Contributor` and `Storage Blob Contributor` scoped to the target Resource Group. The Cloud team must have `Owner` or `User Access Administrator` for creating Role Assignments.
 
+Provisioning and deployment of the code is split into 3 phases: 
+- *General provisioning*, done by the Developer
+- *Role assignment creation*, done by the Cloud team;
+- *Post-provisioning and Deployment*, done by the Developer.
 
 ## Steps:
-
-Provisioning and deployment of the code is split into 3 phases: *General provisioning*, *Role assignment creation*, and *Post-provisioning and Deployment*.
 
 1. Search for `roleAssignments` in the `infra` folder, and comment out all entries found. Example:
     ```bicep
