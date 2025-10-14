@@ -43,7 +43,7 @@ Provisioning and deployment of the code is split into 3 phases: *General provisi
             }
     }
     ```
-1. Follow documentation until you complete ``Step 2: Create an `azd` Environment & Set Variables``.
+1. Follow the [Getting Started guide in main README](../README.md#getting-started) until you complete ``Step 2: Create an `azd` Environment & Set Variables``.
 1. Start the provisioning step by running:
     ```
     azd provision
