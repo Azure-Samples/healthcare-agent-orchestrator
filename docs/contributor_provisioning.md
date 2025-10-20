@@ -1,8 +1,6 @@
 # Provisioning and deploying HAO with `Contributor` role
 
-For the following guide, one should need only
-
-This guide assumes the Developer deploying the code has `Contributor` and `Storage Blob Contributor` scoped to the target Resource Group. The Cloud team must have `Owner` or `User Access Administrator` for creating Role Assignments.
+This guide shows the steps needed to provision and deploy the vanilla version of the Healthcare Agent Orchestrator having limited permissions. For the instructions, the guide assumes the Developer deploying the code has `Contributor` and `Storage Blob Contributor` scoped to the target Resource Group. The Cloud team must have `Owner` or `User Access Administrator` for creating Role Assignments.
 
 Provisioning and deployment of the code is split into 3 phases: 
 - *General provisioning*, done by the Developer
