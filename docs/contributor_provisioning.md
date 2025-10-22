@@ -145,10 +145,10 @@ Provisioning and deployment of the code is split into 3 phases:
     - In case the Cloud team running the script does not have access to the same `azd` environment, those following this guide must change the `HAO_RESOURCE_GROUP` variable accordingly.
         - Example: `HAO_RESOURCE_GROUP=rg-hao`
     
-    > [!IMPORTANT]
-    > When Managed Identities are created, Azure triggers the creation of a Service Principal, which may take some time until it is replicated globally. Role Assignments are only possible after the Service Principal creation has finished. See also: [Assigning a role to a new principal sometimes fails](https://learn.microsoft.com/en-us/azure/role-based-access-control/troubleshooting?tabs=bicep#symptom---assigning-a-role-to-a-new-principal-sometimes-fails). 
+> [!IMPORTANT]
+> When Managed Identities are created, Azure triggers the creation of a Service Principal, which may take some time until it is replicated globally. Role Assignments are only possible after the Service Principal creation has finished. See also: [Assigning a role to a new principal sometimes fails](https://learn.microsoft.com/en-us/azure/role-based-access-control/troubleshooting?tabs=bicep#symptom---assigning-a-role-to-a-new-principal-sometimes-fails). 
 
-1. Run post-provision hook:
+6. Run post-provision hook:
     ```bash
     azd hooks run postprovision
     ```
