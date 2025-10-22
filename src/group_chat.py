@@ -32,6 +32,7 @@ from data_models.chat_context import ChatContext
 from data_models.plugin_configuration import PluginConfiguration
 from healthcare_agents import HealthcareAgent
 from healthcare_agents import config as healthcare_agent_config
+from utils.logging_http_client import create_logging_http_client
 from utils.model_utils import model_supports_temperature
 
 DEFAULT_MODEL_TEMP = 0
@@ -59,6 +60,8 @@ def create_auth_callback(chat_ctx: ChatContext) -> Callable[..., Awaitable[Any]]
     return auth_callback
 
 # Need to introduce a CustomChatCompletionAgent and a CustomHistoryChannel because of issue https://github.com/microsoft/semantic-kernel/issues/12095
+
+
 class CustomHistoryChannel(ChatHistoryChannel):
     @override
     async def receive(self, history: list[ChatMessageContent],) -> None:
@@ -155,14 +158,17 @@ def create_group_chat(
             elif tool_type == "openapi":
                 openapi_document_path = tool.get("openapi_document_path")
                 server_url_override = tool.get("server_url_override")
+                timeout = tool.get("timeout", 600)
+                debug_logging = tool.get("debug_logging", False)
                 agent_kernel.add_plugin_from_openapi(
                     plugin_name=tool_name,
                     openapi_document_path=openapi_document_path,
                     execution_settings=OpenAPIFunctionExecutionParameters(
+                        http_client=create_logging_http_client(timeout) if debug_logging else None,
                         auth_callback=create_auth_callback(chat_ctx),
                         server_url_override=server_url_override,
                         enable_payload_namespacing=True,
-                        timeout=None
+                        timeout=timeout
                     )
                 )
             else:

@@ -9,8 +9,8 @@ Everything you need to define new agents and give them custom tools.
 ## Create / Modify Agents  
 
 ### Adding a New Agent
-1. Open your scenario's `scenarios/<your-scenario>/config/agents.yaml` file
-2. Add a new entry with the hyphen prefix `-` to create a new agent in the list
+1. Open your scenario's `src/<SCENARIO>/config/agents.yaml` file
+2. Add a new entry with the hyphen prefix `-` to create a new agent in the list. Agent names should be limited to alphanumerical characters. Avoid dashes or whitespace.
 3. Include all required fields and any optional fields you need
 4. Save the file
 
@@ -199,8 +199,16 @@ class WeatherPlugin:
     Supplies current temperature and conditions. **Requires**: ZIP code.
 ```
 
-### Agent with a OpenAPI Plugin Example
-Agent can be configured to call OpenAPI services as tools. The following configuration demonstrates the PatientStatus agent using an OpenAPI service that returns current time to calculate age. Replace PatientStatus configuration in `src/scenarios/default/config/agents.yaml` with the following configuration to see the OpenAPI plugin in action. Run `azd deploy` to deploy changes.
+### Agent with an OpenAPI Plugin Example
+
+> [!NOTE]
+> The tool name that is passed to the LLM will be a concatenation of the tool name in `agents.yaml` and the operation ID in the OpenAPI definition. The total length of the tool name cannot exceed 64 characters. For more details, see the [Semantic Kernel OpenAPI plugins documentation](https://learn.microsoft.com/en-us/semantic-kernel/concepts/plugins/adding-openapi-plugins?pivots=programming-language-python).
+
+Agents can be configured to call OpenAPI services as tools. The following example demonstrates the PatientStatus agent using an OpenAPI service that returns current time to calculate age. 
+
+To test this configuration:
+1. Replace PatientStatus configuration in `src/scenarios/default/config/agents.yaml` with the following configuration
+2. Run `azd deploy` to deploy changes
 
 ```yaml
 - name: PatientStatus
@@ -230,20 +238,41 @@ Agent can be configured to call OpenAPI services as tools. The following configu
     A PatientStatus agent. You provide current status of a patient using. **You provide**: current status of a patient. **You need**: age, staging, primary site, histology, biomarkers, treatment history, ecog performance status. This can be obtained by PatientHistory.
 ```
 
-From Teams, send the following message to the PatientStatus agent.
+#### Testing the OpenAPI Integration
+
+From Teams, send the following message to the PatientStatus agent:
 
 ```
 @PatientStatus what's the age if date of birth is 1965-12-01
 ```
 
-PatientStatus should respond with patient's age based on date of birth.
-
+**Expected Response:**
 ```
 age: 59 years old (calculated from date of birth 1965-12-01)
 ...
 ```
 
-PatientStatus was able to calculate patient's age using the current time and the date of birth.
+The PatientStatus agent successfully calculates the patient's age using the current time and the provided date of birth.
+
+#### OpenAPI Tool Configuration
+
+The OpenAPI tool supports the following optional fields:
+
+```yaml
+tools:
+  - name: time_plugin
+    type: openapi
+    openapi_document_path: scenarios/default/config/openapi/time_api.yaml
+    server_url_override: http://localhost:8000
+    timeout: 600  # Optional: request timeout in seconds (default: 5)
+    debug_logging: false  # Optional: enable debug logging (default: false)
+```
+
+**Note**: When enabling `debug_logging`, ensure debug logging is also configured in `app.py`:
+
+```python
+log_level = logging.INFO
+```
 
 ## Next Steps
 
