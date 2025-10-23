@@ -104,7 +104,6 @@ var modelName = split(model, ';')[0]
 var modelVersion = split(model, ';')[1]
 
 var abbrs = loadJsonContent('abbreviations.json')
-var uniqueSuffix = substring(uniqueString(subscription().id, environmentName), 1, 3)
 var location = resourceGroup().location
 
 // Network configurations
@@ -192,19 +191,19 @@ param subnets array = [
 ]
 
 var names = {
-  msi: !empty(msiName) ? msiName : '${abbrs.managedIdentityUserAssignedIdentities}${environmentName}-${uniqueSuffix}'
-  appPlan: !empty(appPlanName) ? appPlanName : '${abbrs.webSitesAppServiceEnvironment}${environmentName}-${uniqueSuffix}'
-  app: !empty(appName) ? appName : '${abbrs.webSitesAppService}${environmentName}-${uniqueSuffix}'
-  aiServices: !empty(aiServicesName) ? aiServicesName : '${abbrs.cognitiveServicesAccounts}${environmentName}-${uniqueSuffix}'
-  aiHub: !empty(aiHubName) ? aiHubName : '${abbrs.cognitiveServicesAccounts}hub-${environmentName}-${uniqueSuffix}'
+  msi: !empty(msiName) ? msiName : '${abbrs.managedIdentityUserAssignedIdentities}${environmentName}'
+  appPlan: !empty(appPlanName) ? appPlanName : '${abbrs.webSitesAppServiceEnvironment}${environmentName}'
+  app: !empty(appName) ? appName : '${abbrs.webSitesAppService}${environmentName}'
+  aiServices: !empty(aiServicesName) ? aiServicesName : '${abbrs.cognitiveServicesAccounts}${environmentName}'
+  aiHub: !empty(aiHubName) ? aiHubName : '${abbrs.cognitiveServicesAccounts}hub-${environmentName}'
   // Modified to next two lines to lower case the string per azure storage account naming conventions. This was causing a deployment error
-  storage: toLower(!empty(storageName) ? storageName : replace(replace('${abbrs.storageStorageAccounts}${environmentName}${uniqueSuffix}', '-', ''), '_', ''))
-  appStorage: toLower(!empty(appStorageName) ? appStorageName : replace(replace('${abbrs.storageStorageAccounts}app${environmentName}${uniqueSuffix}', '-', ''), '_', ''))
-  keyVault: !empty(keyVaultName) ? keyVaultName : '${abbrs.keyVaultVaults}${environmentName}-${uniqueSuffix}'
-  appInsights: !empty(appInsightsName) ? appInsightsName : '${abbrs.insightsComponents}${environmentName}-${uniqueSuffix}'
-  ahdsWorkspaceName: replace('ahds${environmentName}${uniqueSuffix}', '-', '')
-  ahdsFhirServiceName: replace('fhir${environmentName}${uniqueSuffix}', '-', '')
-  vnet: !empty(vnetName) ? vnetName : '${abbrs.networkVirtualNetworks}${environmentName}-${uniqueSuffix}'
+  storage: toLower(!empty(storageName) ? storageName : replace(replace('${abbrs.storageStorageAccounts}${environmentName}', '-', ''), '_', ''))
+  appStorage: toLower(!empty(appStorageName) ? appStorageName : replace(replace('${abbrs.storageStorageAccounts}app${environmentName}', '-', ''), '_', ''))
+  keyVault: !empty(keyVaultName) ? keyVaultName : '${abbrs.keyVaultVaults}${environmentName}'
+  appInsights: !empty(appInsightsName) ? appInsightsName : '${abbrs.insightsComponents}${environmentName}'
+  ahdsWorkspaceName: replace('ahds${environmentName}', '-', '')
+  ahdsFhirServiceName: replace('fhir${environmentName}', '-', '')
+  vnet: !empty(vnetName) ? vnetName : '${abbrs.networkVirtualNetworks}${environmentName}'
 
 }
 
@@ -303,7 +302,7 @@ module m_aihub 'modules/aistudio/aihub.bicep' = {
   params: {
     location: empty(hlsDeploymentLocation) ? location : hlsDeploymentLocation
     aiHubName: names.aiHub
-    aiProjectName: 'cog-ai-prj-${environmentName}-${uniqueSuffix}'
+    aiProjectName: 'cog-ai-prj-${environmentName}'
     storageName: names.storage
     aiServicesName: m_aiservices.outputs.aiServicesName
     keyVaultName: m_keyVault.outputs.keyVaultName
@@ -324,7 +323,7 @@ module hlsModels 'modules/hlsModel.bicep' = if (isHlsModelsNeeded) {
   name: 'deploy_hls_models'
   params: {
     location: empty(hlsDeploymentLocation) ? location : hlsDeploymentLocation
-    workspaceName: 'cog-ai-prj-${environmentName}-${uniqueSuffix}'
+    workspaceName: 'cog-ai-prj-${environmentName}'
     instanceType: instanceType
   }
   dependsOn: [
