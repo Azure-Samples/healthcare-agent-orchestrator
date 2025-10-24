@@ -20,7 +20,7 @@ var icons = {
 
 resource botservice 'Microsoft.BotService/botServices@2022-09-15' = [
   for msi in bots: {
-    name: '${msi.name}-${uniqueString(resourceGroup().id)}'
+    name: '${msi.name}'
     location: location
     tags: tags
     sku: {
