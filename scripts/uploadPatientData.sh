@@ -6,6 +6,8 @@
 
 if [ "$AZURE_PRINCIPAL_TYPE" == "ServicePrincipal" ]; then
     echo "Running as ServicePrincipal. Skipping uploading data."
+    echo "Adding artificial delay to simulate upload time. This also allows accounting for any application restarts after a deployment."
+    sleep 60
     exit 0
 fi
 
