@@ -435,7 +435,7 @@ module m_bot 'modules/botservice.bicep' = {
       for i in range(0, length(agents)): {
         msiClientID: m_msi[i].outputs.msiClientID
         msiID: m_msi[i].outputs.msiID
-        name: 'bot-${agents[i].name}'
+        name: agents[i].name
       }
     ]
   }
