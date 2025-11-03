@@ -1,0 +1,51 @@
+{
+  "name": "democlient",
+  "$schema": "./node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "src",
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/src/**/*",
+        "{projectRoot}/package.json",
+        "{projectRoot}/vite.config.ts",
+        "{projectRoot}/tsconfig.json",
+        "{projectRoot}/index.html",
+        "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+        "!{projectRoot}/src/**/*.test.[jt]s?(x)",
+        "!{projectRoot}/build/**/*",
+        "!{projectRoot}/dist/**/*"
+      ],
+      "options": {
+        "outputPath": "build"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "install": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm i"
+      },
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/package.json",
+        "{projectRoot}/package-lock.json"
+      ],
+      "outputs": [
+        "{projectRoot}/node_modules"
+      ]
+    }
+  },
+  "tags": []
+}

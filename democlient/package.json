@@ -17,6 +17,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@nx/vite": "^22.0.2",
     "@types/babel__generator": "^7.6.8",
     "@types/lodash": "^4.14.202",
     "@types/node": "^20.0.0",
@@ -24,14 +25,17 @@
     "@types/react-dom": "^18.2.0",
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.6.0",
+    "nx": "^22.0.2",
     "vite": "^6.4.1"
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "nx build",
+    "build:vite": "tsc && vite build",
     "preview": "vite preview",
     "start": "vite",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "cache:clear": "nx reset"
   },
   "browserslist": {
     "production": [

@@ -3,6 +3,7 @@
 .venv
 .conda
 .env
+.nx
 __pycache__
 democlient/build
 node_modules
