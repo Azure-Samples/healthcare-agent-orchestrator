@@ -21,7 +21,8 @@
         "!{projectRoot}/dist/**/*"
       ],
       "options": {
-        "outputPath": "build"
+        "outputPath": "build",
+        "outputStyle": "static"
       },
       "configurations": {
         "development": {
