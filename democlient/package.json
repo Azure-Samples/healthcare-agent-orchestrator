@@ -26,7 +26,7 @@
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.6.0",
     "nx": "^22.0.2",
-    "vite": "^6.4.1"
+    "vite": "^6.4.5"
   },
   "scripts": {
     "dev": "vite",
